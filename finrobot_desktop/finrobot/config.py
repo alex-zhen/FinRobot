@@ -600,6 +600,16 @@ def console_color_enabled(stream: Any) -> bool:
 CAPABILITY_TOKEN_ENV = "FINROBOT_CAPABILITY_TOKEN"
 
 
+def deepseek_api_key_from_process() -> str | None:
+    """Read the box process environment for the DeepSeek key.
+
+    The batch runner injects the result through ``provider_keys``. The key is
+    not written into settings, logs, or the wheel.
+    """
+    value = os.environ.get("DEEPSEEK_API_KEY", "").strip()
+    return value or None
+
+
 def get_capability_token() -> str | None:
     """Return the per-launch capability token, or None when auth is disabled.
 
