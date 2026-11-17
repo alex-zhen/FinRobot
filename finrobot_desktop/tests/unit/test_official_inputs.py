@@ -58,6 +58,7 @@ from finrobot.runners.official_inputs import (
     research_disposition,
 )
 from finrobot.runners.serialize import dumps_model, loads_model
+from finrobot.runners.unvalued_research import UnvaluedResearch, unvalued_research_allowed
 
 _FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "official"
 _QUARTERS = (
@@ -421,6 +422,25 @@ async def test_news_failures_do_not_open_the_price_circuit() -> None:
     assert layer._health.is_available("yfinance")
     price = await layer.fetch(DataType.PRICE, "NVDA")
     assert price.data["current_price"] == 100.0
+
+
+def test_unvalued_research_withholds_recommendation_and_target() -> None:
+    note = UnvaluedResearch.model_validate(
+        {
+            "business_observations": "The supplied evidence describes the business mix and nothing else.",
+            "financial_observations": "Statutory capex for a trailing window was not presented in the filing.",
+            "risks": ["Company-defined free cash flow is negative and is not FCFF."],
+            "recommendation": "Buy",
+            "price_target": 100.0,
+            "dcf_available": True,
+        }
+    )
+    assert note.recommendation == "withheld"
+    assert note.price_target is None
+    assert note.dcf_available is False
+    assert unvalued_research_allowed("dcf_refused_other_research_ok")
+    assert unvalued_research_allowed("refused")
+    assert not unvalued_research_allowed("verified")
 
 
 def test_sourced_peer_list_carries_reasons_not_financials(tmp_path: Path) -> None:

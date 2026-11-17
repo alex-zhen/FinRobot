@@ -182,6 +182,31 @@ class TestSynthesizeValuations:
         assert result.valuation_withheld is False
         assert result.warnings == []
 
+    def test_thin_comps_does_not_upgrade_agreed_dcf_to_high(self):
+        """NVDA 2026-11-17: DCF $353.46 (0.85) and a 3-firm trailing comps $301.19
+        (0.385) agree with each other, so the span gate said high. The comps
+        weight is already the thin-sample penalty. Agreement keeps the blend and
+        does not withhold it, but it does not support high confidence."""
+        methods = [
+            ValuationMethod(
+                name="dcf", low=250.0, mid=353.46, high=589.0, confidence=0.85, source="DCF"
+            ),
+            ValuationMethod(
+                name="comps_pe",
+                low=250.0,
+                mid=301.19,
+                high=360.0,
+                confidence=0.385,
+                source="peer_median_core_pe × core_eps (forward unavailable)",
+            ),
+        ]
+        result = synthesize_valuations(methods, current_price=156.14)
+        assert result.confidence == "medium"
+        assert result.valuation_withheld is False
+        assert result.weighted_price == pytest.approx(337.17, abs=0.05)
+        assert result.degradation_note is not None
+        assert "does not support high confidence" in result.degradation_note
+
     def test_methods_agree_far_below_market_withholds_point_tsla(self):
         """The 2026-05-28 / 2026-06-05 TSLA option-value regime: DCF + Comps agree
         with each other but all sit ~24x below the $418 market. The deleted gate

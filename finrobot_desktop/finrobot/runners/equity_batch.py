@@ -407,25 +407,51 @@ async def _amain(
         if deduped:
             write_manifest(directory, payload)
             logger.info("%s refused verified valuation: %s", ticker, "; ".join(deduped))
-            if disposition == "dcf_refused_other_research_ok":
-                peer_list = sourced_peers.get(ticker.upper())
-                if peer_list is not None:
-                    try:
-                        key = require_key_for_open_gate()
-                    except RuntimeError as exc:
-                        payload["relative_research_ran"] = False
-                        payload["relative_note"] = str(exc)
-                    else:
-                        result = await run_comps(
-                            ticker,
-                            key,
-                            peers=list(peer_list["tickers"]),
-                            peer_rationale=str(peer_list["rationale"]),
-                        )
-                        payload["relative_research_ran"] = True
-                        payload["point_target"] = None
-                        write_pipeline(directory, result)
-                write_manifest(directory, payload)
+            peer_list = sourced_peers.get(ticker.upper())
+            if disposition == "dcf_refused_other_research_ok" and peer_list is not None:
+                try:
+                    key = require_key_for_open_gate()
+                except RuntimeError as exc:
+                    payload["relative_research_ran"] = False
+                    payload["relative_note"] = str(exc)
+                else:
+                    result = await run_comps(
+                        ticker,
+                        key,
+                        peers=list(peer_list["tickers"]),
+                        peer_rationale=str(peer_list["rationale"]),
+                    )
+                    payload["relative_research_ran"] = True
+                    payload["point_target"] = None
+                    write_pipeline(directory, result)
+            from finrobot.runners.unvalued_research import (
+                run_unvalued_research,
+                unvalued_research_allowed,
+            )
+
+            if unvalued_research_allowed(disposition):
+                try:
+                    key = require_key_for_open_gate()
+                except RuntimeError as exc:
+                    payload["business_research_ran"] = False
+                    payload["business_research_note"] = str(exc)
+                else:
+                    brief = {
+                        "reasons": deduped,
+                        "line_records": supplement,
+                        "historical_share_bridge": historical_bridge,
+                        "october_share_bridge": october_bridge,
+                        "limited_research": payload.get("limited_research"),
+                    }
+                    note = await run_unvalued_research(ticker, key, brief)
+                    payload["business_research_ran"] = True
+                    payload["point_target"] = None
+                    payload["recommendation"] = "withheld"
+                    (directory / "research_without_valuation.json").write_text(
+                        json.dumps(note.model_dump(), ensure_ascii=False, indent=2),
+                        encoding="utf-8",
+                    )
+            write_manifest(directory, payload)
             blocked += 1
             continue
         try:

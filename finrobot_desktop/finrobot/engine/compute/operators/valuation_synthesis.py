@@ -66,6 +66,13 @@ _OUTLIER_THRESHOLD = 0.30
 # directional verdict still ships.
 
 
+# A comps weight below this has already been thin-sample penalized. Trailing
+# core comps starts at 0.55 and a 3-firm median is multiplied by 0.7, which is
+# 0.385. That cross-check may remain in the blend, but two prices agreeing does
+# not make the call high confidence. The 0.50 synthetic pair used in tests is
+# not below this line.
+_THIN_CROSSCHECK_CONFIDENCE = 0.50
+
 # ── Confidence dial (REVIEW → graded-call redesign, ADR 估值优雅降级) ─────────
 # The dial NEVER withholds the directional verdict — uncertainty only (a) lowers
 # the confidence tier, (b) widens the target band, and (c) for a point that could
@@ -294,6 +301,18 @@ def _confidence_dial(
                     f"anchor ${dcf_anchor.mid:.0f}. Confidence capped at medium; read the "
                     f"blend and the DCF anchor side by side."
                 )
+        cross = [m for m in methods if m.name != "dcf"]
+        if tier == "high" and cross and all(m.confidence < _THIN_CROSSCHECK_CONFIDENCE for m in cross):
+            tier = "medium"
+            weak = ", ".join(
+                f"{_method_label(m.name)} weight {m.confidence:.2f}" for m in cross
+            )
+            thin_note = (
+                f"Cross-check {weak} is below {_THIN_CROSSCHECK_CONFIDENCE:.2f}, so "
+                "price agreement does not support high confidence. The blended point "
+                "is unchanged."
+            )
+            note = f"{note} {thin_note}".strip() if note else thin_note
     else:
         reanchored_from: ValuationMethod | None = None
         anchor: ValuationMethod | None
