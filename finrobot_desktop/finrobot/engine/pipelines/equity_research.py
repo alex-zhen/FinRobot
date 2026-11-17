@@ -774,6 +774,17 @@ async def _execute_financial_modeling(
     dcf_inputs = seed_dcf_inputs(
         financial_data, historical, forward_growth=forward_growth, cyclical=cyclical
     )
+    _prov = dcf_inputs.assumption_provenance
+    logger.info(
+        "DCF assumption disclosure for %s (not fitted to the market price): "
+        "growth=%s; D&A=%s; risk-free=%s; equity-risk-premium=%s; beta=%s",
+        ticker,
+        _prov.get("revenue_growth_rates", "not recorded"),
+        _prov.get("da_pct_revenue", "not recorded"),
+        _prov.get("risk_free_rate", "not recorded"),
+        _prov.get("equity_risk_premium", "not recorded"),
+        _prov.get("beta", "not recorded"),
+    )
     try:
         dcf_result = calculate_dcf(dcf_inputs)
     except (ValueError, ArithmeticError) as e:

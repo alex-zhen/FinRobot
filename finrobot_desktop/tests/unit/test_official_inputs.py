@@ -37,6 +37,7 @@ from finrobot.runners.evidence_loader import (
     baba_alternative_records,
     baba_line_records,
     load_nvda_official_capex,
+    load_sourced_peers,
     nvda_official_record,
     tencent_october_share_record,
     tencent_same_day_share_record,
@@ -417,6 +418,55 @@ async def test_news_failures_do_not_open_the_price_circuit() -> None:
     assert layer._health.is_available("yfinance")
     price = await layer.fetch(DataType.PRICE, "NVDA")
     assert price.data["current_price"] == 100.0
+
+
+def test_sourced_peer_list_carries_reasons_not_financials(tmp_path: Path) -> None:
+    good = tmp_path / "peers.json"
+    good.write_text(
+        json.dumps(
+            {
+                "schema": "sourced_peer_list_v1",
+                "ticker": "NVDA",
+                "role": "design",
+                "peers": [
+                    {
+                        "ticker": "AMD",
+                        "role": "design",
+                        "reason": "fabless processor designer",
+                        "source_url": "https://example.test/amd",
+                    },
+                    {
+                        "ticker": "QCOM",
+                        "role": "design",
+                        "reason": "fabless connectivity designer",
+                        "source_url": "https://example.test/qcom",
+                    },
+                    {
+                        "ticker": "AVGO",
+                        "role": "design",
+                        "reason": "custom silicon designer",
+                        "source_url": "https://example.test/avgo",
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    loaded = load_sourced_peers(good)
+    assert loaded["tickers"] == ["AMD", "QCOM", "AVGO"]
+    assert loaded["financials_included"] is False
+    assert "https://example.test/amd" in loaded["rationale"]
+    bad = tmp_path / "bad.json"
+    payload = json.loads(good.read_text(encoding="utf-8"))
+    payload["peers"][0]["pe"] = 40
+    bad.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(ValueError, match="financials"):
+        load_sourced_peers(bad)
+    mixed = json.loads(good.read_text(encoding="utf-8"))
+    mixed["peers"][2]["role"] = "foundry"
+    (tmp_path / "mixed.json").write_text(json.dumps(mixed), encoding="utf-8")
+    with pytest.raises(ValueError, match="mixed roles"):
+        load_sourced_peers(tmp_path / "mixed.json")
 
 
 def test_tencent_october_weekend_gap_is_not_a_current_or_verified_bridge() -> None:

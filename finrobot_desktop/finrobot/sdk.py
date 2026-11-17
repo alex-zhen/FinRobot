@@ -122,7 +122,13 @@ class FinRobot:
         return self._sub_agents
 
     async def _run_pipeline(
-        self, key: str, ticker: str, progress: "ProgressCallback | None"
+        self,
+        key: str,
+        ticker: str,
+        progress: "ProgressCallback | None",
+        *,
+        peers: list[str] | None = None,
+        peer_rationale: str | None = None,
     ) -> PipelineResult:
         """Build the pipeline registered under ``key`` and execute it.
 
@@ -141,7 +147,13 @@ class FinRobot:
 
         ticker = validate_ticker(ticker)
         pipeline: Pipeline = get_pipeline_factories()[key](self._get_sub_agents())
-        return await pipeline.execute(self._ensure_deps(), ticker, progress=progress)
+        return await pipeline.execute(
+            self._ensure_deps(),
+            ticker,
+            progress=progress,
+            peers=peers,
+            peer_rationale=peer_rationale,
+        )
 
     # ------------------------------------------------------------------ #
     # Sync API                                                           #
@@ -248,9 +260,16 @@ class FinRobot:
     # ------------------------------------------------------------------ #
 
     async def aresearch(
-        self, ticker: str, progress: "ProgressCallback | None" = None
+        self,
+        ticker: str,
+        progress: "ProgressCallback | None" = None,
+        *,
+        peers: list[str] | None = None,
+        peer_rationale: str | None = None,
     ) -> PipelineResult:
-        return await self._run_pipeline("research", ticker, progress)
+        return await self._run_pipeline(
+            "research", ticker, progress, peers=peers, peer_rationale=peer_rationale
+        )
 
     async def adcf(self, ticker: str, progress: "ProgressCallback | None" = None) -> PipelineResult:
         return await self._run_pipeline("dcf", ticker, progress)

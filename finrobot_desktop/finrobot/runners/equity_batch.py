@@ -156,7 +156,9 @@ def retryable(exc: BaseException) -> bool:
     return isinstance(exc, (TimeoutError, asyncio.TimeoutError))
 
 
-async def run_research(ticker: str, api_key: str) -> Any:
+async def run_research(
+    ticker: str, api_key: str, *, peers: list[str] | None = None, peer_rationale: str | None = None
+) -> Any:
     from finrobot.sdk import FinRobot
 
     overrides: dict[str, Any] = {}
@@ -179,7 +181,10 @@ async def run_research(ticker: str, api_key: str) -> Any:
     try:
         for attempt in range(1, MAX_ATTEMPTS + 1):
             try:
-                return await asyncio.wait_for(agent.aresearch(ticker), timeout=TIMEOUT_SECONDS)
+                return await asyncio.wait_for(
+                    agent.aresearch(ticker, peers=peers, peer_rationale=peer_rationale),
+                    timeout=TIMEOUT_SECONDS,
+                )
             except (TimeoutError, asyncio.TimeoutError) as exc:
                 if attempt == MAX_ATTEMPTS or not retryable(exc):
                     raise
@@ -227,6 +232,7 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
         baba_line_records,
         load_finrobot_evidence_capex,
         load_nvda_official_capex,
+        load_sourced_peers,
         load_tencent_period_end_shares,
         load_tencent_statutory_capex,
         nvda_official_record,
@@ -240,6 +246,7 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
     tencent_price_path: Path | None = None
     tencent_october_path: Path | None = None
     nvda_capex: list[OfficialAmount] = []
+    sourced_peers: dict[str, dict[str, Any]] = {}
     supplements: dict[str, Any] = {}
     for path in evidence:
         text = path.read_text(encoding="utf-8")
@@ -257,6 +264,9 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
             tencent_october_path = path
         elif '"closing_price_supplement_akshare_sina"' in text:
             tencent_price_path = path
+        elif '"sourced_peer_list_v1"' in text:
+            loaded = load_sourced_peers(path)
+            sourced_peers[str(loaded["ticker"])] = loaded
         elif '"issuers"' in text:
             official.extend(load_finrobot_evidence_capex(path))
     if nvda_capex:
@@ -354,7 +364,13 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
             write_manifest(directory, payload)
             blocked += 1
             continue
-        result = await run_research(ticker, key)
+        peer_list = sourced_peers.get(ticker.upper())
+        result = await run_research(
+            ticker,
+            key,
+            peers=None if peer_list is None else list(peer_list["tickers"]),
+            peer_rationale=None if peer_list is None else str(peer_list["rationale"]),
+        )
         payload["research_ran"] = True
         write_manifest(directory, payload)
         write_pipeline(directory, result)

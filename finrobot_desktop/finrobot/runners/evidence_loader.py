@@ -533,6 +533,56 @@ def baba_alternative_records(path: Path) -> dict[str, Any]:
     }
 
 
+_PEER_ROLES = frozenset({"design", "foundry", "equipment", "memory", "eda"})
+_FORBIDDEN_PEER_FIELDS = frozenset(
+    {"market_cap", "pe", "revenue", "ebitda", "price", "net_income", "eps", "shares"}
+)
+
+
+def load_sourced_peers(path: Path) -> dict[str, Any]:
+    """Tickers and reasons only. Financials are fetched later, never taken from the file."""
+    document = json.loads(path.read_text(encoding="utf-8"))
+    target = str(document["ticker"]).strip().upper()
+    role = str(document["role"]).strip().lower()
+    rows = document["peers"]
+    if role not in _PEER_ROLES:
+        raise ValueError(f"peer role {role!r} is not a single business-model role")
+    if not isinstance(rows, list) or not 3 <= len(rows) <= 10:
+        raise ValueError("a sourced peer list needs 3 to 10 peers")
+    tickers: list[str] = []
+    reasons: list[str] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("each peer must be an object")
+        forbidden = _FORBIDDEN_PEER_FIELDS.intersection(row)
+        if forbidden:
+            raise ValueError(f"peer list must not carry financials: {sorted(forbidden)}")
+        peer_role = str(row.get("role") or "").strip().lower()
+        if peer_role != role:
+            raise ValueError("peers must share one business-model role; mixed roles are refused")
+        url = str(row.get("source_url") or "")
+        if not url.startswith(("https://", "http://")):
+            raise ValueError("each peer needs an http(s) source")
+        symbol = str(row["ticker"]).strip().upper()
+        if symbol == target or symbol in tickers:
+            continue
+        reason = str(row.get("reason") or "").strip()
+        if len(reason) < 8:
+            raise ValueError(f"{symbol} needs an explicit reason")
+        tickers.append(symbol)
+        reasons.append(f"{symbol} ({peer_role}): {reason} [{url}]")
+    if len(tickers) < 3:
+        raise ValueError("fewer than 3 distinct sourced peers remain")
+    return {
+        "ticker": target,
+        "role": role,
+        "tickers": tickers,
+        "rationale": "Sourced same-role peers. Financials are not in this list. "
+        + " ".join(reasons),
+        "financials_included": False,
+    }
+
+
 def _signed_flow(field: dict[str, Any]) -> float:
     magnitude = float(field["value"])
     if field.get("sign") == "cash_outflow" and magnitude > 0:
