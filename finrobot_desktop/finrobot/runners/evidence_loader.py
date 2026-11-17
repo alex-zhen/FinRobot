@@ -12,7 +12,11 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from finrobot.runners.official_inputs import OfficialAmount
+from finrobot.runners.official_inputs import (
+    OfficialAmount,
+    bridge_same_caption,
+    self_calculated_price_times_shares,
+)
 
 _CURRENCY = {"RMB": "CNY", "CNY": "CNY", "USD": "USD"}
 
@@ -140,3 +144,165 @@ def _role_for_field(field_id: str, line_item: str) -> str | None:
     if "capex_cash_ppe" in token:
         return "statutory_capex"
     return None
+
+
+def _optional_bridge(
+    *,
+    role: str,
+    caption: str,
+    fy_end: date,
+    fy_value: float | None,
+    current_end: date,
+    current_value: float | None,
+    prior_end: date,
+    prior_value: float | None,
+    source: str,
+    as_capex_outflow: bool,
+) -> dict[str, Any]:
+    if fy_value is None or current_value is None or prior_value is None:
+        return {
+            "role": role,
+            "signed_value": None,
+            "opens_publication_gate": False,
+            "reason": "a component of this caption is missing",
+        }
+    built = bridge_same_caption(
+        caption=caption,
+        role=role,
+        fy_end=fy_end,
+        fy_value=fy_value,
+        current_end=current_end,
+        current_value=current_value,
+        prior_end=prior_end,
+        prior_value=prior_value,
+        currency="CNY",
+        source=source,
+        as_capex_outflow=as_capex_outflow,
+    )
+    built["unit"] = "million"
+    return built
+
+
+def _number(field: dict[str, Any] | None) -> float | None:
+    if not field:
+        return None
+    raw = field.get("value")
+    if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+        return None
+    return float(raw)
+
+
+def baba_line_records(path: Path) -> dict[str, Any]:
+    """Recompute BABA bridges from component rows. Precomputed TTM totals are not read.
+
+    Statutory capex stays blocked when either quarterly statutory line is absent.
+    A same-caption OCF bridge and a narrower PPE bridge are recorded beside it
+    and do not open the publication gate. The completed fiscal year is a
+    historical baseline, not the latest TTM.
+    """
+    document = json.loads(path.read_text(encoding="utf-8"))
+    periods = document["periods"]
+    fy = periods["FY2026"]["fields"]
+    current = periods["FY2027Q1"]["fields"]
+    prior = periods["FY2026Q1"]["fields"]
+    source = str(document["documents_searched"]["fy2026_20f"]["sec_html_url"])
+    fy_end = date.fromisoformat(str(periods["FY2026"]["period_end"]))
+    current_end = date.fromisoformat(str(periods["FY2027Q1"]["period_end"]))
+    prior_end = date.fromisoformat(str(periods["FY2026Q1"]["period_end"]))
+    statutory_fy = _number(fy.get("statutory_capex"))
+    statutory_current = _number(current.get("statutory_capex"))
+    statutory_prior = _number(prior.get("statutory_capex"))
+    statutory_ttm: dict[str, Any] | None = None
+    if statutory_fy is not None and statutory_current is not None and statutory_prior is not None:
+        statutory_ttm = bridge_same_caption(
+            caption="statutory_capex",
+            role="statutory_capex",
+            fy_end=fy_end,
+            fy_value=statutory_fy,
+            current_end=current_end,
+            current_value=statutory_current,
+            prior_end=prior_end,
+            prior_value=statutory_prior,
+            currency="CNY",
+            source=source,
+            as_capex_outflow=True,
+        )
+    narrow = _optional_bridge(
+        role="fcf_recon_ppe",
+        caption="narrow_fcf_ppe",
+        fy_end=fy_end,
+        fy_value=_number(fy.get("narrow_fcf_ppe")),
+        current_end=current_end,
+        current_value=_number(current.get("narrow_fcf_ppe")),
+        prior_end=prior_end,
+        prior_value=_number(prior.get("narrow_fcf_ppe")),
+        source=source,
+        as_capex_outflow=True,
+    )
+    narrow["opens_publication_gate"] = False
+    ocf = _optional_bridge(
+        role="operating_cash_flow",
+        caption="operating_cash_flow",
+        fy_end=fy_end,
+        fy_value=_number(fy.get("operating_cash_flow")),
+        current_end=current_end,
+        current_value=_number(current.get("operating_cash_flow")),
+        prior_end=prior_end,
+        prior_value=_number(prior.get("operating_cash_flow")),
+        source=source,
+        as_capex_outflow=False,
+    )
+    return {
+        "ticker": "BABA",
+        "statutory_ttm_capex": statutory_ttm,
+        "statutory_ttm_blocked": statutory_ttm is None
+        or not statutory_ttm["opens_publication_gate"],
+        "narrow_ppe_alternative": narrow,
+        "ocf_ttm": ocf,
+        "management_capex_ttm": None,
+        "management_mix_refused": (
+            "Quarterly MD&A capital expenditures are not the statutory cash-flow "
+            "line and are not combined with the full-year statutory amount."
+        ),
+        "historical_fy_baseline": {
+            "kind": "historical_fy_baseline",
+            "period_end": periods["FY2026"]["period_end"],
+            "statutory_capex_rmb_million": _number(fy.get("statutory_capex")),
+            "ocf_rmb_million": _number(fy.get("operating_cash_flow")),
+            "usable_as_latest_ttm": False,
+            "usable_as_current_analysis": False,
+        },
+    }
+
+
+def tencent_same_day_share_record(path: Path, *, valuation_as_of: date) -> dict[str, Any]:
+    """Issued shares × the same-day supplementary close. Not an official market cap.
+
+    The figure is historical when ``valuation_as_of`` is a later session. It is
+    not written onto the live snapshot and does not set ``share_class_scope``.
+    """
+    document = json.loads(path.read_text(encoding="utf-8"))
+    shares = next(
+        item for item in document["items"] if item["item"] == "period_end_issued_ordinary_shares"
+    )
+    close = next(
+        item
+        for item in document["items"]
+        if item["item"] == "closing_price_supplement_akshare_sina"
+    )
+    price = float(close["close_conventional_tick"])
+    share_count = float(shares["value"])
+    as_of = date.fromisoformat(str(shares["as_of_date"]))
+    built = self_calculated_price_times_shares(
+        shares=share_count,
+        share_as_of=as_of,
+        price=price,
+        price_as_of=date.fromisoformat(str(close["trade_date"])),
+        valuation_as_of=valuation_as_of,
+        price_is_official_exchange_file=False,
+    )
+    built["shares"] = share_count
+    built["price"] = price
+    built["share_class_scope_for_share_date"] = "single_listing"
+    built["third_party_market_cap_used"] = False
+    return {"ticker": "0700.HK", **built}

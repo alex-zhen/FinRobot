@@ -1,0 +1,330 @@
+{
+  "schema_version": "1.0",
+  "document_id": "tencent_0700HK_2026-06-30_price_mcap_sharecount_evidence",
+  "access_date": "2026-11-17",
+  "timezone": "Asia/Shanghai (UTC+8)",
+  "purpose": "Close the FinRobot 0700.HK gating gap on same-date HKD official close and reconcilable market cap / share count as of 2026-06-30. Collect facts only. Do not change repositories, run packages, or gates, and do not write a Page. Do not rerun the three-stock runner.",
+  "fail_closed_policy": {
+    "weighted_average_shares_must_not_bridge_period_end_price_or_mcap": true,
+    "price_times_shares_is_not_an_independent_market_cap": true,
+    "missing_official_items_are_marked_not_found_rather_than_estimated": true,
+    "adr_ratio_not_used": true
+  },
+  "issuer": {
+    "name": "Tencent Holdings Limited",
+    "stock_code_hkd": "00700",
+    "yahoo_symbol": "0700.HK",
+    "multi_counter_rmb": "80700",
+    "exchange": "SEHK / The Stock Exchange of Hong Kong Limited"
+  },
+  "as_of_date": "2026-06-30",
+  "trading_calendar_notes": [
+    "2026-06-30 was a SEHK trading day (quotes exist for that date).",
+    "2026-06-27 and 2026-06-28 were weekend non-trading days.",
+    "2026-07-01 was a Hong Kong public holiday; the next SEHK session was 2026-07-02."
+  ],
+  "sources": {
+    "hkex_ndd_20260630": {
+      "title": "Next Day Disclosure Return (Equity issuer) — Tencent Holdings Limited",
+      "date_submitted": "2026-06-30",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0630/2026063001676.pdf",
+      "url_alt": "https://www.hkexnews.hk/listedco/listconews/sehk/2026/0630/2026063001676.pdf",
+      "local_pdf": "raw/tencent_ndd_20260630.pdf",
+      "bytes": 94361,
+      "status": "retrieved_official"
+    },
+    "company_ir_ndd_20260630": {
+      "title": "Company IR copy of the 30 June 2026 Next Day Disclosure Return",
+      "date_on_path": "2026-06-30",
+      "url": "https://static.www.tencent.com/uploads/2026/06/30/404fe3ff45906b60a2e4c127fdb56786.pdf",
+      "local_pdf": "raw/tencent_ndd_20260630_ir.pdf",
+      "bytes": 94283,
+      "status": "retrieved_official_ir_copy",
+      "note": "Slightly different file size from the HKEX news copy (94,283 vs 94,361 bytes). Used only as a company-IR corroboration of the same return, not as a substitute for the HKEX news file."
+    },
+    "hkex_monthly_return_202606": {
+      "title": "Monthly Return for Equity Issuer on Movements in Securities for the month ended 30 June 2026",
+      "date_submitted": "2026-07-07",
+      "month_ended": "2026-06-30",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0707/2026070700630.pdf",
+      "url_chinese": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0707/2026070700631_c.pdf",
+      "local_pdf": "raw/tencent_monthly_return_20260630.pdf",
+      "local_pdf_chinese": "raw/tencent_monthly_return_20260630_c.pdf",
+      "bytes": 70440,
+      "status": "retrieved_official"
+    },
+    "h1_2026_interim": {
+      "title": "Tencent Holdings Limited Interim Report 2026",
+      "period_end": "2026-06-30",
+      "url_ir": "https://www.tencent.com/wp-content/uploads/2026/08/E700_IR.pdf",
+      "url_hkex": "https://www.hkexnews.hk/listedco/listconews/sehk/2026/0825/2026082500556.pdf",
+      "hkex_publication_date": "2026-08-25",
+      "local_pdf_ir": "raw/tencent_E700_IR.pdf",
+      "status": "retrieved_official_previously"
+    },
+    "akshare_sina_hist": {
+      "interface": "akshare.stock_hk_hist_sina",
+      "akshare_version": "1.20.65",
+      "symbol": "00700",
+      "role": "authorized supplementary historical quote source, not a primary HKEX official quotations file",
+      "local_csv_window": "raw/quotes/akshare_sina_00700_20260624_20260706.csv",
+      "local_json": "raw/quotes/akshare_sina_00700_20260630.json",
+      "status": "retrieved_supplement"
+    },
+    "yahoo_chart_crosscheck": {
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/0700.HK?period1=1782662400&period2=1783008000&interval=1d",
+      "symbol": "0700.HK",
+      "currency_in_meta": "HKD",
+      "exchange_in_meta": "HKG / HKSE",
+      "local_json": "raw/quotes/yahoo_0700HK_chart.json",
+      "role": "unofficial third-party cross-check only; not an official HKEX or issuer source",
+      "status": "retrieved_unofficial_crosscheck"
+    },
+    "hkex_daily_quotations_index": {
+      "title": "HKEX Daily Quotations (Main Board)",
+      "url": "https://www.hkex.com.hk/eng/stat/smstat/dayquot/qtn.asp",
+      "observation": "On 2026-11-17 the public index listed only the current two months (October and November 2026). Filename pattern is dYYMMDDe.htm (e.g. d261116e.htm).",
+      "attempted_official_file": "https://www.hkex.com.hk/eng/stat/smstat/dayquot/d260630e.htm",
+      "attempted_official_file_http_status": 404,
+      "status": "primary_official_close_file_not_retrieved"
+    },
+    "hkex_market_cap_archive": {
+      "title": "HKEX Securities Statistics Archive — Market capitalisation",
+      "url": "https://www.hkex.com.hk/Market-Data/Statistics/Consolidated-Reports/Securities-Statistics-Archive/Market_capitalisation?sc_lang=en",
+      "observation": "Landing page retrieved, but no downloadable June 2026 issuer-level market-cap file was located from the HTML (likely script-loaded). Guessed media URLs returned 404. No official 2026-06-30 Tencent market-cap figure was obtained from this archive in this search.",
+      "status": "official_issuer_mcap_file_not_retrieved"
+    }
+  },
+  "items": [
+    {
+      "item": "period_end_issued_ordinary_shares",
+      "status": "obtained_official",
+      "value": 9092234841,
+      "unit": "shares",
+      "currency": null,
+      "as_of_date": "2026-06-30",
+      "definition": "Total number of issued ordinary shares, which equals number of issued shares excluding treasury shares because HKEX-classified treasury shares were 0.",
+      "evidence": [
+        "HKEX NDD submitted 2026-06-30, Section I Part A: Closing balance as at 30 June 2026: issued shares excluding treasury shares 9,092,234,841; treasury shares 0; total issued shares 9,092,234,841.",
+        "HKEX Monthly Return submitted 2026-07-07, for the month ended 30 June 2026: Balance at close of the month: issued shares excluding treasury shares 9,092,234,841; treasury shares 0; total issued shares 9,092,234,841.",
+        "2026 Interim Report: 'At end of period' issued ordinary shares 9,092,234,841 as at 30 June 2026; also 'As at 30 June 2026, the total number of issued shares of the Company was 9,092,234,841.'"
+      ],
+      "reconciliation": {
+        "opening_balance_as_at_2026-06-29_issued_ex_treasury": 9108284766,
+        "opening_treasury": 0,
+        "plus_option_exercises_2026-06-30": 42175,
+        "option_scheme": "2023 Share Option Scheme adopted 17 May 2023",
+        "option_weighted_average_issue_price_hkd": "301.63",
+        "minus_shares_cancelled_on_2026-06-30": 16092100,
+        "cancellation_note": "16,092,100 ordinary shares previously repurchased on market on 1-5, 8-12, 15-18, 22 and 23 June 2026 were cancelled on 30 June 2026.",
+        "arithmetic": "9,108,284,766 + 42,175 - 16,092,100 = 9,092,234,841",
+        "arithmetic_check": "pass"
+      }
+    },
+    {
+      "item": "treasury_shares_hkex_definition",
+      "status": "obtained_official",
+      "value": 0,
+      "unit": "shares",
+      "as_of_date": "2026-06-30",
+      "definition": "Number of treasury shares as reported in the HKEX Next Day Disclosure Return and Monthly Return (shares held as treasury shares, not shares repurchased for cancellation).",
+      "evidence": [
+        "NDD closing balance 30 June 2026: treasury shares 0.",
+        "Monthly Return close of month 30 June 2026: treasury shares 0; total increase/decrease in treasury shares during the month: 0.",
+        "NDD Section II: number of shares repurchased on 30 June 2026 for holding as treasury shares: 0."
+      ],
+      "classification_note": "This HKEX 'treasury shares' figure is 0 and is not the same label as the accounting 'Treasury shares' equity line of RMB (2,180) million in the 30 June 2026 condensed consolidated statement of financial position. The accounting line is consistent with shares already repurchased and still pending cancellation, which HKEX requires to remain in issued share capital until cancelled."
+    },
+    {
+      "item": "shares_repurchased_for_cancellation_but_not_yet_cancelled",
+      "status": "obtained_official",
+      "value": 5942000,
+      "unit": "shares",
+      "as_of_date": "2026-06-30",
+      "included_in_issued_share_capital": true,
+      "classified_as_hkex_treasury_shares": false,
+      "breakdown": [
+        {
+          "trade_date": "2026-06-24",
+          "shares": 1183000,
+          "vwap_hkd": "423.2677"
+        },
+        {
+          "trade_date": "2026-06-25",
+          "shares": 1186000,
+          "vwap_hkd": "422.2091"
+        },
+        {
+          "trade_date": "2026-06-26",
+          "shares": 1210000,
+          "vwap_hkd": "413.7383"
+        },
+        {
+          "trade_date": "2026-06-29",
+          "shares": 1189000,
+          "vwap_hkd": "421.3008"
+        },
+        {
+          "trade_date": "2026-06-30",
+          "shares": 1174000,
+          "vwap_hkd": "426.4057"
+        }
+      ],
+      "sum_check": "1,183,000 + 1,186,000 + 1,210,000 + 1,189,000 + 1,174,000 = 5,942,000 (pass)",
+      "evidence": [
+        "NDD Section I Part B as at the 30 June 2026 closing balance date, and Monthly Return remarks item 3.",
+        "Interim Report: during H1 2026 the Company repurchased 50,031,100 of its own shares from the market, of which 5,942,000 had not been cancelled as at 30 June 2026.",
+        "NDD notes: if repurchased shares are to be cancelled after the closing balance date, they remain part of the issued shares as at the closing balance date in Part A and are disclosed in Part B."
+      ],
+      "same_day_30_june_repurchase": {
+        "trading_date": "2026-06-30",
+        "shares": 1174000,
+        "method": "On the Exchange",
+        "highest_repurchase_price_hkd": "435.2",
+        "lowest_repurchase_price_hkd": "418.4",
+        "aggregate_price_paid_hkd": "500600291.80",
+        "vwap_hkd": "426.4057",
+        "for_cancellation": 1174000,
+        "for_treasury": 0,
+        "source": "NDD Section II Repurchase report",
+        "note": "These repurchase high/low prices are transaction prices of the buyback, not the official SEHK closing price. They are consistent with the supplementary day's range (low 418.4 matches; buyback high 435.2 is at or inside the day's high 435.6)."
+      }
+    },
+    {
+      "item": "shares_held_for_share_award_scheme",
+      "status": "obtained_official",
+      "value": 84278228,
+      "unit": "shares",
+      "as_of_date": "2026-06-30",
+      "included_in_issued_ordinary_shares": true,
+      "classified_as_hkex_treasury_shares": false,
+      "evidence": [
+        "2026 Interim Report: 'As at 30 June 2026, the total number of issued ordinary shares of the Company included 84,278,228 shares (31 December 2025: 81,092,614 shares) held for the share award scheme.'"
+      ],
+      "derived_issued_minus_award_scheme_shares": {
+        "value": 9007956613,
+        "arithmetic": "9,092,234,841 - 84,278,228 = 9,007,956,613",
+        "status": "derived_not_an_official_outstanding_label",
+        "note": "The interim report does not present 9,007,956,613 as a separately titled official 'outstanding' or 'circulating' share count. It is shown only as an arithmetic residual. Do not treat it as a substitute official share base without an issuer or HKEX label."
+      }
+    },
+    {
+      "item": "weighted_average_ordinary_shares",
+      "status": "recorded_but_not_used_fail_closed",
+      "as_of": "H1 2026 period (six months ended 2026-06-30), not a 2026-06-30 close stock count",
+      "basic_waso_million": 9029,
+      "definition": "Weighted average number of ordinary shares in issue excluding shares held for share award scheme and treasury shares.",
+      "use_for_period_end_price_or_market_cap": false,
+      "reason": "WASO is a period average, not the 2026-06-30 issued share count. It must not be used to bridge the same-date price or market-cap gate."
+    },
+    {
+      "item": "official_sehk_closing_price_primary_hkex_or_issuer_file",
+      "status": "not_found",
+      "trade_date": "2026-06-30",
+      "currency": "HKD",
+      "value": null,
+      "attempts": [
+        "Searched the 2026 Interim Report, the 30 June 2026 NDD, and the June 2026 Monthly Return: none states the official SEHK closing price or an official market capitalisation as at 30 June 2026.",
+        "HKEX Daily Quotations (Main Board) public index on 2026-11-17 only retains the current two months; https://www.hkex.com.hk/eng/stat/smstat/dayquot/d260630e.htm returned HTTP 404.",
+        "HKEX equity-quote widget request was not retrieved (HTTP 403)."
+      ]
+    },
+    {
+      "item": "closing_price_supplement_akshare_sina",
+      "status": "obtained_supplement",
+      "trade_date": "2026-06-30",
+      "currency": "HKD",
+      "symbol": "00700",
+      "source": "akshare.stock_hk_hist_sina (akshare 1.20.65)",
+      "open": 421.2,
+      "high": 435.6,
+      "low": 418.4,
+      "close_raw": 429.79999,
+      "close_conventional_tick": "429.80",
+      "volume": 38994409,
+      "amount_hkd": 16688485489.0,
+      "prior_trading_day": "2026-06-29",
+      "prior_close_raw": 420.20001,
+      "change_vs_prior_conventional": "+9.60",
+      "notes": [
+        "Raw close 429.79999 is a floating-point representation of HKD 429.80 (Main Board tick size 0.20 at this price level).",
+        "This is an authorized supplementary historical quote, not a primary official HKEX Daily Quotations file.",
+        "The day's low 418.4 equals the official NDD lowest repurchase price on the same date; the official highest repurchase price 435.2 sits inside the supplementary day's high 435.6."
+      ]
+    },
+    {
+      "item": "closing_price_unofficial_crosschecks",
+      "status": "unofficial_crosscheck_only",
+      "trade_date": "2026-06-30",
+      "currency": "HKD",
+      "yahoo_chart": {
+        "close": 429.79998779296875,
+        "open": 421.20001220703125,
+        "high": 435.6000061035156,
+        "low": 418.3999938964844,
+        "volume": 38994409,
+        "note": "Agrees with the AKShare Sina close/volume to normal float precision. Not an official source."
+      },
+      "not_used_as_official_close": true
+    },
+    {
+      "item": "official_independently_disclosed_market_capitalisation",
+      "status": "not_found",
+      "as_of_date": "2026-06-30",
+      "currency": "HKD",
+      "value": null,
+      "searched": [
+        "2026 Interim Report (English IR/HKEX) — no 'market capitalisation' / 'market cap' / '市值' figure as at 30 June 2026 located.",
+        "30 June 2026 NDD and June 2026 Monthly Return — no market-cap figure.",
+        "HKEX Securities Statistics Archive Market capitalisation page — no issuer-level 30 June 2026 file retrieved in this limited search."
+      ],
+      "yahoo_key_statistics_3_87_trillion": {
+        "value_as_summarised_by_third_party": "3.87T (Yahoo key statistics column for 6/30/2026)",
+        "status": "unofficial_and_not_used",
+        "why_not_used": "This is not an HKEX or issuer disclosure. Dividing 3.87 trillion by 429.80 implies about 9,004,187,994 shares, which does not equal the official issued count 9,092,234,841 and is only roughly near the unofficial residual issued-minus-award-scheme figure 9,007,956,613. It is not independent official market-cap evidence and is not consistent with issued shares excluding treasury times 429.80."
+      }
+    },
+    {
+      "item": "derived_market_capitalisation_price_times_issued_ex_treasury",
+      "status": "derived_not_independently_verified",
+      "as_of_date": "2026-06-30",
+      "currency": "HKD",
+      "share_base": 9092234841,
+      "share_base_definition": "Official issued ordinary shares excluding treasury shares as at 2026-06-30 (treasury = 0), so equal to total issued ordinary shares 9,092,234,841. This share base still includes 84,278,228 shares held for the share award scheme and 5,942,000 shares repurchased for cancellation but not yet cancelled.",
+      "price_used": "429.80",
+      "price_basis": "supplementary AKShare Sina conventional tick, corroborated unofficially by Yahoo chart; not taken from a retrieved official HKEX Daily Quotations file",
+      "arithmetic": "9,092,234,841 × 429.80 = 3,907,842,534,661.80",
+      "value_hkd": "3907842534661.80",
+      "independent_official_verification": false,
+      "warning": "This figure is only price × official issued shares. It must not be described as an independently disclosed official market cap.",
+      "alternative_derived_using_issued_minus_award_scheme": {
+        "share_base": 9007956613,
+        "arithmetic": "9,007,956,613 × 429.80 = 3,871,619,752,267.40",
+        "value_hkd": "3871619752267.40",
+        "status": "also_derived_not_independently_verified",
+        "note": "Shown only to explain why a third-party 3.87T figure can appear. This basis is not an official HKEX or issuer market-cap disclosure."
+      }
+    }
+  ],
+  "item_status_summary": {
+    "period_end_issued_ordinary_shares_2026-06-30": "obtained_official",
+    "treasury_shares_hkex_definition_2026-06-30": "obtained_official",
+    "shares_pending_cancellation_still_issued_2026-06-30": "obtained_official",
+    "shares_held_for_share_award_scheme_2026-06-30": "obtained_official",
+    "weighted_average_shares_as_price_or_mcap_bridge": "recorded_but_not_used_fail_closed",
+    "official_sehk_closing_price_primary_hkex_or_issuer_file": "not_found",
+    "closing_price_akshare_sina_supplement": "obtained_supplement",
+    "official_independently_disclosed_market_capitalisation": "not_found",
+    "derived_market_cap_price_times_shares": "derived_not_independently_verified"
+  },
+  "still_missing": [
+    "A primary official SEHK / HKEX Daily Quotations (or issuer IR) closing price file that itself states the 2026-06-30 official close for 00700 in HKD.",
+    "An independently disclosed official market capitalisation as at 2026-06-30 from the issuer or HKEX (a figure not computed here from price × shares)."
+  ],
+  "gating_implication": "The 2026-06-30 ordinary share count 9,092,234,841 is now corroborated across the HKEX NDD, the HKEX Monthly Return, and the 2026 Interim Report, with treasury shares (HKEX definition) equal to 0 and with award-scheme and pending-cancellation effects disclosed. A same-date HKD close of 429.80 is available only from the authorized AKShare Sina supplement (plus unofficial cross-checks), not from a retrieved official HKEX quotations file. No official independently disclosed market cap for that date was found. Any 9,092,234,841 × 429.80 figure is derived and not independently verified. WASO was not used as a bridge.",
+  "not_done_per_instruction": [
+    "No repository, run-package, or gate changes.",
+    "No Page write.",
+    "No three-stock FinRobot runner rerun."
+  ]
+}

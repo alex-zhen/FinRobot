@@ -1593,11 +1593,17 @@ async def _execute_thesis(
     # momentum hedge above — never gates verdict/target/confidence (contract②).
     numeric_grounding_warning = audit_narrative_numeric_grounding(thesis)
 
-    target_str = (
-        f"${thesis.price_target:.2f}" if thesis.price_target is not None else "N/A (under review)"
-    )
+    if thesis.price_target is not None:
+        target_str = f"${thesis.price_target:.2f}"
+        verdict_note = ""
+    else:
+        target_str = "withheld (point target not published)"
+        verdict_note = (
+            " The directional word is not an investment recommendation and "
+            "does not publish a target price."
+        )
     narrative = (
-        f"Recommendation: {thesis.recommendation}. "
+        f"Recommendation: {thesis.recommendation}.{verdict_note} "
         f"Price target: {target_str} ({thesis.price_target_basis}). "
         f"Catalysts: {', '.join(thesis.catalysts[:2])}. "
         f"Risks: {', '.join(thesis.risks[:2])}."

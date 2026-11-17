@@ -600,6 +600,22 @@ def console_color_enabled(stream: Any) -> bool:
 CAPABILITY_TOKEN_ENV = "FINROBOT_CAPABILITY_TOKEN"
 
 
+_PLACEHOLDER_SEC_IDENTITY = "FinRobot admin@example.com"
+
+
+def sec_user_agent_from_process() -> str | None:
+    """Return a user-supplied SEC identity, or None.
+
+    The placeholder ``FinRobot admin@example.com`` is never returned and is
+    never sent to EDGAR. An unset variable stays unset. This function does not
+    invent a name or an email address.
+    """
+    value = os.environ.get("FINROBOT_SEC_USER_AGENT", "").strip()
+    if not value or value == _PLACEHOLDER_SEC_IDENTITY:
+        return None
+    return value
+
+
 def deepseek_api_key_from_process() -> str | None:
     """Read the box process environment for the DeepSeek key.
 

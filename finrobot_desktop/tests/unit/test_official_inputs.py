@@ -7,13 +7,17 @@ files' own component rows. A collection flag is not a valuation pass.
 from __future__ import annotations
 
 import json
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timezone
 from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from finrobot.config import deepseek_api_key_from_process
+from finrobot.config import deepseek_api_key_from_process, sec_user_agent_from_process
+from finrobot.engine.data.interface import DataResult, ProviderError
+from finrobot.engine.data.layer import DataLayer
 from finrobot.engine.data.normalize.valuation_input import publication_block_reasons
+from finrobot.engine.data.types import DataType
 from finrobot.engine.models.financial import (
     DataProvenance,
     FinancialData,
@@ -26,8 +30,10 @@ from finrobot.runners.equity_batch import (
     apply_official_ttm_capex,
     gate_reasons,
     require_key_for_open_gate,
+    resolved_sec_user_agent,
     settings_for_box,
 )
+from finrobot.runners.evidence_loader import baba_line_records, tencent_same_day_share_record
 from finrobot.runners.evidence_loader import (
     load_finrobot_evidence_capex,
     load_tencent_period_end_shares,
@@ -288,3 +294,95 @@ def test_box_settings_use_the_injected_key(monkeypatch: pytest.MonkeyPatch) -> N
     assert settings.provider_key("deepseek") == "box-process-key"
     provider = next(item for item in settings.custom_providers if item.id == "deepseek")
     assert provider.base_url == "https://api.deepseek.com"
+
+
+def test_placeholder_sec_identity_is_not_sent(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("FINROBOT_SEC_USER_AGENT", raising=False)
+    assert sec_user_agent_from_process() is None
+    assert resolved_sec_user_agent() is None
+    monkeypatch.setenv("FINROBOT_SEC_USER_AGENT", "FinRobot admin@example.com")
+    assert sec_user_agent_from_process() is None
+    settings = settings_for_box("box-process-key")
+    assert settings.sec_user_agent == "FinRobot admin@example.com"
+    monkeypatch.setenv("FINROBOT_SEC_USER_AGENT", "Ada Lovelace ada@research.test")
+    assert resolved_sec_user_agent() == "Ada Lovelace ada@research.test"
+    configured = settings_for_box("box-process-key")
+    assert configured.sec_user_agent == "Ada Lovelace ada@research.test"
+
+
+def test_baba_statutory_ttm_stays_blocked_while_alternatives_are_labeled() -> None:
+    record = baba_line_records(_FIXTURES / "baba_statutory_capex_ttm.json")
+    assert record["statutory_ttm_capex"] is None
+    assert record["statutory_ttm_blocked"] is True
+    assert record["management_capex_ttm"] is None
+    dumped = json.dumps(record)
+    assert "155065" not in dumped
+    narrow = record["narrow_ppe_alternative"]
+    assert narrow["opens_publication_gate"] is False
+    assert narrow["signed_value"] == pytest.approx(-151_052)
+    ocf = record["ocf_ttm"]
+    assert ocf["opens_publication_gate"] is False
+    assert ocf["signed_value"] == pytest.approx(78_486)
+    assert ocf["self_constructed"] is True
+    baseline = record["historical_fy_baseline"]
+    assert baseline["usable_as_latest_ttm"] is False
+    assert baseline["usable_as_current_analysis"] is False
+    assert baseline["statutory_capex_rmb_million"] == -126_063
+    assert baseline["period_end"] == "2026-03-31"
+
+
+def test_tencent_same_day_product_is_not_an_independent_or_current_market_cap() -> None:
+    historical = tencent_same_day_share_record(
+        _FIXTURES / "tencent_20260630_price_mcap.json",
+        valuation_as_of=date(2026, 6, 30),
+    )
+    assert historical["independent_market_cap"] is False
+    assert historical["price_is_official_exchange_file"] is False
+    assert historical["third_party_market_cap_used"] is False
+    assert historical["share_class_scope_applied_to_live_snapshot"] is False
+    assert historical["value"] == pytest.approx(9_092_234_841 * 429.80)
+    assert historical["usable_as_current_price"] is True
+    assert historical["value"] != pytest.approx(3.87e12)
+    later = tencent_same_day_share_record(
+        _FIXTURES / "tencent_20260630_price_mcap.json",
+        valuation_as_of=date(2026, 11, 17),
+    )
+    assert later["usable_as_current_price"] is False
+    assert later["value"] == pytest.approx(9_092_234_841 * 429.80)
+    mismatch = period_end_ordinary_share_block(
+        shares=9_092_234_841,
+        share_as_of=date(2026, 6, 30),
+        price=400.0,
+        price_as_of=date(2026, 11, 17),
+        market_cap=3.87e12,
+    )
+    assert mismatch is not None
+    assert mismatch.startswith("share_price_date_unmatched")
+
+
+async def test_news_failures_do_not_open_the_price_circuit() -> None:
+    provider = MagicMock()
+    provider.name = "yfinance"
+    provider.capabilities.return_value = [DataType.NEWS, DataType.PRICE]
+
+    async def fetch(ticker: str, data_type: DataType, **kwargs: object) -> DataResult:
+        if data_type == DataType.NEWS:
+            raise ProviderError("yahoo news down")
+        return DataResult(
+            data={"current_price": 100.0},
+            provider="yfinance",
+            ticker=ticker,
+            data_type=DataType.PRICE,
+            timestamp=datetime(2026, 11, 17, tzinfo=timezone.utc),
+        )
+
+    provider.fetch = fetch
+    cache = MagicMock()
+    cache.get = AsyncMock(return_value=None)
+    cache.set = AsyncMock()
+    layer = DataLayer(providers=[provider], cache=cache)
+    for _ in range(3):
+        await layer.fetch(DataType.NEWS, "NVDA")
+    assert layer._health.is_available("yfinance")
+    price = await layer.fetch(DataType.PRICE, "NVDA")
+    assert price.data["current_price"] == 100.0

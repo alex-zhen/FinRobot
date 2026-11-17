@@ -92,20 +92,37 @@ class DataLayer:
         """
         self._providers.extend(providers)
 
-    def _record_provider_failure(self, provider_name: str, exc: ProviderError) -> None:
-        """Charge the circuit breaker for a provider failure — with one carve-out.
+    def _record_provider_failure(
+        self,
+        provider_name: str,
+        exc: ProviderError,
+        *,
+        data_type: DataType | None = None,
+    ) -> None:
+        """Charge the circuit breaker for a provider failure — with two carve-outs.
 
         A typed plan gap (``ProviderPlanError``: key valid, endpoint outside the
         subscription tier) is a DETERMINISTIC capability boundary, not provider
         ill-health. Charging it would let a burst of plan-gated calls (e.g. NEWS
         on a free FMP key — paywalled on stable) open the breaker and block the
-        endpoints the plan CAN serve (financials / profile / price). Every
-        provider-loop failure path must call THIS helper rather than
+        endpoints the plan CAN serve (financials / profile / price).
+
+        A NEWS failure is the same shape even when the provider is healthy for
+        quotes. Catalyst retries must not open the price circuit and then take
+        peers and price history down with them. News stays a degraded side path.
+        Every provider-loop failure path must call THIS helper rather than
         ``self._health.record_failure`` directly, so the carve-out can't be
         missed by a future sibling.
         """
         if isinstance(exc, ProviderPlanError):
             logger.info("Provider '%s' plan-gated (no breaker charge): %s", provider_name, exc)
+            return
+        if data_type == DataType.NEWS:
+            logger.info(
+                "Provider '%s' news fetch failed; news does not open the price circuit: %s",
+                provider_name,
+                exc,
+            )
             return
         self._health.record_failure(provider_name, rate_limited=is_rate_limit_error(exc))
 
@@ -275,7 +292,7 @@ class DataLayer:
             try:
                 result = await provider.fetch(ticker, data_type, **kwargs)
             except ProviderError as e:
-                self._record_provider_failure(provider.name, e)
+                self._record_provider_failure(provider.name, e, data_type=data_type)
                 logger.warning(f"Provider '{provider.name}' failed for {ticker}/{data_type}: {e}")
                 continue
             self._health.record_success(provider.name)

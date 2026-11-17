@@ -20,6 +20,7 @@ from finrobot.config import (
     ProviderConfig,
     deepseek_api_key_from_process,
     get_settings,
+    sec_user_agent_from_process,
 )
 from finrobot.engine.data.normalize.valuation_input import publication_block_reasons
 from finrobot.engine.models.financial import DataProvenance, FinancialData
@@ -120,13 +121,34 @@ def input_record(financials: FinancialData, built: OfficialTtmCapex | None) -> d
     }
 
 
+def resolved_sec_user_agent() -> str | None:
+    """A user-supplied SEC identity, or None. The placeholder is never sent."""
+    raw = sec_user_agent_from_process()
+    if raw is None:
+        return None
+    from finrobot.engine.data.providers.edgar_provider import _is_valid_identity
+
+    if not _is_valid_identity(raw):
+        logger.warning(
+            "FINROBOT_SEC_USER_AGENT is not a usable Name email@domain identity; "
+            "EDGAR will not be contacted"
+        )
+        return None
+    return raw
+
+
 def settings_for_box(api_key: str) -> FinRobotSettings:
     """Inject the key the caller already read. This function does not read the environment."""
+    overrides: dict[str, Any] = {}
+    identity = resolved_sec_user_agent()
+    if identity:
+        overrides["sec_user_agent"] = identity
     return get_settings(
         model_name=MODEL_NAME,
         language="zh",
         custom_providers=[DEEPSEEK_PROVIDER],
         provider_keys={"deepseek": api_key},
+        **overrides,
     )
 
 
@@ -137,11 +159,22 @@ def retryable(exc: BaseException) -> bool:
 async def run_research(ticker: str, api_key: str) -> Any:
     from finrobot.sdk import FinRobot
 
+    overrides: dict[str, Any] = {}
+    identity = resolved_sec_user_agent()
+    if identity:
+        overrides["sec_user_agent"] = identity
+    else:
+        logger.info(
+            "SEC EDGAR is not contacted. Set FINROBOT_SEC_USER_AGENT to a real "
+            "Name email@domain before filing text is requested. Persisted official "
+            "figures stay on the numeric gate."
+        )
     agent = FinRobot(
         model=MODEL_NAME,
         language="zh",
         custom_providers=[DEEPSEEK_PROVIDER],
         provider_keys={"deepseek": api_key},
+        **overrides,
     )
     try:
         for attempt in range(1, MAX_ATTEMPTS + 1):
@@ -190,20 +223,28 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
     from finrobot.engine.data.providers.yfinance_provider import YFinanceProvider
     from finrobot.engine.data.types import DataType
     from finrobot.runners.evidence_loader import (
+        baba_line_records,
         load_finrobot_evidence_capex,
         load_tencent_period_end_shares,
         load_tencent_statutory_capex,
+        tencent_same_day_share_record,
     )
     from finrobot.runners.official_inputs import OfficialAmount, construct_official_ttm_capex
 
     official: list[OfficialAmount] = []
     tencent_shares: tuple[float, date] | None = None
+    tencent_price_path: Path | None = None
+    supplements: dict[str, Any] = {}
     for path in evidence:
         text = path.read_text(encoding="utf-8")
         if '"capex_cash_ppe_cip_ip"' in text:
             official.extend(load_tencent_statutory_capex(path))
             tencent_shares = load_tencent_period_end_shares(path)
-        else:
+        elif '"baba_statutory_capex_ttm_search_v1"' in text:
+            supplements["BABA"] = baba_line_records(path)
+        elif '"closing_price_supplement_akshare_sina"' in text:
+            tencent_price_path = path
+        elif '"issuers"' in text:
             official.extend(load_finrobot_evidence_capex(path))
     provider = YFinanceProvider()
     blocked = 0
@@ -256,12 +297,22 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
         for reason in reasons:
             if reason not in deduped:
                 deduped.append(reason)
+        supplement = supplements.get(ticker.upper())
+        historical_bridge = None
+        if ticker.upper() in {"0700.HK", "TCEHY"} and tencent_price_path is not None:
+            historical_bridge = tencent_same_day_share_record(
+                tencent_price_path,
+                valuation_as_of=price_as_of or date.max,
+            )
         payload = {
             "ticker": ticker,
             "recorded_at": manifest_time(),
             "research_ran": False,
+            "sec_edgar_contacted": resolved_sec_user_agent() is not None,
             "inputs": input_record(extracted, built if built is not None and built.ok else None),
             "official_note": official_note,
+            "line_records": supplement,
+            "historical_share_bridge": historical_bridge,
             "reasons": deduped,
         }
         if deduped:

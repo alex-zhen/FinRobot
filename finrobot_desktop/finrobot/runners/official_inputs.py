@@ -341,3 +341,82 @@ def period_end_ordinary_share_block(
             f"ordinary shares differs from market cap by {gap:.1%}"
         )
     return None
+
+
+def self_calculated_price_times_shares(
+    *,
+    shares: float,
+    share_as_of: date,
+    price: float,
+    price_as_of: date,
+    valuation_as_of: date,
+    price_is_official_exchange_file: bool,
+) -> dict[str, object]:
+    """Price × issued shares, labeled as arithmetic rather than a disclosed market cap.
+
+    A later valuation date does not inherit the historical close. A third-party
+    market-cap print is not an input to this figure.
+    """
+    same_day = price_as_of == share_as_of
+    current = same_day and valuation_as_of == price_as_of
+    value = price * shares if same_day and shares > 0 and price > 0 else None
+    return {
+        "basis": "self_calculated_price_times_issued_shares",
+        "independent_market_cap": False,
+        "price_is_official_exchange_file": price_is_official_exchange_file,
+        "value": value,
+        "currency": "HKD",
+        "as_of": price_as_of.isoformat() if same_day else None,
+        "usable_as_current_price": current,
+        "share_class_scope_applied_to_live_snapshot": False,
+        "reason": None
+        if same_day
+        else (
+            "share_price_date_unmatched: the close and the issued-share count "
+            "are not the same day, so no market-cap bridge is formed"
+        ),
+    }
+
+
+def bridge_same_caption(
+    *,
+    caption: str,
+    role: str,
+    fy_end: date,
+    fy_value: float,
+    current_end: date,
+    current_value: float,
+    prior_end: date,
+    prior_value: float,
+    currency: str,
+    source: str,
+    as_capex_outflow: bool,
+) -> dict[str, object]:
+    """FY + current stub − prior stub for one caption.
+
+    ``opens_publication_gate`` is true only for a statutory capex outflow. An
+    operating-cash-flow bridge and a narrower PPE caption stay labeled and do
+    not satisfy the statutory capex gate.
+    """
+    built = bridge_fy_ytd(
+        FlowColumn(fy_end, "fy", currency, source, {caption: fy_value}),
+        FlowColumn(current_end, "ytd", currency, source, {caption: current_value}),
+        FlowColumn(prior_end, "ytd", currency, source, {caption: prior_value}),
+    )
+    amount = None if built.status != "complete" else built.values.get(caption)
+    outflow = None
+    if as_capex_outflow and amount is not None:
+        outflow, _note = capex_outflow(amount)
+    statutory = role == "statutory_capex" and outflow is not None
+    return {
+        "caption": caption,
+        "role": role,
+        "construction": built.construction,
+        "currency": currency,
+        "signed_value": amount,
+        "outflow": outflow,
+        "self_constructed": True,
+        "company_presented_ttm": False,
+        "opens_publication_gate": statutory,
+        "reason": None if amount is not None else "; ".join(built.reasons),
+    }
