@@ -39,7 +39,9 @@ from finrobot.runners.evidence_loader import (
     load_nvda_official_capex,
     load_sourced_peers,
     nvda_official_record,
+    segment_business_background,
     tencent_october_share_record,
+    tencent_official_flow_facts,
     tencent_same_day_share_record,
 )
 from finrobot.runners.evidence_loader import (
@@ -58,7 +60,12 @@ from finrobot.runners.official_inputs import (
     research_disposition,
 )
 from finrobot.runners.serialize import dumps_model, loads_model
-from finrobot.runners.unvalued_research import UnvaluedResearch, unvalued_research_allowed
+from finrobot.runners.unvalued_research import (
+    UnvaluedResearch,
+    compose_unvalued_publication,
+    deterministic_facts,
+    unvalued_research_allowed,
+)
 
 _FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "official"
 _QUARTERS = (
@@ -441,6 +448,75 @@ def test_unvalued_research_withholds_recommendation_and_target() -> None:
     assert unvalued_research_allowed("dcf_refused_other_research_ok")
     assert unvalued_research_allowed("refused")
     assert not unvalued_research_allowed("verified")
+
+
+def test_tencent_official_flows_survive_a_model_denial() -> None:
+    flows = tencent_official_flow_facts(_FIXTURES / "tencent_valuation_evidence.json")
+    assert flows["revenue"] == 788483
+    assert flows["operating_cash_flow"] == 305848
+    assert flows["statutory_capex_outflow"] == 137539
+    facts = deterministic_facts(
+        inputs={"capex_present": True, "ttm_construction": "fy_ytd_bridge", "period_basis": "ttm"},
+        reasons=[
+            "share_class_scope_unverified: 0700.HK",
+            "share_price_date_unmatched: shares 2026-06-30 vs price 2026-11-17",
+        ],
+        official_flows=flows,
+    )
+    published = compose_unvalued_publication(
+        {
+            "business_observations": "No business or segment evidence is present in the supplied JSON.",
+            "financial_observations": (
+                "The evidence contains share-count and price data only, with no income statement "
+                "or cash-flow line items. No statutory capex figure is present."
+            ),
+            "risks": [
+                "Share count and price dates are mismatched.",
+                "No statutory capex or cash-flow data was supplied, so the FCFF DCF was not run.",
+                "No company-defined free cash flow figure is supplied.",
+            ],
+            "recommendation": "Buy",
+            "price_target": 400,
+        },
+        facts,
+    )
+    assert published["complete_analysis"] is False
+    assert published["point_target"] is None
+    assert "137539" in published["facts_text"]
+    assert "capex_missing" not in published["facts_text"]
+    assert "share_class_scope_unverified" in published["facts_text"]
+    opinion = published["model_opinion"]
+    assert opinion["financial_observations"] == published["facts_text"]
+    assert opinion["recommendation"] == "withheld"
+    assert all("no statutory capex" not in item.lower() for item in opinion["risks"])
+    assert any("free cash flow" in item.lower() for item in opinion["risks"])
+
+
+def test_segment_background_is_not_a_peer_list(tmp_path: Path) -> None:
+    path = tmp_path / "segments.json"
+    path.write_text(
+        json.dumps(
+            {
+                "document_type": "segment_peer_candidates_evidence",
+                "issuers": [
+                    {
+                        "common_name": "Tencent",
+                        "tickers": [{"symbol": "0700"}],
+                        "official_reportable_segments": {
+                            "segments": [{"name": "VAS (Value-Added Services)"}]
+                        },
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    background = segment_business_background(path)
+    assert background["officially_named_listed_peers"] is False
+    assert background["semiconductor_roles_apply"] is False
+    assert background["issuers"][0]["segment_names"] == ["VAS (Value-Added Services)"]
+    with pytest.raises(ValueError, match="sourced_peer_list_v1"):
+        load_sourced_peers(path)
 
 
 def test_sourced_peer_list_carries_reasons_not_financials(tmp_path: Path) -> None:

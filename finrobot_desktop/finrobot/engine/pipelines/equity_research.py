@@ -1182,9 +1182,10 @@ async def _execute_technical_analysis(
 # market cap the thesis prompt itself injects via fmt_market_cap) matched as
 # "$3.41", failed the whitelist, and was rewritten to the canonical target —
 # producing "$276.43T". A magnitude-suffixed amount is categorically not a
-# per-share target, so the reconciler skips it entirely; fabricated big
-# amounts are the report-level drift scanner's job (operators/report_drift),
-# which parses the same suffixes and compares against all numeric leaves.
+# per-share target, so the reconciler skips it entirely. Chinese statement
+# units (亿 / 万 and the longer compounds) are the same kind of suffix: "$302.97 亿"
+# must not become "$337.17 亿". Fabricated big amounts are the report-level
+# drift scanner's job (operators/report_drift).
 # The optional leading-minus group ([-−]\s?, ASCII or U+2212) exists to be
 # SKIPPED, mirroring the suffix rule above: "-$1.20" (loss-quarter EPS, negative
 # FCF/share) is categorically not a restatement of the positive canonical price
@@ -1195,9 +1196,33 @@ async def _execute_technical_analysis(
 _DOLLAR_RE = re.compile(
     r"([-−]\s?)?"
     r"\$\s?(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)"
-    r"(\s?(?:[KMBT]\b|million\b|billion\b|trillion\b|bn\b|mn\b|tn\b))?",
+    r"("
+    r"\s?(?:[KMBT]\b|million\b|billion\b|trillion\b|bn\b|mn\b|tn\b)"
+    r"|\s?(?:万亿|千亿|百亿|十亿|百万|千万|亿元|亿美元|亿|万)"
+    r")?",
     re.IGNORECASE,
 )
+
+# Only an explicit target or recommendation phrase is a candidate for
+# neutralization. A DCF band, a sensitivity, or a statement amount with no
+# target word stays as written.
+_TARGET_CUE = re.compile(
+    r"fair\s+value|price\s+target|\btarget\b|目标价|目标|公允价值",
+    re.IGNORECASE,
+)
+_CUE_BOUNDARIES = ("$", "。", "！", "？", ".", "!", "?", "\n")
+
+
+def _target_window(text: str, start: int, end: int) -> str:
+    """Cue text in the same clause, stopping at the next amount or sentence."""
+    left = text[max(0, start - 48) : start]
+    cut = max(left.rfind(mark) for mark in _CUE_BOUNDARIES)
+    left = left[cut + 1 :]
+    right = text[end : end + 24]
+    stops = [right.find(mark) for mark in _CUE_BOUNDARIES]
+    stop = min([item for item in stops if item != -1], default=len(right))
+    return left + right[:stop]
+
 
 # A prose $-amount may legitimately differ from the canonical weighted target
 # when it is quoting a *per-method* mid (e.g. "DCF says $5.88, comps say $19.54").
@@ -1277,9 +1302,11 @@ def _reconcile_narrative_targets(
             # ship the sign-corrupted "-$276.43". Skip, like suffixed amounts.
             if match.group(1):
                 return match.group(0)
-            # Magnitude-suffixed amounts ($3.41T market cap, $391.0B EV) are
-            # never per-share targets — out of scope for target reconciliation.
+            # Magnitude-suffixed amounts ($3.41T market cap, $391.0B EV,
+            # $302.97 亿 revenue) are never per-share targets.
             if match.group(3):
+                return match.group(0)
+            if _TARGET_CUE.search(_target_window(text, *match.span())) is None:
                 return match.group(0)
             try:
                 value = float(match.group(2).replace(",", ""))

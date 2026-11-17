@@ -267,7 +267,9 @@ async def _amain(
         load_tencent_period_end_shares,
         load_tencent_statutory_capex,
         nvda_official_record,
+        segment_business_background,
         tencent_october_share_record,
+        tencent_official_flow_facts,
         tencent_same_day_share_record,
     )
     from finrobot.runners.official_inputs import OfficialAmount, construct_official_ttm_capex
@@ -276,6 +278,8 @@ async def _amain(
     tencent_shares: tuple[float, date] | None = None
     tencent_price_path: Path | None = None
     tencent_october_path: Path | None = None
+    tencent_flows_path: Path | None = None
+    segment_background_path: Path | None = None
     nvda_capex: list[OfficialAmount] = []
     sourced_peers: dict[str, dict[str, Any]] = {}
     supplements: dict[str, Any] = {}
@@ -284,6 +288,9 @@ async def _amain(
         if '"capex_cash_ppe_cip_ip"' in text:
             official.extend(load_tencent_statutory_capex(path))
             tencent_shares = load_tencent_period_end_shares(path)
+            tencent_flows_path = path
+        elif '"segment_peer_candidates_evidence"' in text:
+            segment_background_path = path
         elif '"baba_statutory_capex_ttm_search_v1"' in text:
             supplements["BABA"] = {**supplements.get("BABA", {}), **baba_line_records(path)}
         elif '"baba_alternative_fcf_capex_ttm_v1"' in text:
@@ -425,32 +432,44 @@ async def _amain(
                     payload["point_target"] = None
                     write_pipeline(directory, result)
             from finrobot.runners.unvalued_research import (
+                compose_unvalued_publication,
+                deterministic_facts,
                 run_unvalued_research,
                 unvalued_research_allowed,
             )
 
             if unvalued_research_allowed(disposition):
+                flows = None
+                if ticker.upper() in {"0700.HK", "TCEHY"} and tencent_flows_path is not None:
+                    flows = tencent_official_flow_facts(tencent_flows_path)
+                background = (
+                    None
+                    if segment_background_path is None
+                    else segment_business_background(segment_background_path)
+                )
+                raw_inputs = payload.get("inputs")
+                facts = deterministic_facts(
+                    inputs=raw_inputs if isinstance(raw_inputs, dict) else None,
+                    reasons=deduped,
+                    official_flows=flows,
+                )
+                facts["business_background"] = background
                 try:
                     key = require_key_for_open_gate()
                 except RuntimeError as exc:
                     payload["business_research_ran"] = False
                     payload["business_research_note"] = str(exc)
+                    published = compose_unvalued_publication(None, facts)
                 else:
-                    brief = {
-                        "reasons": deduped,
-                        "line_records": supplement,
-                        "historical_share_bridge": historical_bridge,
-                        "october_share_bridge": october_bridge,
-                        "limited_research": payload.get("limited_research"),
-                    }
-                    note = await run_unvalued_research(ticker, key, brief)
+                    note = await run_unvalued_research(ticker, key, facts)
                     payload["business_research_ran"] = True
-                    payload["point_target"] = None
-                    payload["recommendation"] = "withheld"
-                    (directory / "research_without_valuation.json").write_text(
-                        json.dumps(note.model_dump(), ensure_ascii=False, indent=2),
-                        encoding="utf-8",
-                    )
+                    published = compose_unvalued_publication(note.model_dump(), facts)
+                payload["point_target"] = None
+                payload["recommendation"] = "withheld"
+                (directory / "research_without_valuation.json").write_text(
+                    json.dumps(published, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
             write_manifest(directory, payload)
             blocked += 1
             continue

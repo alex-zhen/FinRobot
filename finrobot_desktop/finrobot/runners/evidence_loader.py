@@ -114,6 +114,62 @@ def load_finrobot_evidence_capex(path: Path) -> list[OfficialAmount]:
     return rows
 
 
+def tencent_official_flow_facts(path: Path) -> dict[str, Any]:
+    """Recompute Tencent flow TTM from FY2025 + H1 2026 − H1 2025.
+
+    Capex is the PPE/CIP/investment-property cash line only. The precomputed
+    TTM block in the file is not the source of these numbers.
+    """
+    document = json.loads(path.read_text(encoding="utf-8"))
+    periods = document["periods"]
+
+    def _amount(period_key: str, item_key: str) -> float:
+        return float(periods[period_key]["items"][item_key]["amount_rmb_million"])
+
+    flows: dict[str, float] = {}
+    for key in ("revenue", "operating_cash_flow", "capex_cash_ppe_cip_ip"):
+        flows[key] = _amount("FY2025", key) + _amount("H1_2026", key) - _amount("H1_2025", key)
+    return {
+        "ticker": "0700.HK",
+        "currency": "CNY",
+        "unit": "million",
+        "window": "2025-07-01 to 2026-06-30",
+        "construction": "fy_ytd_bridge",
+        "revenue": flows["revenue"],
+        "operating_cash_flow": flows["operating_cash_flow"],
+        "statutory_capex_outflow": flows["capex_cash_ppe_cip_ip"],
+        "capex_line": (
+            "Purchase of/prepayments for property, plant and equipment, "
+            "construction in progress and investment properties"
+        ),
+        "capex_present": True,
+    }
+
+
+def segment_business_background(path: Path) -> dict[str, Any]:
+    """Segment names and limits only. Not a peer list and not a valuation."""
+    document = json.loads(path.read_text(encoding="utf-8"))
+    issuers = []
+    for issuer in document.get("issuers", []):
+        segments = issuer.get("official_reportable_segments", {}).get("segments", [])
+        issuers.append(
+            {
+                "name": issuer.get("common_name"),
+                "tickers": [item.get("symbol") for item in issuer.get("tickers", [])],
+                "segment_names": [item.get("name") for item in segments if item.get("name")],
+            }
+        )
+    return {
+        "officially_named_listed_peers": False,
+        "not_for_multiple_average": True,
+        "subsidiaries_are_not_external_peers": True,
+        "unlisted_names_are_not_listed_multiples": True,
+        "semiconductor_roles_apply": False,
+        "issuers": issuers,
+        "use": "business background for a non-valuation note only",
+    }
+
+
 def load_tencent_period_end_shares(path: Path) -> tuple[float, date] | None:
     """Issued ordinary shares at the interim period end.
 
@@ -550,6 +606,8 @@ _FORBIDDEN_PEER_FIELDS = frozenset(
 def load_sourced_peers(path: Path) -> dict[str, Any]:
     """Tickers and reasons only. Financials are fetched later, never taken from the file."""
     document = json.loads(path.read_text(encoding="utf-8"))
+    if document.get("schema") != "sourced_peer_list_v1":
+        raise ValueError("sourced peers require schema sourced_peer_list_v1")
     target = str(document["ticker"]).strip().upper()
     role = str(document["role"]).strip().lower()
     rows = document["peers"]
