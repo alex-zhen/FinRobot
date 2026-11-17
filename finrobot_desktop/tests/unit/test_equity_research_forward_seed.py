@@ -51,6 +51,7 @@ def _financials() -> FinancialData:
             operating_margin=0.30,
             depreciation_amortization=11_400_000_000,
             interest_expense=3_750_000_000,
+            capital_expenditure=10_000_000_000,
         ),
         balance=BalanceSheet(total_debt=106_000_000_000, total_cash=65_000_000_000),
         market=MarketData(

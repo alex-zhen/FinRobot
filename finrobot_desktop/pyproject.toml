@@ -25,7 +25,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-    "pydantic-ai>=1.70.0",
+    "pydantic-ai>=1.70.0,<2",
     "pydantic-settings>=2.0",
     "fastapi>=0.115",
     "uvicorn>=0.34",
@@ -37,7 +37,7 @@ dependencies = [
     "jinja2>=3.1",
     "rank-bm25>=0.2.2",
     "keyring>=25.0",
-    "edgartools>=5.31.5",
+    "edgartools>=5.31.5,<6",
     "ddgs>=9.14.4",
 ]
 

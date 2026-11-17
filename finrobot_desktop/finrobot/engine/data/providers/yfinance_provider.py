@@ -271,7 +271,11 @@ def _quarterly_ttm_overlay(
     capex_signed = _sum_named(cashflow, _CAPEX_NAMES, selected)
     capex, capex_note = capex_outflow(capex_signed)
     reasons = [capex_note] if capex_note else []
-    period_ends = [ends[i] for i in window.indexes if ends[i] is not None]
+    period_ends: list[date] = []
+    for index in window.indexes:
+        end = ends[index]
+        if end is not None:
+            period_ends.append(end)
     overlaid = dict(info_payload)
     overlaid.update(
         {
@@ -469,7 +473,9 @@ class YFinanceProvider(DataProvider):
             timestamp=datetime.now(tz=timezone.utc),
         )
 
-    def _fetch_financials(self, ticker: str, info: dict[str, Any], t: yf.Ticker | None = None) -> DataResult:
+    def _fetch_financials(
+        self, ticker: str, info: dict[str, Any], t: yf.Ticker | None = None
+    ) -> DataResult:
         # dict.get() never raises; no try/except needed here
         data = {
             "revenue": info.get("totalRevenue"),

@@ -178,9 +178,7 @@ def select_statement_window(period_ends: Sequence[date | None]) -> StatementWind
     if not period_ends:
         return StatementWindow(None, (), ("ttm_window_unverified: no period ends",))
     if any(d is None for d in period_ends):
-        return StatementWindow(
-            None, (), ("ttm_window_unverified: a row has no period end",)
-        )
+        return StatementWindow(None, (), ("ttm_window_unverified: a row has no period end",))
     dates = [d for d in period_ends if d is not None]
     if len(set(dates)) != len(dates):
         return StatementWindow(
@@ -195,11 +193,7 @@ def select_statement_window(period_ends: Sequence[date | None]) -> StatementWind
     if len(order) >= 4 and all(_QUARTER_GAP_DAYS[0] <= g <= _QUARTER_GAP_DAYS[1] for g in gaps[:3]):
         return StatementWindow("four_quarters", tuple(order[:4]), ())
 
-    if (
-        len(order) >= 2
-        and gaps
-        and all(_HALF_GAP_DAYS[0] <= g <= _HALF_GAP_DAYS[1] for g in gaps)
-    ):
+    if len(order) >= 2 and gaps and all(_HALF_GAP_DAYS[0] <= g <= _HALF_GAP_DAYS[1] for g in gaps):
         return StatementWindow("two_halves", tuple(order[:2]), ())
 
     return StatementWindow(
@@ -359,7 +353,9 @@ def resolve_listed_entity(
         return EntityResolution("refused", None, ("entity_unspecified: empty query",))
     entries = list(catalog or [])
     wanted = _normalize_legal_name(text)
-    by_name = [ticker for ticker, legal in entries if wanted and _normalize_legal_name(legal) == wanted]
+    by_name = [
+        ticker for ticker, legal in entries if wanted and _normalize_legal_name(legal) == wanted
+    ]
     try:
         syntax = validate_ticker(text)
     except ValueError:
@@ -368,12 +364,7 @@ def resolve_listed_entity(
         return EntityResolution(
             "refused",
             None,
-            (
-                "entity_ambiguous: "
-                + text
-                + " matches "
-                + ", ".join(sorted(set(by_name))),
-            ),
+            ("entity_ambiguous: " + text + " matches " + ", ".join(sorted(set(by_name))),),
         )
     if len(by_name) == 1:
         ticker = by_name[0]
@@ -480,7 +471,11 @@ def publication_block_reasons(financials: Any) -> list[str]:
                     )
 
     basis = getattr(provenance, "period_basis", None) if provenance is not None else None
-    if provenance is None or basis in (None, "", "unverified") or "period_basis_unknown" in degraded:
+    if (
+        provenance is None
+        or basis in (None, "", "unverified")
+        or "period_basis_unknown" in degraded
+    ):
         reasons.append(
             "period_unspecified: the statement period is not a verified TTM, annual, "
             "or quarterly figure"
@@ -545,6 +540,14 @@ def publication_block_reasons(financials: Any) -> list[str]:
             )
     else:
         reasons.append("shares_unverified: price, shares, or market cap is missing")
+
+    capex = getattr(getattr(financials, "income", None), "capital_expenditure", None)
+    if capex is None:
+        reasons.append(
+            "capex_missing: trailing capital expenditure is absent, so a publishable DCF is refused"
+        )
+    elif not isinstance(capex, (int, float)) or not math.isfinite(float(capex)) or float(capex) < 0:
+        reasons.append("capex_sign_unverified: capital expenditure is not a non-negative outflow")
 
     scope = getattr(financials, "share_class_scope", None)
     if "." in ticker and scope not in {"single_listing", "ads_reconciled"}:

@@ -290,6 +290,12 @@ class TestPublicationGate:
     def test_complete_synthetic_snapshot_has_no_block(self) -> None:
         assert publication_block_reasons(_snapshot()) == []
 
+    def test_missing_capex_blocks_even_when_the_window_is_complete(self) -> None:
+        snap = _snapshot()
+        snap.income.capital_expenditure = None
+        reasons = publication_block_reasons(snap)
+        assert "capex_missing" in _codes(reasons)
+
     def test_unknown_currency_blocks(self) -> None:
         reasons = publication_block_reasons(_snapshot(reporting_currency="UNKNOWN"))
         assert "currency_unspecified" in _codes(reasons)
@@ -378,6 +384,18 @@ class TestEntityResolution:
         resolved = resolve_listed_entity("BABA", catalog)
         assert resolved.status == "refused"
         assert resolved.ticker is None
+
+
+def test_keyless_probe_self_check_emits_no_price() -> None:
+    import importlib.util
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[2] / "scripts" / "probe_valuation_inputs.py"
+    spec = importlib.util.spec_from_file_location("probe_valuation_inputs", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.self_check() == 0
 
 
 @pytest.mark.asyncio

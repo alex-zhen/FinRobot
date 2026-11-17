@@ -425,6 +425,7 @@ async def test_step3_dcf_deterministic(mock_deps):
             gross_margin=0.43,
             operating_margin=0.30,
             interest_expense=3e9,
+            capital_expenditure=10e9,
         ),
         balance=BalanceSheet(total_debt=120e9, total_cash=60e9),
         market=MarketData(
@@ -1283,6 +1284,7 @@ def _low_wacc_financial_data():
             gross_margin=0.60,
             operating_margin=0.40,
             interest_expense=1e6,
+            capital_expenditure=400e6,
         ),
         balance=BalanceSheet(total_debt=1e6, total_cash=5e9),
         market=MarketData(
@@ -1576,6 +1578,7 @@ def _twd_local_financial_data():
             gross_margin=0.53,
             operating_margin=0.42,
             interest_expense=4e9,
+            capital_expenditure=180e9,
         ),
         balance=BalanceSheet(total_debt=900e9, total_cash=1_500e9),
         market=MarketData(
