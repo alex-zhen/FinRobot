@@ -1,0 +1,1271 @@
+{
+  "schema": "finrobot_input_evidence_v1",
+  "generated_at": "2026-11-17T11:10:50+08:00",
+  "timezone": "Asia/Shanghai",
+  "purpose": "Source-traced financial inputs for later FinRobot verification. This file is not coupled to any repository code and does not modify any repo. Fields with usable_as_finrobot_input=false are fail-closed and must not be treated as complete valuation inputs.",
+  "disclaimer": "公司定义的自由现金流与自行用经营现金流减资本开支计算的结果不是同一口径。第三方缺失不以接口齐全为估值前提。官方优先。",
+  "issuers": {
+    "Alibaba_Group_Holding_Limited": {
+      "tickers": [
+        "BABA",
+        "09988"
+      ],
+      "ads_ratio": "Each ADS represents eight ordinary shares. Official 20-F F-5 footnote and 6-K footnote.",
+      "reporting_currency": "RMB",
+      "accounting": "U.S. GAAP",
+      "fiscal_year_end": "March 31",
+      "periods": {
+        "FY2026": {
+          "period_type": "FY",
+          "period_start": "2025-04-01",
+          "period_end": "2026-03-31",
+          "fields": [
+            {
+              "field_id": "BABA.FY2026.revenue",
+              "value": 1023670,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-5",
+                "ir_pdf_text_lines": "12756-12808",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Revenue",
+              "usable_as_finrobot_input": true,
+              "akshare": {
+                "item_name": "营业收入 / 营运收入",
+                "raw": 1023670000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "US 年报 / HK 年度",
+                "match_to_official_million": 1023670.0
+              },
+              "notes": [],
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2026.net_income",
+              "value": 102127,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-5",
+                "ir_pdf_text_lines": "12756-12808",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Net income",
+              "usable_as_finrobot_input": true,
+              "notes": [
+                "Consolidated net income, not parent or ordinary-shareholder NI."
+              ],
+              "akshare": {
+                "item_name": "净利润 / 除税后溢利",
+                "raw": 102127000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "same",
+                "match_to_official_million": 102127.0
+              },
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2026.net_income_attributable_to_parent",
+              "value": 103592,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-5",
+                "ir_pdf_text_lines": "12756-12808",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Net income attributable to Alibaba Group Holding Limited",
+              "usable_as_finrobot_input": true,
+              "notes": [
+                "Parent / 归母. 09988 股东应占溢利 maps to this line, not to ordinary shareholders."
+              ],
+              "akshare": {
+                "item_name": "归属于母公司股东净利润 / 股东应占溢利",
+                "raw": 103592000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "same",
+                "match_to_official_million": 103592.0
+              },
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2026.mezzanine_equity_accretion_reversal",
+              "value": 2312,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-5",
+                "ir_pdf_text_lines": "12756-12808",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "(Accretion) Reversal of accretion of mezzanine equity",
+              "usable_as_finrobot_input": true,
+              "notes": [
+                "FY2026 is a reversal of +2,312, which is why ordinary-shareholder NI exceeds parent NI."
+              ],
+              "share_basis": null,
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2026.net_income_attributable_to_ordinary_shareholders",
+              "value": 105904,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-5",
+                "ir_pdf_text_lines": "12756-12808",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Net income attributable to ordinary shareholders",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ordinary_shares",
+              "notes": [
+                "Do not substitute parent NI 103,592. EPS is computed from this ordinary-shareholder amount."
+              ],
+              "akshare": {
+                "item_name": "归属于普通股股东净利润",
+                "raw": 105904000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "BABA 年报; 09988 has no separate item",
+                "match_to_official_million": 105904.0
+              },
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2026.basic_eps_ordinary",
+              "value": 5.7,
+              "unit": "currency_per_share",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-5",
+                "ir_pdf_text_lines": "12756-12808",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Earnings per share attributable to ordinary shareholders — Basic",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ordinary_shares",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2026.diluted_eps_ordinary",
+              "value": 5.5,
+              "unit": "currency_per_share",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-5",
+                "ir_pdf_text_lines": "12756-12808",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Earnings per share attributable to ordinary shareholders — Diluted",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ordinary_shares",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2026.basic_eps_ads",
+              "value": 45.63,
+              "unit": "currency_per_share",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-5",
+                "ir_pdf_text_lines": "12756-12808",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Earnings per ADS attributable to ordinary shareholders — Basic (one ADS equals eight ordinary shares)",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ADS_1_equals_8_ordinary_shares",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2026.diluted_eps_ads",
+              "value": 44.0,
+              "unit": "currency_per_share",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-5",
+                "ir_pdf_text_lines": "12756-12808",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Earnings per ADS attributable to ordinary shareholders — Diluted",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ADS_1_equals_8_ordinary_shares",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2026.weighted_average_shares_basic_ordinary_million",
+              "value": 18568,
+              "unit": "million_shares",
+              "currency": "shares",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-5",
+                "ir_pdf_text_lines": "12756-12808",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Weighted average number of shares — Basic (million shares)",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ordinary_shares",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2026.weighted_average_shares_diluted_ordinary_million",
+              "value": 19235,
+              "unit": "million_shares",
+              "currency": "shares",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-5",
+                "ir_pdf_text_lines": "12756-12808",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Weighted average number of shares — Diluted (million shares)",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ordinary_shares",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2026.operating_cash_flow",
+              "value": 76213,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-12",
+                "ir_pdf_text_lines": "13102-13118",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Net cash provided by operating activities",
+              "usable_as_finrobot_input": true,
+              "sign": "inflow_positive",
+              "akshare": {
+                "item_name": "经营业务现金净额 / 经营活动产生的现金流量净额",
+                "raw": 76213000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "现金流量表 年度/年报",
+                "match_to_official_million": 76213.0
+              },
+              "notes": [],
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null
+            },
+            {
+              "field_id": "BABA.FY2026.capex_acquisitions_of_land_ppe",
+              "value": -126063,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": true,
+              "official_source": "20-F",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "F-12",
+                "ir_pdf_text_lines": "13102-13118",
+                "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Acquisitions of: Land use rights, property and equipment",
+              "usable_as_finrobot_input": true,
+              "sign": "cash_outflow_negative_as_in_official_CF",
+              "notes": [
+                "Magnitude 126,063 million is also the MD&A capital expenditures total. AKShare 09988 stores the magnitude as a positive 购建固定资产. Convert to official signed outflow before use."
+              ],
+              "akshare": {
+                "item_name": "BABA 购买固定资产 signed; 09988 购建固定资产 magnitude",
+                "raw": -126063000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "BABA 年报现金流量表",
+                "match_to_official_million": -126063.0
+              },
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null
+            },
+            {
+              "field_id": "BABA.FY2026.company_defined_fcf",
+              "value": -46609,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": false,
+              "official_source": "20-F non-GAAP reconciliation",
+              "source_location": {
+                "document": "Alibaba FY2026 Form 20-F",
+                "printed_page": "137",
+                "ir_pdf_text_lines": "8319-8327 and 8414-8427",
+                "accession": "0001193125-26-231755"
+              },
+              "line_item": "Free cash flow (company definition)",
+              "usable_as_finrobot_input": true,
+              "sign": "company_fcf_outflow_negative",
+              "notes": [
+                "Company non-GAAP. Do not replace with OCF minus 126,063. AKShare does not include this line; official source is sufficient."
+              ],
+              "share_basis": null,
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null
+            },
+            {
+              "field_id": "BABA.FY2026.self_calculated_ocf_minus_statutory_capex",
+              "value": -49850,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "FY",
+              "period_start": "2025-04-01",
+              "period_end": "2026-03-31",
+              "gaap": false,
+              "official_source": null,
+              "source_location": null,
+              "line_item": "self-calculated OCF - statutory capex 126,063",
+              "usable_as_finrobot_input": false,
+              "fail_closed_reason": "Self-calculated and not equal to company-defined FCF. Fail-closed as an official FCF input.",
+              "calculation": {
+                "formula": "76213-126063",
+                "result": -49850
+              },
+              "notes": [],
+              "share_basis": null,
+              "akshare": null,
+              "sign": "as_stated"
+            }
+          ]
+        },
+        "FY2027Q1": {
+          "period_type": "quarter",
+          "period_start": "2026-04-01",
+          "period_end": "2026-06-30",
+          "fields": [
+            {
+              "field_id": "BABA.FY2027Q1.revenue",
+              "value": 268953,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "quarter",
+              "period_start": "2026-04-01",
+              "period_end": "2026-06-30",
+              "gaap": true,
+              "official_source": "6-K Ex.99.1",
+              "source_location": {
+                "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+                "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+                "accession": "0001104659-26-099220",
+                "announcement_date": "2026-08-20"
+              },
+              "line_item": "Revenue",
+              "usable_as_finrobot_input": true,
+              "notes": [
+                "Use BABA 单季报 2027/Q1 and/or 09988 报告期 type=3. Do not use BABA 累计季报, which has no 2026-06-30 row."
+              ],
+              "akshare": {
+                "item_name": "营业收入 / 营运收入",
+                "raw": 268953000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "BABA 单季报 and 09988 报告期",
+                "match_to_official_million": 268953.0
+              },
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2027Q1.net_income",
+              "value": 10444,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "quarter",
+              "period_start": "2026-04-01",
+              "period_end": "2026-06-30",
+              "gaap": true,
+              "official_source": "6-K Ex.99.1",
+              "source_location": {
+                "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+                "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+                "accession": "0001104659-26-099220",
+                "announcement_date": "2026-08-20"
+              },
+              "line_item": "Net income",
+              "usable_as_finrobot_input": true,
+              "akshare": {
+                "item_name": "净利润 / 除税后溢利",
+                "raw": 10444000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "same",
+                "match_to_official_million": 10444.0
+              },
+              "notes": [],
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2027Q1.net_income_attributable_to_parent",
+              "value": 10614,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "quarter",
+              "period_start": "2026-04-01",
+              "period_end": "2026-06-30",
+              "gaap": true,
+              "official_source": "6-K Ex.99.1",
+              "source_location": {
+                "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+                "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+                "accession": "0001104659-26-099220",
+                "announcement_date": "2026-08-20"
+              },
+              "line_item": "Net income attributable to Alibaba Group Holding Limited",
+              "usable_as_finrobot_input": true,
+              "akshare": {
+                "item_name": "归属于母公司股东净利润 / 股东应占溢利",
+                "raw": 10614000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "same",
+                "match_to_official_million": 10614.0
+              },
+              "notes": [],
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2027Q1.net_income_attributable_to_ordinary_shareholders",
+              "value": 10537,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "quarter",
+              "period_start": "2026-04-01",
+              "period_end": "2026-06-30",
+              "gaap": true,
+              "official_source": "6-K Ex.99.1",
+              "source_location": {
+                "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+                "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+                "accession": "0001104659-26-099220",
+                "announcement_date": "2026-08-20"
+              },
+              "line_item": "Net income attributable to ordinary shareholders",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ordinary_shares",
+              "notes": [
+                "BABA 单季报 has this separate item 10,537. 09988 股东应占溢利 is 10,614 (parent) and must not be relabeled as ordinary-shareholder NI."
+              ],
+              "akshare": {
+                "item_name": "归属于普通股股东净利润",
+                "raw": 10537000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "BABA 单季报 2027/Q1",
+                "match_to_official_million": 10537.0
+              },
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2027Q1.basic_eps_ordinary",
+              "value": 0.56,
+              "unit": "currency_per_share",
+              "currency": "RMB",
+              "period_type": "quarter",
+              "period_start": "2026-04-01",
+              "period_end": "2026-06-30",
+              "gaap": true,
+              "official_source": "6-K Ex.99.1",
+              "source_location": {
+                "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+                "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+                "accession": "0001104659-26-099220",
+                "announcement_date": "2026-08-20"
+              },
+              "line_item": "Basic earnings per share",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ordinary_shares",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2027Q1.diluted_eps_ordinary",
+              "value": 0.46,
+              "unit": "currency_per_share",
+              "currency": "RMB",
+              "period_type": "quarter",
+              "period_start": "2026-04-01",
+              "period_end": "2026-06-30",
+              "gaap": true,
+              "official_source": "6-K Ex.99.1",
+              "source_location": {
+                "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+                "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+                "accession": "0001104659-26-099220",
+                "announcement_date": "2026-08-20"
+              },
+              "line_item": "Diluted earnings per share",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ordinary_shares",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2027Q1.basic_eps_ads",
+              "value": 4.51,
+              "unit": "currency_per_share",
+              "currency": "RMB",
+              "period_type": "quarter",
+              "period_start": "2026-04-01",
+              "period_end": "2026-06-30",
+              "gaap": true,
+              "official_source": "6-K Ex.99.1",
+              "source_location": {
+                "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+                "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+                "accession": "0001104659-26-099220",
+                "announcement_date": "2026-08-20"
+              },
+              "line_item": "Basic earnings per ADS",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ADS_1_equals_8_ordinary_shares",
+              "akshare": {
+                "item_name": "基本每股收益-ADS",
+                "raw": 4.51,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "BABA 单季报",
+                "match_to_official_million": 4.51
+              },
+              "notes": [],
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2027Q1.diluted_eps_ads",
+              "value": 3.71,
+              "unit": "currency_per_share",
+              "currency": "RMB",
+              "period_type": "quarter",
+              "period_start": "2026-04-01",
+              "period_end": "2026-06-30",
+              "gaap": true,
+              "official_source": "6-K Ex.99.1",
+              "source_location": {
+                "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+                "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+                "accession": "0001104659-26-099220",
+                "announcement_date": "2026-08-20"
+              },
+              "line_item": "Diluted earnings per ADS",
+              "usable_as_finrobot_input": true,
+              "share_basis": "ADS_1_equals_8_ordinary_shares",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "BABA.FY2027Q1.operating_cash_flow",
+              "value": 22945,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "quarter",
+              "period_start": "2026-04-01",
+              "period_end": "2026-06-30",
+              "gaap": true,
+              "official_source": "6-K Ex.99.1",
+              "source_location": {
+                "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+                "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+                "accession": "0001104659-26-099220",
+                "announcement_date": "2026-08-20"
+              },
+              "line_item": "Net cash provided by operating activities",
+              "usable_as_finrobot_input": true,
+              "sign": "inflow_positive",
+              "akshare": {
+                "item_name": "经营业务现金净额 / 经营活动产生的现金流量净额",
+                "raw": 22945000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "09988 报告期 and BABA 单季报",
+                "match_to_official_million": 22945.0
+              },
+              "notes": [],
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null
+            },
+            {
+              "field_id": "BABA.FY2027Q1.company_defined_fcf",
+              "value": -44670,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "quarter",
+              "period_start": "2026-04-01",
+              "period_end": "2026-06-30",
+              "gaap": false,
+              "official_source": "6-K Ex.99.1 non-GAAP recon",
+              "source_location": {
+                "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+                "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+                "accession": "0001104659-26-099220",
+                "announcement_date": "2026-08-20"
+              },
+              "line_item": "Free cash flow (company definition)",
+              "usable_as_finrobot_input": true,
+              "sign": "company_fcf_outflow_negative",
+              "notes": [
+                "Official only; AKShare quarter cash-flow extracts have totals but not the FCF recon lines."
+              ],
+              "share_basis": null,
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null
+            },
+            {
+              "field_id": "BABA.FY2027Q1.capex_narrow_ppe_for_fcf",
+              "value": -67660,
+              "unit": "million",
+              "currency": "RMB",
+              "period_type": "quarter",
+              "period_start": "2026-04-01",
+              "period_end": "2026-06-30",
+              "gaap": true,
+              "official_source": "6-K Ex.99.1 FCF recon",
+              "source_location": {
+                "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+                "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+                "accession": "0001104659-26-099220",
+                "announcement_date": "2026-08-20"
+              },
+              "line_item": "Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)",
+              "usable_as_finrobot_input": true,
+              "sign": "cash_outflow_negative_as_in_official_recon",
+              "notes": [
+                "Official only; not in the saved AKShare quarter cash-flow extracts."
+              ],
+              "share_basis": null,
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null
+            }
+          ]
+        }
+      }
+    },
+    "NVIDIA_Corporation": {
+      "tickers": [
+        "NVDA"
+      ],
+      "share_basis": "Common stock; June 2024 ten-for-one split retrospectively adjusted in the cited 10-K/10-Q.",
+      "reporting_currency": "USD",
+      "accounting": "U.S. GAAP",
+      "fiscal_year_convention": "Year ended on the last Sunday of January (here FY2026 ended January 25, 2026).",
+      "periods": {
+        "FY2026": {
+          "period_type": "FY",
+          "period_end": "2026-01-25",
+          "fields": [
+            {
+              "field_id": "NVDA.FY2026.revenue",
+              "value": 215938,
+              "unit": "million",
+              "currency": "USD",
+              "period_type": "FY",
+              "period_start": null,
+              "period_end": "2026-01-25",
+              "gaap": true,
+              "official_source": "10-K",
+              "source_location": {
+                "document": "NVIDIA FY2026 Form 10-K",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+                "accession": "0001045810-26-000021",
+                "filed": "2026-02-25"
+              },
+              "line_item": "Revenue",
+              "usable_as_finrobot_input": true,
+              "notes": [
+                "period_start is not a hard official heading field; prior year ended 2025-01-26."
+              ],
+              "akshare": {
+                "item_name": "营业收入",
+                "raw": 215938000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "US 年报 2026/FY",
+                "match_to_official_million": 215938.0
+              },
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "NVDA.FY2026.net_income",
+              "value": 120067,
+              "unit": "million",
+              "currency": "USD",
+              "period_type": "FY",
+              "period_start": null,
+              "period_end": "2026-01-25",
+              "gaap": true,
+              "official_source": "10-K",
+              "source_location": {
+                "document": "NVIDIA FY2026 Form 10-K",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+                "accession": "0001045810-26-000021",
+                "filed": "2026-02-25"
+              },
+              "line_item": "Net income",
+              "usable_as_finrobot_input": true,
+              "akshare": {
+                "item_name": "净利润",
+                "raw": 120067000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "same",
+                "match_to_official_million": 120067.0
+              },
+              "notes": [],
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "NVDA.FY2026.basic_eps",
+              "value": 4.93,
+              "unit": "currency_per_share",
+              "currency": "USD",
+              "period_type": "FY",
+              "period_start": null,
+              "period_end": "2026-01-25",
+              "gaap": true,
+              "official_source": "10-K",
+              "source_location": {
+                "document": "NVIDIA FY2026 Form 10-K",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+                "accession": "0001045810-26-000021",
+                "filed": "2026-02-25"
+              },
+              "line_item": "Net income per share — Basic",
+              "usable_as_finrobot_input": true,
+              "share_basis": "common_stock_post_June_2024_ten_for_one_split_retrospectively_adjusted",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "NVDA.FY2026.diluted_eps",
+              "value": 4.9,
+              "unit": "currency_per_share",
+              "currency": "USD",
+              "period_type": "FY",
+              "period_start": null,
+              "period_end": "2026-01-25",
+              "gaap": true,
+              "official_source": "10-K",
+              "source_location": {
+                "document": "NVIDIA FY2026 Form 10-K",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+                "accession": "0001045810-26-000021",
+                "filed": "2026-02-25"
+              },
+              "line_item": "Net income per share — Diluted",
+              "usable_as_finrobot_input": true,
+              "share_basis": "common_stock_post_June_2024_ten_for_one_split_retrospectively_adjusted",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "NVDA.FY2026.weighted_average_shares_basic_million",
+              "value": 24359,
+              "unit": "million_shares",
+              "currency": "shares",
+              "period_type": "FY",
+              "period_start": null,
+              "period_end": "2026-01-25",
+              "gaap": true,
+              "official_source": "10-K",
+              "source_location": {
+                "document": "NVIDIA FY2026 Form 10-K",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+                "accession": "0001045810-26-000021",
+                "filed": "2026-02-25"
+              },
+              "line_item": "Weighted average shares — Basic",
+              "usable_as_finrobot_input": true,
+              "share_basis": "common_stock_post_June_2024_ten_for_one_split_retrospectively_adjusted",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "NVDA.FY2026.weighted_average_shares_diluted_million",
+              "value": 24514,
+              "unit": "million_shares",
+              "currency": "shares",
+              "period_type": "FY",
+              "period_start": null,
+              "period_end": "2026-01-25",
+              "gaap": true,
+              "official_source": "10-K",
+              "source_location": {
+                "document": "NVIDIA FY2026 Form 10-K",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+                "accession": "0001045810-26-000021",
+                "filed": "2026-02-25"
+              },
+              "line_item": "Weighted average shares — Diluted",
+              "usable_as_finrobot_input": true,
+              "share_basis": "common_stock_post_June_2024_ten_for_one_split_retrospectively_adjusted",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "NVDA.FY2026.operating_cash_flow",
+              "value": 102718,
+              "unit": "million",
+              "currency": "USD",
+              "period_type": "FY",
+              "period_start": null,
+              "period_end": "2026-01-25",
+              "gaap": true,
+              "official_source": "10-K",
+              "source_location": {
+                "document": "NVIDIA FY2026 Form 10-K",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+                "accession": "0001045810-26-000021",
+                "filed": "2026-02-25"
+              },
+              "line_item": "Net cash provided by operating activities",
+              "usable_as_finrobot_input": true,
+              "sign": "inflow_positive",
+              "akshare": {
+                "item_name": "经营活动产生的现金流量净额",
+                "raw": 102718000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "年报现金流量表",
+                "match_to_official_million": 102718.0
+              },
+              "notes": [],
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null
+            },
+            {
+              "field_id": "NVDA.FY2026.purchases_related_to_ppe_and_intangible_assets",
+              "value": -6042,
+              "unit": "million",
+              "currency": "USD",
+              "period_type": "FY",
+              "period_start": null,
+              "period_end": "2026-01-25",
+              "gaap": true,
+              "official_source": "10-K",
+              "source_location": {
+                "document": "NVIDIA FY2026 Form 10-K",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+                "accession": "0001045810-26-000021",
+                "filed": "2026-02-25"
+              },
+              "line_item": "Purchases related to property and equipment and intangible assets",
+              "usable_as_finrobot_input": true,
+              "sign": "cash_outflow_negative_as_in_official_CF",
+              "notes": [
+                "AKShare labels the same amount 购买固定资产; official caption also includes intangible assets."
+              ],
+              "akshare": {
+                "item_name": "购买固定资产",
+                "raw": -6042000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "年报现金流量表",
+                "match_to_official_million": -6042.0
+              },
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null
+            },
+            {
+              "field_id": "NVDA.FY2026.company_defined_fcf",
+              "value": null,
+              "unit": "million",
+              "currency": "USD",
+              "period_type": "FY",
+              "period_start": null,
+              "period_end": "2026-01-25",
+              "gaap": false,
+              "official_source": "10-K",
+              "source_location": {
+                "document": "NVIDIA FY2026 Form 10-K",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+                "accession": "0001045810-26-000021",
+                "filed": "2026-02-25"
+              },
+              "line_item": "(no labeled FCF line)",
+              "usable_as_finrobot_input": false,
+              "fail_closed_reason": "No official labeled FCF line in the FY2026 10-K cash-flow statement. Self-calculated OCF minus capex is not an official input.",
+              "notes": [],
+              "share_basis": null,
+              "akshare": null,
+              "calculation": null,
+              "sign": "as_stated"
+            }
+          ]
+        },
+        "FY2027H1": {
+          "period_type": "YTD_six_months",
+          "period_end": "2026-07-26",
+          "fields": [
+            {
+              "field_id": "NVDA.FY2027H1.revenue",
+              "value": 177837,
+              "unit": "million",
+              "currency": "USD",
+              "period_type": "YTD_six_months",
+              "period_start": null,
+              "period_end": "2026-07-26",
+              "gaap": true,
+              "official_source": "10-Q",
+              "source_location": {
+                "document": "NVIDIA FY2027 Q2 Form 10-Q",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+                "accession": "0001045810-26-000075",
+                "filed": "2026-08-26"
+              },
+              "line_item": "Revenue — Six Months Ended Jul 26, 2026",
+              "usable_as_finrobot_input": true,
+              "notes": [
+                "AKShare 2027/Q6 is this six-month cumulative period, not the single quarter (revenue 96,221)."
+              ],
+              "akshare": {
+                "item_name": "营业收入",
+                "raw": 177837000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "累计季报 2027/Q6",
+                "match_to_official_million": 177837.0
+              },
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "NVDA.FY2027H1.net_income",
+              "value": 118010,
+              "unit": "million",
+              "currency": "USD",
+              "period_type": "YTD_six_months",
+              "period_start": null,
+              "period_end": "2026-07-26",
+              "gaap": true,
+              "official_source": "10-Q",
+              "source_location": {
+                "document": "NVIDIA FY2027 Q2 Form 10-Q",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+                "accession": "0001045810-26-000075",
+                "filed": "2026-08-26"
+              },
+              "line_item": "Net income — Six Months Ended Jul 26, 2026",
+              "usable_as_finrobot_input": true,
+              "akshare": {
+                "item_name": "净利润",
+                "raw": 118010000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "same",
+                "match_to_official_million": 118010.0
+              },
+              "notes": [],
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "NVDA.FY2027H1.basic_eps",
+              "value": 4.87,
+              "unit": "currency_per_share",
+              "currency": "USD",
+              "period_type": "YTD_six_months",
+              "period_start": null,
+              "period_end": "2026-07-26",
+              "gaap": true,
+              "official_source": "10-Q",
+              "source_location": {
+                "document": "NVIDIA FY2027 Q2 Form 10-Q",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+                "accession": "0001045810-26-000075",
+                "filed": "2026-08-26"
+              },
+              "line_item": "Basic net income per share — six months",
+              "usable_as_finrobot_input": true,
+              "share_basis": "common_stock_post_June_2024_ten_for_one_split_retrospectively_adjusted",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "NVDA.FY2027H1.diluted_eps",
+              "value": 4.85,
+              "unit": "currency_per_share",
+              "currency": "USD",
+              "period_type": "YTD_six_months",
+              "period_start": null,
+              "period_end": "2026-07-26",
+              "gaap": true,
+              "official_source": "10-Q",
+              "source_location": {
+                "document": "NVIDIA FY2027 Q2 Form 10-Q",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+                "accession": "0001045810-26-000075",
+                "filed": "2026-08-26"
+              },
+              "line_item": "Diluted net income per share — six months",
+              "usable_as_finrobot_input": true,
+              "share_basis": "common_stock_post_June_2024_ten_for_one_split_retrospectively_adjusted",
+              "notes": [],
+              "akshare": null,
+              "calculation": null,
+              "fail_closed_reason": null,
+              "sign": "as_stated"
+            },
+            {
+              "field_id": "NVDA.FY2027H1.operating_cash_flow",
+              "value": 74421,
+              "unit": "million",
+              "currency": "USD",
+              "period_type": "YTD_six_months",
+              "period_start": null,
+              "period_end": "2026-07-26",
+              "gaap": true,
+              "official_source": "10-Q",
+              "source_location": {
+                "document": "NVIDIA FY2027 Q2 Form 10-Q",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+                "accession": "0001045810-26-000075",
+                "filed": "2026-08-26"
+              },
+              "line_item": "Net cash provided by operating activities — Six Months Ended Jul 26, 2026",
+              "usable_as_finrobot_input": true,
+              "sign": "inflow_positive",
+              "akshare": {
+                "item_name": "经营活动产生的现金流量净额",
+                "raw": 74421000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "累计季报现金流量表 2027/Q6",
+                "match_to_official_million": 74421.0
+              },
+              "notes": [],
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null
+            },
+            {
+              "field_id": "NVDA.FY2027H1.purchases_related_to_ppe_and_intangible_assets",
+              "value": -4434,
+              "unit": "million",
+              "currency": "USD",
+              "period_type": "YTD_six_months",
+              "period_start": null,
+              "period_end": "2026-07-26",
+              "gaap": true,
+              "official_source": "10-Q",
+              "source_location": {
+                "document": "NVIDIA FY2027 Q2 Form 10-Q",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+                "accession": "0001045810-26-000075",
+                "filed": "2026-08-26"
+              },
+              "line_item": "Purchases related to property and equipment and intangible assets",
+              "usable_as_finrobot_input": true,
+              "sign": "cash_outflow_negative_as_in_official_CF",
+              "notes": [
+                "Caption caveat: official line includes intangible assets; AKShare name is 购买固定资产."
+              ],
+              "akshare": {
+                "item_name": "购买固定资产",
+                "raw": -4434000000.0,
+                "raw_unit": "1 currency unit (yuan or dollar), not millions",
+                "interface": "same",
+                "match_to_official_million": -4434.0
+              },
+              "share_basis": null,
+              "calculation": null,
+              "fail_closed_reason": null
+            },
+            {
+              "field_id": "NVDA.FY2027H1.company_defined_fcf",
+              "value": null,
+              "unit": "million",
+              "currency": "USD",
+              "period_type": "YTD_six_months",
+              "period_start": null,
+              "period_end": "2026-07-26",
+              "gaap": false,
+              "official_source": "10-Q",
+              "source_location": {
+                "document": "NVIDIA FY2027 Q2 Form 10-Q",
+                "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+                "accession": "0001045810-26-000075",
+                "filed": "2026-08-26"
+              },
+              "line_item": "(no labeled FCF line)",
+              "usable_as_finrobot_input": false,
+              "fail_closed_reason": "No official labeled FCF line in the 10-Q cash-flow statement. Fail-closed.",
+              "notes": [],
+              "share_basis": null,
+              "akshare": null,
+              "calculation": null,
+              "sign": "as_stated"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "counts": {
+    "usable_as_finrobot_input": 39,
+    "fail_closed": 3
+  }
+}

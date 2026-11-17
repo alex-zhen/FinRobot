@@ -228,6 +228,21 @@ class FinancialData(BaseModel):
     reporting_currency: str = "USD"
     quote_currency: str = "USD"
 
+    # FX hops already applied, newest last. A later normalizer that finds both
+    # currency tags equal to its target must not scale again. Empty on a
+    # snapshot that was already in that target currency.
+    fx_conversions: list[dict[str, Any]] = Field(default_factory=list)
+    # How a TTM snapshot was built: four_quarters, two_halves, or fy_ytd_bridge.
+    ttm_construction: str | None = None
+    ttm_quality_reasons: list[str] = Field(default_factory=list)
+    # reported | market_implied_us | derived_missing | unresolved | ads_reconciled
+    share_basis: str | None = None
+    # single_listing | ads_reconciled. Required before a per-share value is
+    # published for an exchange-suffixed listing (0700.HK, 300750.SZ, …).
+    share_class_scope: str | None = None
+    # Optional {old_shares, new_shares, old_price, new_price} across a split.
+    split_observation: dict[str, float] | None = None
+
     data_source: str = "yfinance"
     provenance: DataProvenance | None = None
     warnings: list[str] = Field(default_factory=list)
@@ -725,6 +740,10 @@ class DCFResult(BaseModel):
     enterprise_value: float
     equity_value: float
     implied_price: float
+    # Present value per share today. ``projection_years`` is the explicit forecast
+    # horizon inside the model, not a claim that this number is the price that
+    # many years from now.
+    implied_price_basis: str = "current_fair_value"
 
     # ISO 4217 quote currency of implied_price / equity_value, threaded from
     # DCFInputs.currency (← FinancialData.quote_currency). Lets the artifact

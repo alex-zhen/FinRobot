@@ -377,6 +377,21 @@ async def test_step1_produces_financial_data(mock_deps):
     assert output.structured.income.revenue == 100e9
 
 
+def _verified_ttm_window():
+    """Four fiscal quarter-ends the publication gate accepts. Synthetic dates."""
+    from datetime import date
+
+    from finrobot.engine.models.financial import DataProvenance
+
+    ends = [date(2026, 3, 28), date(2025, 12, 27), date(2025, 9, 27), date(2025, 6, 28)]
+    return {
+        "fiscal_period_end": ends[0],
+        "ttm_quarter_ends": ends,
+        "ttm_construction": "four_quarters",
+        "provenance": DataProvenance(provider="test", as_of=ends[0], period_basis="ttm"),
+    }
+
+
 @pytest.mark.asyncio
 async def test_step3_dcf_deterministic(mock_deps):
     """Step 3 with the same FinancialData → same DCFResult (no LLM call).
@@ -410,6 +425,7 @@ async def test_step3_dcf_deterministic(mock_deps):
             gross_margin=0.43,
             operating_margin=0.30,
             interest_expense=3e9,
+            capital_expenditure=10e9,
         ),
         balance=BalanceSheet(total_debt=120e9, total_cash=60e9),
         market=MarketData(
@@ -420,6 +436,7 @@ async def test_step3_dcf_deterministic(mock_deps):
             beta=1.25,
         ),
         valuation=ValuationMetrics(),
+        **_verified_ttm_window(),
     )
     hm = HistoricalMetrics(
         years=[],
@@ -448,6 +465,9 @@ async def test_step3_dcf_deterministic(mock_deps):
 
     assert isinstance(out1.structured, DCFResult)
     assert out1.structured.implied_price == out2.structured.implied_price
+    assert out1.structured.implied_price_basis == "current_fair_value"
+    assert "current fair value" in out1.text
+    assert "years from now" in out1.text
 
 
 @pytest.mark.asyncio
@@ -1264,6 +1284,7 @@ def _low_wacc_financial_data():
             gross_margin=0.60,
             operating_margin=0.40,
             interest_expense=1e6,
+            capital_expenditure=400e6,
         ),
         balance=BalanceSheet(total_debt=1e6, total_cash=5e9),
         market=MarketData(
@@ -1274,6 +1295,7 @@ def _low_wacc_financial_data():
             beta=0.05,
         ),
         valuation=ValuationMetrics(),
+        **_verified_ttm_window(),
     )
 
 
@@ -1556,6 +1578,7 @@ def _twd_local_financial_data():
             gross_margin=0.53,
             operating_margin=0.42,
             interest_expense=4e9,
+            capital_expenditure=180e9,
         ),
         balance=BalanceSheet(total_debt=900e9, total_cash=1_500e9),
         market=MarketData(
@@ -1568,6 +1591,8 @@ def _twd_local_financial_data():
             beta=1.05,
         ),
         valuation=ValuationMetrics(),
+        share_class_scope="single_listing",
+        **_verified_ttm_window(),
     )
 
 

@@ -398,7 +398,13 @@ async def execute_peer_analysis(
                 f"got {len(override)}: {override}"
             )
         logger.info("Peer analysis using caller-supplied peers: %s", override)
-        selection = PeerSelection(tickers=override, rationale="Caller-supplied peer set (--peers).")
+        supplied_rationale = kwargs.get("peer_rationale")
+        selection = PeerSelection(
+            tickers=override,
+            rationale=supplied_rationale.strip()
+            if isinstance(supplied_rationale, str) and supplied_rationale.strip()
+            else "Caller-supplied peer set (--peers).",
+        )
     else:
         sticky_selection = await _sticky_peer_selection(
             deps, kwargs.get("source_artifact_id"), ticker

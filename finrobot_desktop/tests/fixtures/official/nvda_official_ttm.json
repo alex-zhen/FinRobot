@@ -1,0 +1,555 @@
+{
+  "schema_version": "1.0",
+  "document_id": "nvda_official_ttm_from_fy2026_and_10q_h1_comparatives",
+  "access_date": "2026-11-17",
+  "timezone": "Asia/Shanghai (UTC+8)",
+  "purpose": "Fill the known NVDA official TTM gap using comparative columns already present in the FY2027 H1 10-Q, without re-scraping a full filing set, without changing repositories, run packages, gates, or the Page, and without producing a price target.",
+  "issuer": {
+    "name": "NVIDIA Corporation",
+    "ticker": "NVDA",
+    "exchange": "The Nasdaq Global Select Market",
+    "reporting_currency": "USD",
+    "presentation_unit": "millions, except per share data",
+    "accounting": "U.S. GAAP",
+    "fiscal_year_convention": "52- or 53-week fiscal year ending on the last Sunday in January. FY2026 was a 52-week year. The FY2026 10-K states FY2027 will be a 53-week year with a 14-week fourth quarter.",
+    "share_basis": "Common stock, $0.001 par value. The FY2026 10-K states that all share, equity award and per share amounts presented have been retrospectively adjusted for the June 2024 ten-for-one stock split."
+  },
+  "reuse_of_existing_local_documents": {
+    "no_new_sec_download_this_pass": true,
+    "reason": "The FY2026 10-K and FY2027 H1 10-Q HTML/text were already in /workspace/akshare-supplement/data/official/source-documents. This pass extracted prior-year H1 comparatives from those files and fetched only public company IR/news pages for official period-end date corroboration. No SEC identity was sent and no login or rate-limit bypass was used.",
+    "local_10k_html": "/workspace/akshare-supplement/data/official/source-documents/nvda-10k-20260125.htm",
+    "local_10k_txt": "/workspace/akshare-supplement/data/official/source-documents/nvda-10k.txt",
+    "local_10q_html": "/workspace/akshare-supplement/data/official/source-documents/nvda-10q-20260726.htm",
+    "local_10q_txt": "/workspace/akshare-supplement/data/official/source-documents/nvda-10q.txt",
+    "prior_structured_json": [
+      "/workspace/akshare-supplement/data/official/baba_nvda_official_figures.json",
+      "/workspace/akshare-supplement/data/official/finrobot_input_evidence.json",
+      "/workspace/akshare-supplement/data/official/provenance_quotes.json"
+    ],
+    "gap_in_prior_json": "Those files recorded FY2026 and current FY2027 H1 (six months ended 2026-07-26) flow items, but did not capture the same 10-Q's prior-year comparative column (six months ended 2025-07-27). That omission, not a missing filing, was what blocked official FY + current YTD - prior YTD."
+  },
+  "sources": {
+    "fy2026_10k": {
+      "form": "Form 10-K",
+      "period_end": "2026-01-25",
+      "period_start": "2025-01-27",
+      "filed": "2026-02-25",
+      "accession": "0001045810-26-000021",
+      "sec_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+      "status": "reused_local_official_html",
+      "ir_entry": "https://investor.nvidia.com/financial-info/financial-reports/"
+    },
+    "fy2027_h1_10q": {
+      "form": "Form 10-Q",
+      "period_end": "2026-07-26",
+      "six_months_start": "2026-01-26",
+      "comparative_six_months_ended": "2025-07-27",
+      "comparative_six_months_start": "2025-01-27",
+      "filed": "2026-08-26",
+      "accession": "0001045810-26-000075",
+      "sec_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/0001045810-26-000075-index.html",
+      "status": "reused_local_official_html",
+      "ir_entry": "https://investor.nvidia.com/financial-info/financial-reports/",
+      "toc_quote": "a) Condensed Consolidated Statements of Income for the three and six months ended July 26, 2026 and July 27, 2025; e) Condensed Consolidated Statements of Cash Flows for the six months ended July 26, 2026 and July 27, 2025."
+    },
+    "ir_q3_fy2026_earnings_release": {
+      "title": "NVIDIA Announces Financial Results for Third Quarter Fiscal 2026",
+      "date": "2025-11-19",
+      "url": "https://investor.nvidia.com/news/press-release-details/2025/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2026/default.aspx",
+      "local": "source-documents/ir-nvda/pr-q3fy2026.html",
+      "used_for": "Official fiscal quarter-end date 2025-10-26 and IR-reported Q3 headline GAAP figures. Not used as the TTM cash-flow source.",
+      "status": "retrieved_public_ir_no_login"
+    },
+    "ir_q3_fy2026_call_notice": {
+      "title": "NVIDIA Sets Conference Call for Third-Quarter Financial Results",
+      "date": "2025-10-29",
+      "url": "https://investor.nvidia.com/news/press-release-details/2025/NVIDIA-Sets-Conference-Call-for-Third-Quarter-Financial-Results/default.aspx",
+      "local": "source-documents/ir-nvda/call-notice-q3fy2026.html",
+      "verbatim": "NVIDIA will host a conference call on Wednesday, November 19, at 2 p.m. PT (5 p.m. ET) to discuss its financial results for the third quarter of fiscal year 2026, which ended October 26, 2025.",
+      "status": "retrieved_public_ir_no_login"
+    },
+    "ir_q1_fy2027_earnings_release": {
+      "title": "NVIDIA Announces Financial Results for First Quarter Fiscal 2027",
+      "url": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-first-quarter-fiscal-2027",
+      "url_ir_alt": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-First-Quarter-Fiscal-2027/default.aspx",
+      "local": "source-documents/ir-nvda/pr-q1fy2027.html",
+      "verbatim": "NVIDIA (NASDAQ: NVDA) today reported record revenue for the first quarter ended April 26, 2026, of $81.6 billion, up 20% from the previous quarter and up 85% from a year ago.",
+      "used_for": "Official Q1 FY2027 period-end date 2026-04-26, consistent with the current 10-Q reference to the Form 10-Q for the fiscal quarter ended April 26, 2026.",
+      "status": "retrieved_public_ir_no_login"
+    },
+    "ir_q2_fy2027_earnings_release": {
+      "title": "NVIDIA Announces Financial Results for Second Quarter Fiscal 2027",
+      "url": "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027",
+      "url_ir_alt": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Second-Quarter-Fiscal-2027/default.aspx",
+      "local": "source-documents/ir-nvda/pr-q2fy2027.html",
+      "verbatim": "NVIDIA (NASDAQ: NVDA) today reported revenue for the second quarter ended July 26, 2026, of $96.2 billion, up 18% from the previous quarter and up 106% from a year ago.",
+      "used_for": "IR corroboration of the 10-Q period end 2026-07-26. The $96.2 billion quarterly revenue agrees with the 10-Q three-months-ended July 26, 2026 revenue of $96,221 million.",
+      "status": "retrieved_public_ir_no_login"
+    }
+  },
+  "line_item_definitions": {
+    "revenue": {
+      "statement": "Condensed / Consolidated Statements of Income",
+      "caption": "Revenue",
+      "nature": "flow"
+    },
+    "net_income": {
+      "statement": "Condensed / Consolidated Statements of Income",
+      "caption": "Net income",
+      "nature": "flow"
+    },
+    "operating_cash_flow": {
+      "statement": "Condensed / Consolidated Statements of Cash Flows",
+      "caption": "Net cash provided by operating activities",
+      "nature": "flow"
+    },
+    "purchases_related_to_property_and_equipment_and_intangible_assets": {
+      "statement": "Condensed / Consolidated Statements of Cash Flows, investing activities",
+      "caption": "Purchases related to property and equipment and intangible assets",
+      "nature": "flow",
+      "sign_in_official_cf": "cash outflow, presented in parentheses",
+      "do_not_conflate_with": "Principal payments on property and equipment and intangible assets (financing activities). The two lines are recorded separately and are not added together unless a later, explicitly defined policy says so. No company-labeled FCF line was taken as official."
+    },
+    "principal_payments_on_property_and_equipment_and_intangible_assets": {
+      "statement": "Condensed / Consolidated Statements of Cash Flows, financing activities",
+      "caption": "Principal payments on property and equipment and intangible assets",
+      "nature": "flow",
+      "sign_in_official_cf": "cash outflow, presented in parentheses",
+      "role": "disclosed separately; not used as a substitute for the purchases line"
+    },
+    "period_end_common_stock_outstanding": {
+      "statement": "Condensed Consolidated Statements of Shareholders' Equity, column 'Common Stock Outstanding / Shares'",
+      "nature": "stock_not_flow",
+      "unit": "millions of shares",
+      "do_not_ttm": "FY + current YTD - prior YTD is not a valid formula for period-end shares or WASO."
+    },
+    "weighted_average_shares": {
+      "statement": "Condensed / Consolidated Statements of Income, 'Weighted average shares used in per share computation'",
+      "nature": "period_average_not_flow",
+      "unit": "millions of shares",
+      "do_not_ttm": true
+    }
+  },
+  "periods": {
+    "FY2026": {
+      "period_type": "FY",
+      "period_start": "2025-01-27",
+      "period_end": "2026-01-25",
+      "currency": "USD",
+      "unit": "million",
+      "source": "FY2026 Form 10-K",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+      "fields": {
+        "revenue": {
+          "value": 215938,
+          "status": "obtained_official_previously_confirmed",
+          "verbatim_context": "Consolidated Statements of Income, year ended Jan 25, 2026: Revenue $215,938"
+        },
+        "net_income": {
+          "value": 120067,
+          "status": "obtained_official_previously_confirmed",
+          "verbatim_context": "Net income $120,067"
+        },
+        "operating_cash_flow": {
+          "value": 102718,
+          "status": "obtained_official_previously_confirmed",
+          "caption": "Net cash provided by operating activities",
+          "verbatim_context": "Net cash provided by operating activities $102,718"
+        },
+        "purchases_related_to_property_and_equipment_and_intangible_assets": {
+          "value": 6042,
+          "status": "obtained_official_previously_confirmed",
+          "sign": "cash_outflow",
+          "verbatim_context": "Purchases related to property and equipment and intangible assets (6,042)"
+        },
+        "principal_payments_on_property_and_equipment_and_intangible_assets": {
+          "value": 101,
+          "status": "obtained_official_previously_confirmed",
+          "sign": "cash_outflow",
+          "verbatim_context": "Principal payments on property and equipment and intangible assets (101)"
+        },
+        "basic_eps": {
+          "value": 4.93,
+          "status": "obtained_official_previously_confirmed",
+          "nature": "not_a_ttm_flow"
+        },
+        "diluted_eps": {
+          "value": 4.9,
+          "status": "obtained_official_previously_confirmed",
+          "nature": "not_a_ttm_flow"
+        },
+        "weighted_average_shares_basic_million": {
+          "value": 24359,
+          "status": "obtained_official_previously_confirmed",
+          "nature": "period_average_not_flow"
+        },
+        "weighted_average_shares_diluted_million": {
+          "value": 24514,
+          "status": "obtained_official_previously_confirmed",
+          "nature": "period_average_not_flow"
+        },
+        "common_stock_issued_and_outstanding_million": {
+          "value": 24304,
+          "as_of": "2026-01-25",
+          "status": "obtained_official",
+          "verbatim_context": "24,304 shares issued and outstanding as of January 25, 2026; equity statement opening balance as of Jan 25, 2026: 24,304 shares. Unit: millions of shares."
+        }
+      }
+    },
+    "FY2027H1_current": {
+      "period_type": "YTD_six_months",
+      "period_start": "2026-01-26",
+      "period_end": "2026-07-26",
+      "currency": "USD",
+      "unit": "million",
+      "source": "FY2027 Q2 Form 10-Q, six-months column ended Jul 26, 2026",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+      "fields": {
+        "revenue": {
+          "value": 177837,
+          "status": "obtained_official_previously_confirmed",
+          "verbatim": "Revenue | $ | 96,221 | $ | 46,743 | $ | 177,837 | $ | 90,805"
+        },
+        "net_income": {
+          "value": 118010,
+          "status": "obtained_official_previously_confirmed",
+          "verbatim": "Net income | $ | 59,688 | $ | 26,422 | $ | 118,010 | $ | 45,197"
+        },
+        "operating_cash_flow": {
+          "value": 74421,
+          "status": "obtained_official_previously_confirmed",
+          "verbatim": "Net cash provided by operating activities | 74,421 | 42,779"
+        },
+        "purchases_related_to_property_and_equipment_and_intangible_assets": {
+          "value": 4434,
+          "status": "obtained_official_previously_confirmed",
+          "sign": "cash_outflow",
+          "verbatim": "Purchases related to property and equipment and intangible assets | ( 4,434 ) | ( 3,122 )"
+        },
+        "principal_payments_on_property_and_equipment_and_intangible_assets": {
+          "value": 92,
+          "status": "obtained_official_this_pass",
+          "sign": "cash_outflow",
+          "verbatim": "Principal payments on property and equipment and intangible assets | ( 92 ) | ( 73 )"
+        },
+        "basic_eps": {
+          "value": 4.87,
+          "status": "obtained_official_previously_confirmed",
+          "nature": "not_a_ttm_flow"
+        },
+        "diluted_eps": {
+          "value": 4.85,
+          "status": "obtained_official_previously_confirmed",
+          "nature": "not_a_ttm_flow"
+        },
+        "weighted_average_shares_basic_million": {
+          "value": 24238,
+          "status": "obtained_official_previously_confirmed",
+          "nature": "period_average_not_flow",
+          "verbatim": "Basic | 24,190 | 24,366 | 24,238 | 24,404"
+        },
+        "weighted_average_shares_diluted_million": {
+          "value": 24338,
+          "status": "obtained_official_previously_confirmed",
+          "nature": "period_average_not_flow",
+          "verbatim": "Diluted | 24,285 | 24,532 | 24,338 | 24,571"
+        },
+        "common_stock_outstanding_million": {
+          "value": 24147,
+          "as_of": "2026-07-26",
+          "status": "obtained_official_this_pass",
+          "statement": "Condensed Consolidated Statements of Shareholders' Equity",
+          "verbatim": "Balances as of Jul 26, 2026 | 24,147 | $ | 24",
+          "column": "Common Stock Outstanding — Shares (In millions)"
+        }
+      },
+      "three_months_ended_2026_07_26_not_used_in_ttm": {
+        "revenue": 96221,
+        "net_income": 59688,
+        "note": "Single fiscal quarter figures from the same income statement. TTM uses the six-month column, not this three-month column."
+      }
+    },
+    "FY2026H1_prior_comparative": {
+      "period_type": "YTD_six_months_prior_year_comparative",
+      "period_start": "2025-01-27",
+      "period_end": "2025-07-27",
+      "currency": "USD",
+      "unit": "million",
+      "source": "FY2027 Q2 Form 10-Q comparative six-months column ended Jul 27, 2025 — same document, same line captions as current H1",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+      "status_note": "This is the previously missing prior-year H1. It was already in the latest 10-Q; it did not require a separate prior-year 10-Q download.",
+      "fields": {
+        "revenue": {
+          "value": 90805,
+          "status": "obtained_official_this_pass",
+          "verbatim": "Six Months Ended Jul 27, 2025 Revenue $90,805"
+        },
+        "net_income": {
+          "value": 45197,
+          "status": "obtained_official_this_pass",
+          "verbatim": "Six Months Ended Jul 27, 2025 Net income $45,197"
+        },
+        "operating_cash_flow": {
+          "value": 42779,
+          "status": "obtained_official_this_pass",
+          "verbatim": "Six Months Ended Jul 27, 2025 Net cash provided by operating activities 42,779"
+        },
+        "purchases_related_to_property_and_equipment_and_intangible_assets": {
+          "value": 3122,
+          "status": "obtained_official_this_pass",
+          "sign": "cash_outflow",
+          "verbatim": "Six Months Ended Jul 27, 2025 Purchases related to property and equipment and intangible assets (3,122)"
+        },
+        "principal_payments_on_property_and_equipment_and_intangible_assets": {
+          "value": 73,
+          "status": "obtained_official_this_pass",
+          "sign": "cash_outflow",
+          "verbatim": "Six Months Ended Jul 27, 2025 Principal payments on property and equipment and intangible assets (73)"
+        },
+        "basic_eps": {
+          "value": 1.85,
+          "status": "obtained_official_this_pass",
+          "nature": "not_a_ttm_flow"
+        },
+        "diluted_eps": {
+          "value": 1.84,
+          "status": "obtained_official_this_pass",
+          "nature": "not_a_ttm_flow"
+        },
+        "weighted_average_shares_basic_million": {
+          "value": 24404,
+          "status": "obtained_official_this_pass",
+          "nature": "period_average_not_flow"
+        },
+        "weighted_average_shares_diluted_million": {
+          "value": 24571,
+          "status": "obtained_official_this_pass",
+          "nature": "period_average_not_flow"
+        },
+        "common_stock_outstanding_million": {
+          "value": 24347,
+          "as_of": "2025-07-27",
+          "status": "obtained_official_this_pass",
+          "verbatim": "Balances as of Jul 27, 2025 | 24,347 | $ | 24"
+        }
+      }
+    }
+  },
+  "ttm_constructed": {
+    "method": "FY + currentYTD - priorYTD",
+    "formula": "FY2026 (2025-01-27 to 2026-01-25) + FY2027 H1 (2026-01-26 to 2026-07-26) - FY2026 H1 (2025-01-27 to 2025-07-27)",
+    "ttm_period_start": "2025-07-28",
+    "ttm_period_end": "2026-07-26",
+    "period_continuity_check": "Prior H1 ends Sunday 2025-07-27; TTM starts the next calendar day 2025-07-28. FY2026 ends 2026-01-25; current H1 starts 2026-01-26. No gap or overlap in the flow-item construction.",
+    "currency": "USD",
+    "unit": "million",
+    "line_items": {
+      "revenue": {
+        "status": "constructed_from_official_same_caption_flows",
+        "arithmetic": "215,938 + 177,837 - 90,805 = 302,970",
+        "value": 302970
+      },
+      "net_income": {
+        "status": "constructed_from_official_same_caption_flows",
+        "arithmetic": "120,067 + 118,010 - 45,197 = 192,880",
+        "value": 192880
+      },
+      "operating_cash_flow": {
+        "status": "constructed_from_official_same_caption_flows",
+        "caption": "Net cash provided by operating activities",
+        "arithmetic": "102,718 + 74,421 - 42,779 = 134,360",
+        "value": 134360
+      },
+      "purchases_related_to_property_and_equipment_and_intangible_assets": {
+        "status": "constructed_from_official_same_caption_flows",
+        "sign": "cash_outflow_magnitude",
+        "arithmetic": "6,042 + 4,434 - 3,122 = 7,354",
+        "value": 7354,
+        "note": "Magnitude of the official investing-outflow line. Do not mix with financing 'principal payments'."
+      },
+      "principal_payments_on_property_and_equipment_and_intangible_assets": {
+        "status": "constructed_from_official_same_caption_flows_optional_separate",
+        "sign": "cash_outflow_magnitude",
+        "arithmetic": "101 + 92 - 73 = 120",
+        "value": 120,
+        "note": "Constructable, but this is a separate financing line, not a substitute for the purchases line."
+      },
+      "company_labeled_fcf": {
+        "status": "not_constructed_fail_closed",
+        "reason": "Neither the 10-K nor the 10-Q presents a labeled company free-cash-flow line in the cash-flow statement. This pass does not invent an unofficial FCF total."
+      },
+      "weighted_average_shares_or_period_end_shares": {
+        "status": "not_constructed_fail_closed",
+        "reason": "Share counts are stock or period-average measures, not flows. FY + YTD - prior YTD is not a valid WASO or period-end share formula."
+      },
+      "eps_ttm": {
+        "status": "not_constructed_fail_closed",
+        "reason": "No official TTM EPS is disclosed. Do not divide constructed TTM earnings by a pseudo TTM share count."
+      }
+    }
+  },
+  "share_counts_and_market_value": {
+    "period_end_common_stock_outstanding_million": {
+      "2025-01-26": 24477,
+      "2025-04-27": 24388,
+      "2025-07-27": 24347,
+      "2026-01-25": 24304,
+      "2026-04-26": 24221,
+      "2026-07-26": 24147,
+      "source": "10-Q shareholders' equity statement (and 10-K for Jan 25, 2026 / Jan 26, 2025 issued and outstanding)",
+      "status": "obtained_official",
+      "unit": "millions of shares",
+      "note": "These fiscal period-end dates are Sundays. They are not Nasdaq trading days."
+    },
+    "cover_page_outstanding_rounded": [
+      {
+        "as_of": "2026-02-20",
+        "value": "24.3 billion",
+        "source": "FY2026 10-K cover",
+        "verbatim": "The number of shares of common stock outstanding as of February 20, 2026 was 24.3 billion.",
+        "status": "obtained_official_rounded",
+        "not_period_end": true
+      },
+      {
+        "as_of": "2026-08-21",
+        "value": "24.1 billion",
+        "source": "FY2027 H1 10-Q cover",
+        "verbatim": "The number of shares of common stock, $0.001 par value, outstanding as of August 21, 2026, was 24.1 billion.",
+        "status": "obtained_official_rounded",
+        "not_period_end": true
+      }
+    ],
+    "official_same_date_quote_and_market_cap_as_of_2026-07-26": {
+      "status": "not_found_fail_closed",
+      "reasons": [
+        "2026-07-26 is a Sunday fiscal period end; there is no Nasdaq official closing price on that calendar date.",
+        "The 10-Q and 10-K reviewed in this pass do not disclose a total market capitalisation as at 2026-07-26.",
+        "The 10-Q cover outstanding figure (24.1 billion) is as of 2026-08-21 and is rounded, so it is not a same-date precise share base for 2026-07-26.",
+        "A price on Friday 2026-07-24 multiplied by Sunday 2026-07-26 shares would not be a same-calendar-day official pair, and a self-calculated product must not be described as independently verified official market cap."
+      ]
+    },
+    "historical_official_non_affiliate_market_value_different_date_and_definition": {
+      "as_of": "2025-07-25",
+      "value_approximate_usd": "4.0 trillion",
+      "source": "FY2026 10-K cover",
+      "verbatim": "The aggregate market value of the voting stock held by non-affiliates of the registrant as of July 25, 2025 was approximately $4.0 trillion (based on the closing sales price of the registrant's common stock as reported by the Nasdaq Global Select Market on July 25, 2025). This calculation excludes 1.0 billion shares held by directors and executive officers of the registrant.",
+      "status": "obtained_official_but_not_usable_as_2026-07-26_total_market_cap",
+      "why_not_a_substitute": "Different date (2025-07-25, a Friday), and a non-affiliate market value, not total market cap at 2026-07-26."
+    }
+  },
+  "yahoo_month_end_label_mapping": {
+    "note": "Yahoo labels listed in the task used calendar month-ends. Official NVIDIA fiscal period ends are the last Sunday of the fiscal quarter/year, not those month-ends. This mapping corrects the dates. This pass did not re-download Yahoo amounts or the Q3 FY2026 / Q1 FY2027 10-Q cash-flow statements, because TTM is constructable without those mid-quarter cash-flow columns.",
+    "rows": [
+      {
+        "yahoo_label": "2025-10-31",
+        "official_period_end": "2025-10-26",
+        "official_period": "FY2026 Q3",
+        "date_source": "Company IR earnings release (2025-11-19) and IR conference-call notice (2025-10-29): 'third quarter ended October 26, 2025' / 'third quarter of fiscal year 2026, which ended October 26, 2025'.",
+        "date_status": "obtained_official_ir",
+        "q3_10q_cashflow_extracted_this_pass": false,
+        "ir_headline_gaap_not_used_for_ttm": {
+          "revenue_usd_million_from_ir_table": 57006,
+          "net_income_usd_million_from_ir_table": 31910,
+          "diluted_eps_from_ir_table": 1.3,
+          "source": "https://investor.nvidia.com/news/press-release-details/2025/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2026/default.aspx",
+          "note": "IR earnings-release GAAP summary only. Q3 10-Q cash flow / capex were not extracted this pass and are not required for the FY+H1-priorH1 TTM."
+        }
+      },
+      {
+        "yahoo_label": "2026-01-31",
+        "official_period_end": "2026-01-25",
+        "official_period": "FY2026 year-end",
+        "date_status": "obtained_official_10k",
+        "figures_status": "already_had_official_10k"
+      },
+      {
+        "yahoo_label": "2026-04-30",
+        "official_period_end": "2026-04-26",
+        "official_period": "FY2027 Q1",
+        "date_source": "Current 10-Q: 'our Quarterly Report on Form 10-Q for the fiscal quarter ended April 26, 2026'; equity statement 'Balances as of Apr 26, 2026'; IR earnings release 'first quarter ended April 26, 2026'.",
+        "date_status": "obtained_official_10q_and_ir",
+        "q1_10q_cashflow_extracted_this_pass": false,
+        "note": "Not required for official TTM once prior H1 comparatives are taken from the latest 10-Q."
+      },
+      {
+        "yahoo_label": "2026-07-31",
+        "official_period_end": "2026-07-26",
+        "official_period": "FY2027 Q2 / H1",
+        "date_status": "obtained_official_10q_and_ir",
+        "figures_status": "already_had_official_10q_current_column"
+      }
+    ]
+  },
+  "item_status_summary": {
+    "FY2026_revenue_net_income_ocf_ppe_ia_purchases": "obtained_official",
+    "FY2027H1_revenue_net_income_ocf_ppe_ia_purchases": "obtained_official",
+    "FY2026H1_prior_comparative_revenue_net_income_ocf_ppe_ia_purchases": "obtained_official_this_pass_from_same_10q_comparative_column",
+    "official_TTM_revenue": "constructed_from_official_flows",
+    "official_TTM_net_income": "constructed_from_official_flows",
+    "official_TTM_ocf": "constructed_from_official_flows",
+    "official_TTM_purchases_ppe_and_intangible_assets": "constructed_from_official_flows",
+    "official_TTM_company_labeled_fcf": "not_found_fail_closed",
+    "period_end_shares_2026-07-26": "obtained_official",
+    "waso_used_to_bridge_ttm_or_mcap": "not_used_fail_closed",
+    "same_date_official_close_and_independent_market_cap_2026-07-26": "not_found_fail_closed",
+    "yahoo_2025-10-31_official_period_end_date": "obtained_official_ir_2025-10-26",
+    "yahoo_2026-04-30_official_period_end_date": "obtained_official_10q_and_ir_2026-04-26",
+    "q3_fy2026_and_q1_fy2027_10q_cash_flow_line_items": "not_extracted_this_pass_and_not_required_for_ttm"
+  },
+  "still_missing_or_out_of_scope": [
+    "A same-calendar-day official Nasdaq closing price and an independently disclosed official total market cap as at 2026-07-26 (Sunday period end). Do not fill this with price × shares presented as independent verification.",
+    "Company-labeled official TTM or period FCF (not disclosed in the cited cash-flow statements).",
+    "Q3 FY2026 and Q1 FY2027 10-Q cash-flow / capex line items were not newly extracted; they are not required to construct official TTM from FY + current H1 - prior H1. IR already lists those 10-Qs on https://investor.nvidia.com/financial-info/financial-reports/ if a later mid-quarter cross-check is needed.",
+    "A precise unrounded share count as of 2026-08-21 (cover states 24.1 billion only)."
+  ],
+  "incidental_other_sources_actually_tested": {
+    "scope_limit": "Only capabilities actually exercised in this project or this pass are listed. This pass did not expand to a full-market peer or news survey.",
+    "this_pass": [
+      {
+        "source": "NVIDIA Investor Relations public pages and NVIDIA News earnings releases",
+        "urls_tested": [
+          "https://investor.nvidia.com/financial-info/financial-reports/",
+          "https://investor.nvidia.com/news/press-release-details/2025/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2026/default.aspx",
+          "https://investor.nvidia.com/news/press-release-details/2025/NVIDIA-Sets-Conference-Call-for-Third-Quarter-Financial-Results/default.aspx",
+          "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-first-quarter-fiscal-2027",
+          "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-First-Quarter-Fiscal-2027/default.aspx",
+          "https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027",
+          "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Second-Quarter-Fiscal-2027/default.aspx"
+        ],
+        "result": "HTTP 200, no login, period-end dates and headline earnings text readable.",
+        "cost": "free, public"
+      },
+      {
+        "source": "Already-local SEC 10-K and 10-Q HTML",
+        "result": "Reused from /workspace/akshare-supplement/data/official/source-documents. This pass did not make a new SEC request and did not use a made-up SEC identity."
+      }
+    ],
+    "previously_used_in_this_workspace_not_re_run_this_pass": [
+      {
+        "source": "AKShare stock_financial_us_report_em (US income statement / cash flow, 年报 and 累计季报) for NVDA",
+        "role": "supplementary cross-check only, not the official TTM source",
+        "cost": "free interface; previously subject to usage/rate limits on some East Money endpoints",
+        "this_pass": "not re-fetched"
+      },
+      {
+        "source": "AKShare stock_us_hist_sina daily prices for NVDA",
+        "role": "supplementary quotes only; cannot convert a Sunday fiscal period-end share count into an independently verified official market cap",
+        "cost": "free interface, previously authorized in this workspace",
+        "this_pass": "not re-fetched and not used to invent a 2026-07-26 market cap"
+      }
+    ],
+    "not_claimed_because_not_tested_this_pass": [
+      "Bloomberg, FactSet, Refinitiv, S&P Capital IQ, or paid news terminals",
+      "A live Yahoo Finance fundamentals pull for NVDA this turn",
+      "SEC EDGAR live re-download of the Q3 FY2026 or Q1 FY2027 10-Q"
+    ]
+  },
+  "not_done_per_instruction": [
+    "No repository, run-package, gate, or model changes.",
+    "No Page write.",
+    "No price target or valuation conclusion.",
+    "Did not repeat the old-pipeline read-summary or cloud code-gate investigation assigned to another worker.",
+    "Did not expand the official-filing collection beyond NVDA's known TTM gap."
+  ]
+}

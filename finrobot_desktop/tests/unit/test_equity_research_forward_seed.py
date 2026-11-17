@@ -8,12 +8,13 @@ seed_dcf_inputs; absent consensus, it falls back to trailing unchanged.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from finrobot.config import get_settings
 from finrobot.engine.deps import FinRobotDeps
 from finrobot.engine.models.financial import (
     BalanceSheet,
+    DataProvenance,
     FinancialData,
     HistoricalMetrics,
     IncomeStatement,
@@ -50,6 +51,7 @@ def _financials() -> FinancialData:
             operating_margin=0.30,
             depreciation_amortization=11_400_000_000,
             interest_expense=3_750_000_000,
+            capital_expenditure=10_000_000_000,
         ),
         balance=BalanceSheet(total_debt=106_000_000_000, total_cash=65_000_000_000),
         market=MarketData(
@@ -62,6 +64,19 @@ def _financials() -> FinancialData:
             beta=1.25,
         ),
         valuation=ValuationMetrics(),
+        fiscal_period_end=date(2026, 3, 28),
+        ttm_quarter_ends=[
+            date(2026, 3, 28),
+            date(2025, 12, 27),
+            date(2025, 9, 27),
+            date(2025, 6, 28),
+        ],
+        ttm_construction="four_quarters",
+        provenance=DataProvenance(
+            provider="synthetic",
+            as_of=date(2026, 3, 28),
+            period_basis="ttm",
+        ),
     )
 
 

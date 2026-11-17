@@ -428,7 +428,9 @@ def build_thesis_prompt(
     if isinstance(fm_for_prompt, DCFResult):
         dcf_for_prompt: DCFResult = fm_for_prompt
         _whitelist_parts.append(
-            f"  - financial_modeling.implied_price: ${dcf_for_prompt.implied_price:.2f}"
+            f"  - financial_modeling.implied_price: ${dcf_for_prompt.implied_price:.2f} "
+            "(current fair value per share today, not a target price at the end of "
+            f"the {dcf_for_prompt.projection_years}-year explicit forecast)"
         )
         _whitelist_parts.append(f"  - financial_modeling.wacc: {dcf_for_prompt.wacc:.4f}")
         _whitelist_parts.append(

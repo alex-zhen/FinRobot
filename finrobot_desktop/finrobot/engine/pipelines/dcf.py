@@ -129,6 +129,20 @@ async def _execute_dcf_calc(
     # equity_research already does this via data_collection; the standalone DCF
     # pipeline did not. No-op for US issuers (normalize returns the same object).
     structured_context["historical_data"] = financial_data
+    from finrobot.engine.data.normalize.valuation_input import publication_block_reasons
+
+    block_reasons = publication_block_reasons(financial_data)
+    if block_reasons:
+        structured_context["input_quality_block"] = block_reasons
+        return StepOutput(
+            text=(
+                "Formal valuation refused. The DCF is a current fair value and is not "
+                "computed when currency, period, or share count is unverified. "
+                + " ".join(block_reasons)
+            ),
+            structured=None,
+            warnings=block_reasons,
+        )
     # Stage-1 growth seed: analyst consensus over a backward-looking trailing CAGR,
     # the same authoritative path equity_research uses — the historical_data step
     # already fetched forward_estimates_raw into structured_context (shared dict).
@@ -205,7 +219,9 @@ async def _execute_dcf_calc(
     ]
     price_range = f"${min(valid_prices):.0f}–${max(valid_prices):.0f}" if valid_prices else "N/A"
     narrative = (
-        f"DCF implies ${dcf_result.implied_price:.2f} per share. "
+        f"DCF current fair value is ${dcf_result.implied_price:.2f} per share "
+        f"(present value today; the {dcf_result.projection_years}-year forecast is not "
+        f"a price target {dcf_result.projection_years} years from now). "
         f"WACC: {dcf_result.wacc:.1%}. EV: ${dcf_result.enterprise_value / 1e9:.1f}B. "
         f"Sensitivity: {price_range}."
     )

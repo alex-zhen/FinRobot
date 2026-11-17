@@ -644,6 +644,57 @@ class TestFetchHistoricalFinancials:
             result = await provider.fetch("AAPL", "financials")
         assert "revenue" in result.data
         assert "yearly_data" not in result.data
+        # An info blob has no quarter ends, so it is not a verified TTM.
+        assert result.data["period_basis"] == "unverified"
+
+
+@pytest.mark.asyncio
+async def test_quarterly_frames_become_a_verified_ttm() -> None:
+    """Synthetic quarterly columns, not a filing. Four fiscal quarters sum."""
+    ends = pd.to_datetime(["2026-03-28", "2025-12-27", "2025-09-27", "2025-06-28"])
+    income = pd.DataFrame(
+        {"Total Revenue": [100.0, 100.0, 100.0, 100.0], "Net Income": [10.0, 10.0, 10.0, 10.0]},
+        index=ends,
+    ).T
+    cash = pd.DataFrame(
+        {"Capital Expenditure": [-5.0, -5.0, -5.0, -5.0]},
+        index=ends,
+    ).T
+    mock_ticker = _make_mock_ticker(VALID_INFO)
+    mock_ticker.quarterly_income_stmt = income
+    mock_ticker.quarterly_cashflow = cash
+    provider = YFinanceProvider()
+    with patch(
+        "finrobot.engine.data.providers.yfinance_provider.yf.Ticker",
+        return_value=mock_ticker,
+    ):
+        result = await provider.fetch("AAPL", "financials")
+    assert result.data["period_basis"] == "ttm"
+    assert result.data["ttm_construction"] == "four_quarters"
+    assert result.data["revenue"] == pytest.approx(400.0)
+    assert result.data["capital_expenditure"] == pytest.approx(20.0)
+    assert len(result.data["ttm_quarter_ends"]) == 4
+
+
+@pytest.mark.asyncio
+async def test_quarterly_gap_in_revenue_stays_unverified() -> None:
+    """A dated column with no revenue is not summed into a TTM."""
+    ends = pd.to_datetime(["2026-03-28", "2025-12-27", "2025-09-27", "2025-06-28"])
+    income = pd.DataFrame(
+        {"Total Revenue": [100.0, float("nan"), 100.0, 100.0]},
+        index=ends,
+    ).T
+    mock_ticker = _make_mock_ticker(VALID_INFO)
+    mock_ticker.quarterly_income_stmt = income
+    provider = YFinanceProvider()
+    with patch(
+        "finrobot.engine.data.providers.yfinance_provider.yf.Ticker",
+        return_value=mock_ticker,
+    ):
+        result = await provider.fetch("AAPL", "financials")
+    assert result.data["period_basis"] == "unverified"
+    assert result.data["revenue"] == VALID_INFO["totalRevenue"]
+    assert any("no revenue" in reason for reason in result.data["ttm_quality_reasons"])
 
 
 class TestFetchHistoricalFinancialsFullSchema:

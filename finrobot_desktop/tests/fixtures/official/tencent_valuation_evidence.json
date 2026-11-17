@@ -1,0 +1,695 @@
+{
+  "schema_version": "1.0",
+  "access_date": "2026-11-17",
+  "timezone": "Asia/Shanghai",
+  "purpose": "Traceable official inputs for a Tencent 0700.HK FinRobot trial. Facts only. No target price, no ranking, no model run.",
+  "fail_closed_policy": "Use only same-line official amounts. TTM for flow items = FY2025 + H1_2026 - H1_2025. If a period is missing the same capex line, mark missing and do not construct TTM. Do not backsolve capex from company FCF. Do not take abs() of mixed-sign lines to force a capex figure. Share counts are not flows; do not apply FY+YTD-priorYTD to WASO.",
+  "issuer": {
+    "name": "Tencent Holdings Limited",
+    "listing": "0700.HK",
+    "share_class": "ordinary shares",
+    "adr_needed_for_0700_valuation": false,
+    "adr_note": "The 2026 interim report and 2025 annual report do not state an ADR/ADS ratio. Do not substitute TCEHY ADS as the 0700 share basis."
+  },
+  "units": {
+    "currency": "CNY",
+    "statement_unit": "RMB million",
+    "eps_unit": "RMB per ordinary share",
+    "share_count_waso_unit": "million shares",
+    "issued_shares_unit": "shares"
+  },
+  "accounting": {
+    "framework": "IFRS",
+    "fy2025_status": "audited annual financial statements",
+    "h1_status": "unaudited condensed interim financial information reviewed under ISRE 2410",
+    "h1_2025_source": "Comparatives as presented in the 2026 interim report, not re-extracted from the original 2025 interim. Restatement versus the original 2025 interim was not separately checked."
+  },
+  "sources": {
+    "FY2025_annual": {
+      "id": "FY2025_annual",
+      "title": "Tencent Holdings Limited Annual Report 2025",
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "url": "https://www.hkexnews.hk/listedco/listconews/sehk/2026/0409/2026040901231.pdf",
+      "hkex_publication_date": "2026-04-09",
+      "pdf_metadata_created": "2026-04-01",
+      "local_pdf": "raw/tencent_fy2025_hkex_2026040901231.pdf",
+      "page_numbering": "Citations use the printed page number at the foot of the page, which is 1 less than the PDF file page in this document."
+    },
+    "H1_2026_interim": {
+      "id": "H1_2026_interim",
+      "title": "Tencent Holdings Limited Interim Report 2026",
+      "period_start": "2026-01-01",
+      "period_end": "2026-06-30",
+      "also_presents_comparatives": "six months ended 2025-06-30",
+      "url_ir": "https://www.tencent.com/wp-content/uploads/2026/08/E700_IR.pdf",
+      "url_hkex": "https://www.hkexnews.hk/listedco/listconews/sehk/2026/0825/2026082500556.pdf",
+      "hkex_publication_date": "2026-08-25",
+      "review_report_date": "2026-08-12",
+      "reviewer": "PricewaterhouseCoopers",
+      "pdf_metadata_created": "2026-08-22",
+      "pdf_metadata_modified": "2026-08-24",
+      "local_pdf_ir": "raw/tencent_E700_IR.pdf",
+      "local_pdf_hkex": "raw/tencent_hkex_2026082500556.pdf",
+      "note": "The IR English PDF and the HKEX PDF are the same file size (5,135,808 bytes). Line items below were read from the IR/HKEX English interim report."
+    }
+  },
+  "line_item_definitions": {
+    "revenue": {
+      "statement": "income statement",
+      "label": "Revenues (total of VAS, Marketing Services, FinTech and Business Services, Others)",
+      "role_in_ttm": "flow"
+    },
+    "profit_for_the_period": {
+      "statement": "income statement",
+      "label": "Profit for the year / period (including non-controlling interests)",
+      "role_in_ttm": "flow"
+    },
+    "profit_attributable_to_equity_holders": {
+      "statement": "income statement",
+      "label": "Profit attributable to equity holders of the Company (IFRS)",
+      "role_in_ttm": "flow",
+      "primary_earnings_input": true
+    },
+    "operating_cash_flow": {
+      "statement": "statement of cash flows",
+      "label": "Net cash flows generated from operating activities",
+      "role_in_ttm": "flow"
+    },
+    "capex_cash_ppe_cip_ip": {
+      "statement": "statement of cash flows, investing activities",
+      "label": "Purchase of/prepayments for property, plant and equipment, construction in progress and investment properties",
+      "role_in_ttm": "flow",
+      "sign_convention": "The statements present this line in parentheses as a cash outflow. amounts_rmb_million below are the outflow magnitudes (positive numbers). Do not apply abs() again, and do not net this line with disposal proceeds, intangibles or land use rights unless a derived measure is explicitly labelled.",
+      "designated_capex_for_finrobot": true
+    },
+    "management_capex_kpi": {
+      "statement": "MD&A Other Financial Information, not the cash flow statement",
+      "label": "Capital expenditures (d)",
+      "definition": "Capital expenditures primarily consist of investments in IT infrastructure (including computer equipment, components, and software), data centres, land use rights, office premises and intellectual properties (excluding media content).",
+      "role_in_ttm": "flow_but_different_basis",
+      "designated_capex_for_finrobot": false,
+      "must_not_be_substituted_for": "capex_cash_ppe_cip_ip"
+    },
+    "ebitda": {
+      "statement": "MD&A Other Financial Information, with official definition and reconciliation from operating profit",
+      "label": "EBITDA (a)",
+      "definition": "EBITDA is calculated as operating profit minus other gains/(losses), net, and adding back depreciation of property, plant and equipment, investment properties as well as right-of-use assets, and amortisation of intangible assets and land use rights.",
+      "role_in_ttm": "flow_officially_defined",
+      "invented": false
+    },
+    "adjusted_ebitda": {
+      "statement": "MD&A Other Financial Information",
+      "label": "Adjusted EBITDA (a)",
+      "definition": "Adjusted EBITDA is calculated as EBITDA plus equity-settled share-based compensation expenses.",
+      "role_in_ttm": "flow_officially_defined",
+      "invented": false
+    }
+  },
+  "periods": {
+    "FY2025": {
+      "label": "Year ended 31 December 2025",
+      "period_start": "2025-01-01",
+      "period_end": "2025-12-31",
+      "source": "FY2025_annual",
+      "items": {
+        "revenue": {
+          "amount_rmb_million": 751766,
+          "printed_page": 129,
+          "pdf_page": 130,
+          "status": "reported"
+        },
+        "profit_for_the_period": {
+          "amount_rmb_million": 229801,
+          "printed_page": 129,
+          "pdf_page": 130,
+          "status": "reported"
+        },
+        "profit_attributable_to_equity_holders": {
+          "amount_rmb_million": 224842,
+          "printed_page": 129,
+          "pdf_page": 130,
+          "status": "reported"
+        },
+        "operating_profit": {
+          "amount_rmb_million": 241562,
+          "printed_page": 129,
+          "pdf_page": 130,
+          "status": "reported"
+        },
+        "operating_cash_flow": {
+          "amount_rmb_million": 303052,
+          "printed_page": 138,
+          "pdf_page": 139,
+          "components": {
+            "cash_generated_from_operations": 347751,
+            "income_tax_paid": -44699
+          },
+          "arithmetic_check": "347751 - 44699 = 303052",
+          "status": "reported"
+        },
+        "capex_cash_ppe_cip_ip": {
+          "amount_rmb_million": 87482,
+          "cash_flow_sign": "outflow",
+          "printed_page": 138,
+          "pdf_page": 139,
+          "status": "reported"
+        },
+        "proceeds_from_disposal_of_ppe": {
+          "amount_rmb_million": 152,
+          "cash_flow_sign": "inflow",
+          "printed_page": 138,
+          "pdf_page": 139,
+          "status": "reported",
+          "not_part_of_designated_capex": true
+        },
+        "purchase_prepayments_for_intangible_assets": {
+          "amount_rmb_million": 25399,
+          "cash_flow_sign": "outflow",
+          "printed_page": 138,
+          "pdf_page": 139,
+          "status": "reported",
+          "not_part_of_designated_capex": true,
+          "note": "Includes items such as media content; do not add into designated PPE/CIP/IP capex."
+        },
+        "land_use_rights_cash": {
+          "amount_rmb_million": 6,
+          "cash_flow_sign": "inflow",
+          "label": "Refund from/(payments for) land use rights",
+          "printed_page": 138,
+          "pdf_page": 139,
+          "status": "reported",
+          "not_part_of_designated_capex": true
+        },
+        "management_capex_kpi": {
+          "amount_rmb_million": 79198,
+          "printed_page": 17,
+          "pdf_page": 18,
+          "definition_printed_page": 17,
+          "status": "reported"
+        },
+        "ebitda": {
+          "amount_rmb_million": 310767,
+          "printed_page": 17,
+          "pdf_page": 18,
+          "reconciliation_printed_page": 18,
+          "status": "reported_with_official_definition"
+        },
+        "adjusted_ebitda": {
+          "amount_rmb_million": 336427,
+          "printed_page": 17,
+          "pdf_page": 18,
+          "reconciliation_printed_page": 18,
+          "status": "reported_with_official_definition"
+        }
+      },
+      "shares": {
+        "issued_and_fully_paid_period_end": {
+          "shares": 9120235999,
+          "as_of": "2025-12-31",
+          "printed_page": 243,
+          "pdf_page": 244
+        },
+        "shares_held_for_award_schemes_included_in_issued": {
+          "shares": 81092614,
+          "as_of": "2025-12-31",
+          "printed_page": 244,
+          "pdf_page": 245
+        },
+        "basic_waso_million": {
+          "amount": 9085,
+          "printed_page": 206,
+          "pdf_page": 207,
+          "definition": "Weighted average number of ordinary shares in issue excluding shares held for share award schemes and treasury shares"
+        },
+        "diluted_waso_million": {
+          "amount": 9244,
+          "printed_page": 207,
+          "pdf_page": 208
+        },
+        "basic_eps_rmb": {
+          "amount": 24.749,
+          "printed_page": 206,
+          "pdf_page": 207,
+          "arithmetic_check": "224842 / 9085 = 24.7488, rounds to 24.749"
+        },
+        "diluted_eps_rmb": {
+          "amount": 24.153,
+          "printed_page": 207,
+          "pdf_page": 208
+        }
+      }
+    },
+    "H1_2025": {
+      "label": "Six months ended 30 June 2025 (comparatives in 2026 interim report)",
+      "period_start": "2025-01-01",
+      "period_end": "2025-06-30",
+      "source": "H1_2026_interim",
+      "items": {
+        "revenue": {
+          "amount_rmb_million": 364526,
+          "printed_page": 24,
+          "pdf_page": 25,
+          "status": "reported_comparative"
+        },
+        "profit_for_the_period": {
+          "amount_rmb_million": 105769,
+          "printed_page": 24,
+          "pdf_page": 25,
+          "status": "reported_comparative"
+        },
+        "profit_attributable_to_equity_holders": {
+          "amount_rmb_million": 103449,
+          "printed_page": 24,
+          "pdf_page": 25,
+          "status": "reported_comparative"
+        },
+        "operating_profit": {
+          "amount_rmb_million": 117670,
+          "printed_page": 24,
+          "pdf_page": 25,
+          "status": "reported_comparative"
+        },
+        "operating_cash_flow": {
+          "amount_rmb_million": 151265,
+          "printed_page": 33,
+          "pdf_page": 34,
+          "status": "reported_comparative"
+        },
+        "capex_cash_ppe_cip_ip": {
+          "amount_rmb_million": 45558,
+          "cash_flow_sign": "outflow",
+          "printed_page": 33,
+          "pdf_page": 34,
+          "status": "reported_comparative"
+        },
+        "proceeds_from_disposal_of_ppe": {
+          "amount_rmb_million": 78,
+          "cash_flow_sign": "inflow",
+          "printed_page": 33,
+          "pdf_page": 34,
+          "status": "reported_comparative",
+          "not_part_of_designated_capex": true
+        },
+        "purchase_prepayments_for_intangible_assets": {
+          "amount_rmb_million": 11899,
+          "cash_flow_sign": "outflow",
+          "printed_page": 33,
+          "pdf_page": 34,
+          "status": "reported_comparative",
+          "not_part_of_designated_capex": true
+        },
+        "land_use_rights_cash": {
+          "amount_rmb_million": 6,
+          "cash_flow_sign": "inflow",
+          "label": "(Payments for)/refund from land use rights",
+          "printed_page": 33,
+          "pdf_page": 34,
+          "status": "reported_comparative",
+          "not_part_of_designated_capex": true
+        },
+        "management_capex_kpi": {
+          "amount_rmb_million": 46583,
+          "printed_page": 14,
+          "pdf_page": 15,
+          "definition_printed_page": 15,
+          "status": "reported_comparative"
+        },
+        "ebitda": {
+          "amount_rmb_million": 153284,
+          "printed_page": 14,
+          "pdf_page": 15,
+          "definition_printed_page": 15,
+          "status": "reported_comparative_with_official_definition"
+        },
+        "adjusted_ebitda": {
+          "amount_rmb_million": 166681,
+          "printed_page": 14,
+          "pdf_page": 15,
+          "definition_printed_page": 15,
+          "status": "reported_comparative_with_official_definition"
+        }
+      },
+      "shares": {
+        "issued_and_fully_paid_period_end": {
+          "shares": 9165513622,
+          "as_of": "2025-06-30",
+          "printed_page": 71,
+          "pdf_page": 73,
+          "note": "From the 2026 interim share capital comparative column, not used as the FY2025 year-end count."
+        },
+        "basic_waso_million": {
+          "amount": 9101,
+          "printed_page": 54,
+          "pdf_page": 55
+        },
+        "diluted_waso_million": {
+          "amount": 9253,
+          "printed_page": 55,
+          "pdf_page": 56
+        },
+        "basic_eps_rmb": {
+          "amount": 11.367,
+          "printed_page": 54,
+          "pdf_page": 55
+        },
+        "diluted_eps_rmb": {
+          "amount": 11.126,
+          "printed_page": 55,
+          "pdf_page": 56
+        }
+      }
+    },
+    "H1_2026": {
+      "label": "Six months ended 30 June 2026",
+      "period_start": "2026-01-01",
+      "period_end": "2026-06-30",
+      "source": "H1_2026_interim",
+      "items": {
+        "revenue": {
+          "amount_rmb_million": 401243,
+          "printed_page": 24,
+          "pdf_page": 25,
+          "status": "reported",
+          "segment_check": "194524 + 81736 + 120171 + 4812 = 401243"
+        },
+        "profit_for_the_period": {
+          "amount_rmb_million": 117369,
+          "printed_page": 24,
+          "pdf_page": 25,
+          "status": "reported"
+        },
+        "profit_attributable_to_equity_holders": {
+          "amount_rmb_million": 114115,
+          "printed_page": 24,
+          "pdf_page": 25,
+          "status": "reported"
+        },
+        "operating_profit": {
+          "amount_rmb_million": 134651,
+          "printed_page": 24,
+          "pdf_page": 25,
+          "status": "reported"
+        },
+        "operating_cash_flow": {
+          "amount_rmb_million": 154061,
+          "printed_page": 33,
+          "pdf_page": 34,
+          "components": {
+            "cash_generated_from_operations": 186924,
+            "income_tax_paid": -32863
+          },
+          "arithmetic_check": "186924 - 32863 = 154061",
+          "status": "reported"
+        },
+        "capex_cash_ppe_cip_ip": {
+          "amount_rmb_million": 95615,
+          "cash_flow_sign": "outflow",
+          "printed_page": 33,
+          "pdf_page": 34,
+          "status": "reported"
+        },
+        "proceeds_from_disposal_of_ppe": {
+          "amount_rmb_million": 83,
+          "cash_flow_sign": "inflow",
+          "printed_page": 33,
+          "pdf_page": 34,
+          "status": "reported",
+          "not_part_of_designated_capex": true
+        },
+        "purchase_prepayments_for_intangible_assets": {
+          "amount_rmb_million": 11547,
+          "cash_flow_sign": "outflow",
+          "printed_page": 33,
+          "pdf_page": 34,
+          "status": "reported",
+          "not_part_of_designated_capex": true
+        },
+        "land_use_rights_cash": {
+          "amount_rmb_million": 1,
+          "cash_flow_sign": "outflow",
+          "label": "(Payments for)/refund from land use rights",
+          "printed_page": 33,
+          "pdf_page": 34,
+          "status": "reported",
+          "not_part_of_designated_capex": true
+        },
+        "management_capex_kpi": {
+          "amount_rmb_million": 84720,
+          "printed_page": 14,
+          "pdf_page": 15,
+          "definition_printed_page": 15,
+          "q1_q2_check": "31736 + 52784 = 84720",
+          "status": "reported"
+        },
+        "ebitda": {
+          "amount_rmb_million": 169943,
+          "printed_page": 14,
+          "pdf_page": 15,
+          "definition_printed_page": 15,
+          "status": "reported_with_official_definition"
+        },
+        "adjusted_ebitda": {
+          "amount_rmb_million": 180989,
+          "printed_page": 14,
+          "pdf_page": 15,
+          "definition_printed_page": 15,
+          "status": "reported_with_official_definition"
+        }
+      },
+      "shares": {
+        "issued_and_fully_paid_period_end": {
+          "shares": 9092234841,
+          "as_of": "2026-06-30",
+          "printed_page": 71,
+          "pdf_page": 73
+        },
+        "shares_held_for_award_scheme_included_in_issued": {
+          "shares": 84278228,
+          "as_of": "2026-06-30",
+          "printed_page": 71,
+          "pdf_page": 73
+        },
+        "basic_waso_million": {
+          "amount": 9029,
+          "printed_page": 54,
+          "pdf_page": 55,
+          "definition": "Weighted average number of ordinary shares in issue excluding shares held for share award scheme and treasury shares"
+        },
+        "diluted_waso_million": {
+          "amount": 9163,
+          "printed_page": 55,
+          "pdf_page": 56
+        },
+        "basic_eps_rmb": {
+          "amount": 12.639,
+          "printed_page": 54,
+          "pdf_page": 55,
+          "arithmetic_check": "114115 / 9029 = 12.6387, rounds to 12.639"
+        },
+        "diluted_eps_rmb": {
+          "amount": 12.417,
+          "printed_page": 55,
+          "pdf_page": 56
+        }
+      }
+    }
+  },
+  "ttm_constructed": {
+    "method": "FY + currentYTD - priorYTD",
+    "fy": "FY2025 (2025-01-01 to 2025-12-31)",
+    "current_ytd": "H1_2026 (2026-01-01 to 2026-06-30)",
+    "prior_ytd": "H1_2025 (2025-01-01 to 2025-06-30)",
+    "ttm_window_start": "2025-07-01",
+    "ttm_window_end": "2026-06-30",
+    "as_of_access_date_note": "As of 2026-11-17 (Asia/Shanghai) the Q3 2026 report was not yet in the 11/18 window. This TTM therefore ends on 2026-06-30, not 2026-09-30.",
+    "items": {
+      "revenue": {
+        "status": "constructable",
+        "formula": "FY2025 + H1_2026 - H1_2025",
+        "formula_numbers": "751766 + 401243 - 364526 = 788483",
+        "amount_rmb_million": 788483,
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30",
+        "same_line_in_all_three_periods": true
+      },
+      "profit_for_the_period": {
+        "status": "constructable",
+        "formula": "FY2025 + H1_2026 - H1_2025",
+        "formula_numbers": "229801 + 117369 - 105769 = 241401",
+        "amount_rmb_million": 241401,
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30",
+        "same_line_in_all_three_periods": true
+      },
+      "profit_attributable_to_equity_holders": {
+        "status": "constructable",
+        "formula": "FY2025 + H1_2026 - H1_2025",
+        "formula_numbers": "224842 + 114115 - 103449 = 235508",
+        "amount_rmb_million": 235508,
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30",
+        "same_line_in_all_three_periods": true
+      },
+      "operating_profit": {
+        "status": "constructable",
+        "formula": "FY2025 + H1_2026 - H1_2025",
+        "formula_numbers": "241562 + 134651 - 117670 = 258543",
+        "amount_rmb_million": 258543,
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30",
+        "same_line_in_all_three_periods": true
+      },
+      "operating_cash_flow": {
+        "status": "constructable",
+        "formula": "FY2025 + H1_2026 - H1_2025",
+        "formula_numbers": "303052 + 154061 - 151265 = 305848",
+        "amount_rmb_million": 305848,
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30",
+        "same_line_in_all_three_periods": true
+      },
+      "capex_cash_ppe_cip_ip": {
+        "status": "constructable",
+        "formula": "FY2025 + H1_2026 - H1_2025",
+        "formula_numbers": "87482 + 95615 - 45558 = 137539",
+        "amount_rmb_million": 137539,
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30",
+        "same_line_in_all_three_periods": true,
+        "meaning": "TTM cash outflow for purchase of/prepayments for PPE, construction in progress and investment properties",
+        "ok_as_finrobot_capex_input": true
+      },
+      "proceeds_from_disposal_of_ppe": {
+        "status": "constructable",
+        "formula": "FY2025 + H1_2026 - H1_2025",
+        "formula_numbers": "152 + 83 - 78 = 157",
+        "amount_rmb_million": 157,
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30",
+        "same_line_in_all_three_periods": true,
+        "ok_as_finrobot_capex_input": false,
+        "not_part_of_designated_capex": true
+      },
+      "purchase_prepayments_for_intangible_assets": {
+        "status": "constructable",
+        "formula": "FY2025 + H1_2026 - H1_2025",
+        "formula_numbers": "25399 + 11547 - 11899 = 25047",
+        "amount_rmb_million": 25047,
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30",
+        "same_line_in_all_three_periods": true,
+        "ok_as_finrobot_capex_input": false,
+        "not_part_of_designated_capex": true
+      },
+      "management_capex_kpi": {
+        "status": "constructable",
+        "formula": "FY2025 + H1_2026 - H1_2025",
+        "formula_numbers": "79198 + 84720 - 46583 = 117335",
+        "amount_rmb_million": 117335,
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30",
+        "same_line_in_all_three_periods": true,
+        "ok_as_finrobot_capex_input": false,
+        "warning": "Different basis from cash-flow PPE/CIP/IP capex. Do not use this TTM in place of capex_cash_ppe_cip_ip."
+      },
+      "ebitda": {
+        "status": "constructable",
+        "formula": "FY2025 + H1_2026 - H1_2025",
+        "formula_numbers": "310767 + 169943 - 153284 = 327426",
+        "amount_rmb_million": 327426,
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30",
+        "same_line_in_all_three_periods": true
+      },
+      "adjusted_ebitda": {
+        "status": "constructable",
+        "formula": "FY2025 + H1_2026 - H1_2025",
+        "formula_numbers": "336427 + 180989 - 166681 = 350735",
+        "amount_rmb_million": 350735,
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30",
+        "same_line_in_all_three_periods": true
+      },
+      "land_use_rights_cash_signed": {
+        "status": "constructable_signed_only",
+        "ok_as_finrobot_capex_input": false,
+        "not_part_of_designated_capex": true,
+        "formula": "signed_cash FY2025 + signed_cash H1_2026 - signed_cash H1_2025, where inflow is positive and outflow is negative",
+        "formula_numbers": "6 + (-1) - 6 = -1",
+        "signed_amount_rmb_million": -1,
+        "meaning": "Net cash outflow of RMB 1 million over the TTM window. Signs differ across periods; do not take abs() of the three raw lines and add them.",
+        "ttm_window_start": "2025-07-01",
+        "ttm_window_end": "2026-06-30"
+      },
+      "derived_ppe_purchases_net_of_disposal_proceeds": {
+        "status": "derived_not_an_official_line",
+        "ok_as_finrobot_capex_input": false,
+        "formula": "TTM capex_cash_ppe_cip_ip - TTM proceeds_from_disposal_of_ppe",
+        "formula_numbers": "137539 - 157 = 137382",
+        "amount_rmb_million": 137382,
+        "warning": "Not a single official line. Designated FinRobot capex should remain the gross cash PPE/CIP/IP purchases line."
+      }
+    },
+    "shares": {
+      "status": "not_constructed",
+      "reason": "Period-end share counts and period WASO are stock/average measures, not flows. FY + currentYTD - priorYTD is not a valid WASO or period-end share formula. Do not invent TTM EPS from constructed earnings divided by a pseudo TTM share count unless a separate, disclosed method is adopted later.",
+      "use_instead": {
+        "latest_period_end_issued_shares": 9092234841,
+        "latest_period_end_date": "2026-06-30",
+        "latest_ytd_basic_waso_million": 9029,
+        "latest_ytd_diluted_waso_million": 9163,
+        "fy2025_basic_waso_million": 9085,
+        "fy2025_diluted_waso_million": 9244
+      }
+    }
+  },
+  "constructable_for_finrobot": {
+    "ttm_revenue_rmb_million": 788483,
+    "ttm_profit_attributable_to_equity_holders_rmb_million": 235508,
+    "ttm_operating_cash_flow_rmb_million": 305848,
+    "ttm_designated_capex_cash_ppe_cip_ip_outflow_rmb_million": 137539,
+    "share_basis": "0700.HK ordinary shares",
+    "currency": "CNY",
+    "unit": "RMB million"
+  },
+  "missing_or_fail_closed": [
+    {
+      "item": "TTM WASO / TTM EPS",
+      "status": "fail_closed",
+      "reason": "Share counts are not flows. No official TTM WASO is disclosed for 2025-07-01 to 2026-06-30."
+    },
+    {
+      "item": "Company-defined free cash flow TTM",
+      "status": "fail_closed",
+      "reason": "The interim report gives a company FCF figure and formula only for Q2 2026, not for H1 2026 or FY2025 as a single official total in the extracts used here. Do not backsolve capex or TTM FCF from that Q2 figure."
+    },
+    {
+      "item": "Q3 2026 / TTM through 2026-09-30",
+      "status": "not_available_as_of_access_date",
+      "reason": "Q3 2026 official report was still pending the 2026-11-18 window at access date 2026-11-17."
+    },
+    {
+      "item": "ADR/ADS ratio",
+      "status": "not_required_and_not_in_these_reports",
+      "reason": "0700 ordinary-share valuation does not require TCEHY ADS."
+    },
+    {
+      "item": "Net official capex line (purchases minus disposals, or PPE plus intangibles plus land)",
+      "status": "no_such_single_official_line",
+      "reason": "The designated capex input is the cash-flow PPE/CIP/investment-property purchases line only. Related lines are recorded separately and must not be silently merged."
+    }
+  ],
+  "checks": {
+    "fy2025_ocf": "347751 - 44699 = 303052",
+    "h1_2026_ocf": "186924 - 32863 = 154061",
+    "h1_2026_revenue_segments": "194524 + 81736 + 120171 + 4812 = 401243",
+    "h1_2026_management_capex_q1_q2": "31736 + 52784 = 84720",
+    "fy2025_basic_eps": "224842 / 9085 = 24.7488 rounds to 24.749",
+    "h1_2026_basic_eps": "114115 / 9029 = 12.6387 rounds to 12.639",
+    "ttm_revenue": "751766 + 401243 - 364526 = 788483",
+    "ttm_attributable_profit": "224842 + 114115 - 103449 = 235508",
+    "ttm_ocf": "303052 + 154061 - 151265 = 305848",
+    "ttm_designated_capex": "87482 + 95615 - 45558 = 137539"
+  }
+}

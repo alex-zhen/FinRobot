@@ -1,0 +1,346 @@
+{
+  "schema": "baba_alternative_fcf_capex_ttm_v1",
+  "generated_at": "2026-11-17T11:50:26+08:00",
+  "timezone": "Asia/Shanghai",
+  "purpose": "Limited check whether FY2026, FY2027 Q1 and FY2026 Q1 have consistent official company-defined FCF with complete recon items, and/or the same management capex or narrow PPE definition, so an auditable alternative TTM ended 2026-06-30 can be formed. Statutory capex TTM remains unavailable and is not re-searched. Not a canvas or repository change. No model run. Does not guarantee a FinRobot valuation gate will pass.",
+  "reuse_only": {
+    "no_new_sec_fetch": true,
+    "statutory_ttm_not_reopened": true,
+    "nvda_not_in_scope": true,
+    "source_files": [
+      "/workspace/akshare-supplement/data/official/source-documents/alibaba-20f-2026.pdf",
+      "/workspace/akshare-supplement/data/official/source-documents/baba-6k-ex99.htm",
+      "/workspace/akshare-supplement/data/official/source-documents/baba-6k-fy2026q1-ex99.htm",
+      "/workspace/akshare-supplement/data/official/baba_statutory_capex_ttm_2026-11-17.json"
+    ]
+  },
+  "labeling_rules": {
+    "company_defined_fcf_is_not_statutory_cash_flow": true,
+    "company_defined_fcf_is_not_fcff": true,
+    "self_calculated_ocf_minus_capex_is_not_official_fcf": true,
+    "narrow_ppe_is_not_statutory_capex": true,
+    "mda_capital_expenditures_is_not_automatically_the_quarterly_statutory_cf_line": true,
+    "do_not_mix_statutory_fy_with_narrow_q1": true
+  },
+  "verdict": {
+    "statutory_capex_ttm_constructible": false,
+    "statutory_capex_ttm_status": "previously_fail_closed_not_reopened",
+    "company_defined_fcf_official_totals_available_all_three_periods": true,
+    "company_defined_fcf_definition_text_consistent_all_three_periods": true,
+    "company_defined_fcf_recon_tables_item_identical_all_three_periods": false,
+    "company_defined_fcf_ttm_constructible_from_official_totals": true,
+    "company_defined_fcf_ttm_complete_recon_items_identical": false,
+    "narrow_ppe_same_caption_all_three_periods": true,
+    "narrow_ppe_ttm_constructible": true,
+    "mda_capital_expenditures_same_phrase_all_three_periods": true,
+    "mda_capital_expenditures_quarterly_identity_with_statutory_cf_line_proven": false,
+    "mda_capital_expenditures_ttm_as_statutory_capex": false,
+    "mda_capital_expenditures_ttm_as_same_phrase_official_mda_series": true,
+    "mixed_statutory_fy_plus_narrow_q1_allowed": false,
+    "guarantees_finrobot_gate_pass": false,
+    "short_conclusion": "An auditable alternative TTM ended 2026-06-30 can be formed from official company-defined Free cash flow totals (-72,464 RMB million) and, separately, from the same-caption narrow FCF recon PPE (-151,052 RMB million). Company FCF is a non-GAAP liquidity measure, not statutory cash flow and not FCFF. The annual FCF recon includes an intangibles row; both quarterly tables omit that row, so recon items are not fully identical, although official FCF totals are presented and quarterly arithmetic ties without an intangibles residual. MD&A 'capital expenditures' exists in all three periods as a same phrase (TTM magnitude 155,065 if rolled), but quarterly amounts are not presented as the statutory CF line and must not be used as statutory capex. None of these substitutes a statutory capex TTM, and none automatically satisfies a standard FCFF/WACC DCF or a gate that requires that line."
+  },
+  "company_defined_fcf": {
+    "measure_name": "Free cash flow",
+    "gaap": false,
+    "nature": "Company non-GAAP liquidity measure. Not statutory cash flow. Not FCFF. Not a self-calculated official figure.",
+    "definition_text_common": "Free cash flow represents net cash provided by operating activities as presented in our consolidated cash flow statement less purchases of property and equipment (excluding acquisition of land use rights and construction in progress relating to office campuses) and intangible assets (excluding those acquired through acquisitions), as well as adjustments to exclude from net cash provided by operating activities the buyer protection fund deposits from merchants on our marketplaces.",
+    "definition_consistency": "The operative definition sentences in the FY2026 20-F and both quarterly 6-Ks are the same in substance and wording, including the intangibles clause and the buyer-protection adjustment.",
+    "definition_sources": {
+      "FY2026": {
+        "document": "Alibaba FY2026 Form 20-F",
+        "printed_page": "136",
+        "accession": "0001193125-26-231755"
+      },
+      "FY2027Q1": {
+        "document": "June Quarter 2026 Form 6-K EX-99.1",
+        "printed_page": "17",
+        "accession": "0001104659-26-099220"
+      },
+      "FY2026Q1": {
+        "document": "June Quarter 2025 Form 6-K EX-99.1",
+        "printed_page": "16",
+        "accession": "0001104659-25-085638"
+      }
+    },
+    "recon_table_structure": {
+      "FY2026_20F_rows": [
+        "Net cash provided by operating activities",
+        "Less: Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)",
+        "Less: Purchase of intangible assets (excluding those acquired through acquisitions)",
+        "Less: Changes in the buyer protection fund deposits",
+        "Free cash flow"
+      ],
+      "FY2027Q1_and_FY2026Q1_rows": [
+        "Net cash provided by operating activities",
+        "Less: Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)",
+        "Less: Changes in the buyer protection fund deposits",
+        "Free cash flow"
+      ],
+      "difference": "Both quarterly recon tables omit the intangibles row that appears in the annual 20-F table (FY2026 intangibles outflow of RMB 874 million). The HTML of both 6-K exhibits contains no 'Purchase of intangible assets' recon line. Quarterly official FCF totals arithmetically equal OCF + signed narrow PPE + signed buyer-protection changes, with no residual. That is consistent with a nil quarterly intangibles item but is not an explicit official 0 or dash on those tables. Therefore official FCF totals can be used; complete item-identical recon is not claimed."
+    },
+    "periods": {
+      "FY2026": {
+        "period_type": "fiscal_year",
+        "period_start": "2025-04-01",
+        "period_end": "2026-03-31",
+        "currency": "RMB",
+        "unit": "million",
+        "value": -46609,
+        "us_dollar_million": -6757,
+        "sign": "company_fcf_outflow_negative_as_in_official_table",
+        "usable_as_official_company_defined_fcf": true,
+        "usable_as_statutory_cash_flow": false,
+        "usable_as_fcff": false,
+        "source_location": {
+          "document": "Alibaba FY2026 Form 20-F",
+          "printed_page": "137",
+          "accession": "0001193125-26-231755"
+        },
+        "quote_table": "Year ended March 31, 2024 / 2025 / 2026 / 2026 US$ (in millions): Net cash provided by operating activities 182,593 / 163,509 / 76,213 / 11,049; Less: Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses) (27,579) / (84,278) / (122,021) / (17,689); Less: Purchase of intangible assets (excluding those acquired through acquisitions) (842) / — / (874) / (127); Less: Changes in the buyer protection fund deposits 2,038 / (5,361) / 73 / 10; Free cash flow 156,210 / 73,870 / (46,609) / (6,757).",
+        "arithmetic_check": {
+          "formula": "76213 + (-122021) + (-874) + 73",
+          "result": -46609,
+          "ties_to_official_fcf": true
+        },
+        "recon_items_rmb_million": {
+          "operating_cash_flow": 76213,
+          "narrow_ppe": -122021,
+          "purchase_of_intangible_assets_ex_acquisitions": -874,
+          "changes_in_buyer_protection_fund_deposits": 73
+        }
+      },
+      "FY2027Q1": {
+        "period_type": "single_quarter",
+        "period_start": "2026-04-01",
+        "period_end": "2026-06-30",
+        "currency": "RMB",
+        "unit": "million",
+        "value": -44670,
+        "us_dollar_million": -6584,
+        "sign": "company_fcf_outflow_negative_as_in_official_table",
+        "usable_as_official_company_defined_fcf": true,
+        "usable_as_statutory_cash_flow": false,
+        "usable_as_fcff": false,
+        "source_location": {
+          "document": "June Quarter 2026 Form 6-K EX-99.1",
+          "printed_page": "25",
+          "accession": "0001104659-26-099220"
+        },
+        "quote_table": "Three months ended June 30, 2025 / 2026 / 2026 US$ (in millions): Net cash provided by operating activities 20,672 / 22,945 / 3,382; Less: Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses) (38,629) / (67,660) / (9,972); Less: Changes in the buyer protection fund deposits (858) / 45 / 6; Free cash flow (18,815) / (44,670) / (6,584).",
+        "arithmetic_check": {
+          "formula": "22945 + (-67660) + 45",
+          "result": -44670,
+          "ties_to_official_fcf": true,
+          "intangibles_row": "not_presented"
+        },
+        "recon_items_rmb_million": {
+          "operating_cash_flow": 22945,
+          "narrow_ppe": -67660,
+          "purchase_of_intangible_assets_ex_acquisitions": null,
+          "changes_in_buyer_protection_fund_deposits": 45
+        }
+      },
+      "FY2026Q1": {
+        "period_type": "single_quarter",
+        "period_start": "2025-04-01",
+        "period_end": "2025-06-30",
+        "currency": "RMB",
+        "unit": "million",
+        "value": -18815,
+        "us_dollar_million_in_original_fy2026q1_6k": -2626,
+        "sign": "company_fcf_outflow_negative_as_in_official_table",
+        "usable_as_official_company_defined_fcf": true,
+        "usable_as_statutory_cash_flow": false,
+        "usable_as_fcff": false,
+        "source_location": {
+          "primary_document": "June Quarter 2025 Form 6-K EX-99.1",
+          "printed_page": "24",
+          "accession": "0001104659-25-085638",
+          "independently_confirmed_as_comparative": "FY2027 Q1 6-K EX-99.1 printed page 25, accession 0001104659-26-099220"
+        },
+        "quote_table": "Three months ended June 30, 2024 / 2025 / 2025 US$ (in millions): Net cash provided by operating activities 33,636 / 20,672 / 2,886; Less: Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses) (11,939) / (38,629) / (5,392); Less: Changes in the buyer protection fund deposits (4,325) / (858) / (120); Free cash flow 17,372 / (18,815) / (2,626).",
+        "arithmetic_check": {
+          "formula": "20672 + (-38629) + (-858)",
+          "result": -18815,
+          "ties_to_official_fcf": true,
+          "intangibles_row": "not_presented"
+        },
+        "recon_items_rmb_million": {
+          "operating_cash_flow": 20672,
+          "narrow_ppe": -38629,
+          "purchase_of_intangible_assets_ex_acquisitions": null,
+          "changes_in_buyer_protection_fund_deposits": -858
+        }
+      }
+    },
+    "constructed_ttm_2025-07-01_to_2026-06-30": {
+      "period_start": "2025-07-01",
+      "period_end": "2026-06-30",
+      "formula": "FY2026 + FY2027Q1 - FY2026Q1 official Free cash flow totals",
+      "currency": "RMB",
+      "unit": "million",
+      "value": -72464,
+      "calculation": {
+        "fy2026": -46609,
+        "fy2027q1": -44670,
+        "fy2026q1": -18815,
+        "formula": "-46609 + (-44670) - (-18815)",
+        "result": -72464
+      },
+      "sign": "company_fcf_outflow_negative",
+      "usable_as_official_company_defined_fcf_ttm": true,
+      "usable_as_statutory_cash_flow": false,
+      "usable_as_fcff": false,
+      "usable_as_self_calculated_official_fcf": false,
+      "not_a_single_presented_ttm_line": true,
+      "us_dollar_not_summed": "Convenience translations use different period rates and are not added.",
+      "component_consistency_check_if_quarterly_intangibles_treated_as_zero": {
+        "ocf_ttm": 78486,
+        "narrow_ppe_ttm": -151052,
+        "annual_intangibles_only": -874,
+        "buyer_protection_ttm": 976,
+        "formula": "78486 + (-151052) + (-874) + 976",
+        "result": -72464,
+        "matches_official_fcf_totals_ttm": true,
+        "status": "disclosed_consistency_check_only_not_proof_that_quarterly_intangibles_were_officially_zero"
+      }
+    }
+  },
+  "narrow_ppe": {
+    "official_caption_common": "Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)",
+    "statement": "Non-GAAP free cash flow reconciliation, not the statutory cash-flow capex line",
+    "gaap_status": "The underlying purchases are cash investing items; the exclusion of land use rights and office-campus CIP is part of the company's non-GAAP FCF presentation.",
+    "same_caption_all_three_periods": true,
+    "usable_as_statutory_capex": false,
+    "periods": {
+      "FY2026": {
+        "period_start": "2025-04-01",
+        "period_end": "2026-03-31",
+        "value": -122021,
+        "us_dollar_million": -17689,
+        "source": "FY2026 20-F FCF recon, printed page 137",
+        "exact_caption": "Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)",
+        "quote": "(122,021) for the year ended March 31, 2026; US$(17,689) million."
+      },
+      "FY2027Q1": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-06-30",
+        "value": -67660,
+        "us_dollar_million": -9972,
+        "source": "FY2027 Q1 6-K EX-99.1 FCF recon, printed page 25",
+        "exact_caption": "Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)",
+        "quote": "(67,660) for the three months ended June 30, 2026; US$(9,972) million."
+      },
+      "FY2026Q1": {
+        "period_start": "2025-04-01",
+        "period_end": "2025-06-30",
+        "value": -38629,
+        "us_dollar_million_in_original_fy2026q1_6k": -5392,
+        "source": "FY2026 Q1 6-K EX-99.1 FCF recon, printed page 24; confirmed as comparative on FY2027 Q1 page 25",
+        "exact_caption": "Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)",
+        "quote": "(38,629) for the three months ended June 30, 2025; US$(5,392) million in the original FY2026 Q1 6-K."
+      }
+    },
+    "constructed_ttm_2025-07-01_to_2026-06-30": {
+      "period_start": "2025-07-01",
+      "period_end": "2026-06-30",
+      "formula": "FY2026 + FY2027Q1 - FY2026Q1",
+      "currency": "RMB",
+      "unit": "million",
+      "value": -151052,
+      "calculation": {
+        "fy2026": -122021,
+        "fy2027q1": -67660,
+        "fy2026q1": -38629,
+        "formula": "-122021 + (-67660) - (-38629)",
+        "result": -151052
+      },
+      "usable_as_same_caption_narrow_ppe_ttm": true,
+      "usable_as_statutory_capex_ttm": false,
+      "do_not_mix_with_fy2026_statutory_capex_126063": true
+    }
+  },
+  "mda_capital_expenditures": {
+    "phrase": "capital expenditures",
+    "same_phrase_all_three_periods": true,
+    "quarterly_presented_as_statutory_cf_line": false,
+    "usable_as_statutory_capex_ttm": false,
+    "periods": {
+      "FY2026": {
+        "period_start": "2025-04-01",
+        "period_end": "2026-03-31",
+        "value_magnitude": 126063,
+        "us_dollar_million_magnitude": 18275,
+        "exact_source_definition": "MD&A states 'our capital expenditures totaled' these amounts, and those magnitudes equal the cash-flow statement line 'Acquisitions of: Land use rights, property and equipment' on printed page F-12. Investing MD&A also says investing outflows 'primarily reflected capital expenditures of RMB126,063 million'.",
+        "source_pages": {
+          "mda_identity": "147",
+          "investing_mda": "146",
+          "statutory_cf_line": "F-12"
+        },
+        "quote_page_147": "In fiscal years 2024, 2025 and 2026, our capital expenditures totaled RMB32,087 million, RMB85,972 million and RMB126,063 million (US$18,275 million), respectively."
+      },
+      "FY2027Q1": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-06-30",
+        "value_magnitude": 67678,
+        "us_dollar_million_magnitude": 9975,
+        "exact_source_definition": "MD&A 'Capital Expenditures' section and investing-activities discussion use 'capital expenditures were/of RMB67,678 million'. The quarterly condensed cash flow statement does not present the statutory acquisitions line. This is official MD&A language, not a proven quarterly statutory CF line.",
+        "source_pages": {
+          "capital_expenditures_section": "4",
+          "investing_discussion": "14"
+        },
+        "quote_page_4": "During the quarter ended June 30, 2026, capital expenditures were RMB67,678 million (US$9,975 million), an increase of 75% compared to RMB38,676 million in the same quarter of 2025, reflecting our continued investments in AI infrastructure to meet strong and growing customer demand."
+      },
+      "FY2026Q1": {
+        "period_start": "2025-04-01",
+        "period_end": "2025-06-30",
+        "value_magnitude": 38676,
+        "us_dollar_million_magnitude_in_original_fy2026q1_6k": 5399,
+        "exact_source_definition": "Investing-activities discussion in the original FY2026 Q1 6-K: cash inflows 'were partly offset by capital expenditures of RMB38,676 million'. Independently repeated as the comparative in the FY2027 Q1 Capital Expenditures section. Not presented as a condensed CF statutory line.",
+        "source_pages": {
+          "original_investing_discussion": "13",
+          "comparative_in_fy2027q1": "4"
+        },
+        "quote_page_13": "These cash inflows were partly offset by capital expenditures of RMB38,676 million (US$5,399 million) and cash outflow of RMB8,429 million (US$1,177 million) for investment and acquisition activities."
+      }
+    },
+    "differences_vs_narrow_ppe_magnitude_rmb_million": {
+      "FY2026": 4042,
+      "FY2027Q1": 18,
+      "FY2026Q1": 47,
+      "note": "These differences show MD&A capital expenditures are not the same series as narrow FCF PPE. Do not mix the two, and do not mix FY statutory/MD&A annual with quarterly narrow PPE."
+    },
+    "constructed_ttm_2025-07-01_to_2026-06-30": {
+      "period_start": "2025-07-01",
+      "period_end": "2026-06-30",
+      "formula_if_same_phrase_rolled": "126063 + 67678 - 38676",
+      "value_magnitude": 155065,
+      "signed_as_outflow_if_used": -155065,
+      "usable_as_same_phrase_official_mda_series_ttm": true,
+      "usable_as_statutory_capex_ttm": false,
+      "caveat": "Annual figure is identified with the F-12 statutory CF line; quarterly figures are MD&A 'capital expenditures' only. This TTM is an official same-phrase MD&A rollforward, not a statutory CF-line TTM."
+    }
+  },
+  "dcf_implications": {
+    "company_fcf_does_not_automatically_equal_fcff": true,
+    "suitable_use": "The constructed official company-defined FCF TTM is suitable only for an analysis that explicitly discounts Alibaba's reported non-GAAP Free cash flow (a liquidity measure: GAAP OCF minus narrow business PPE, minus certain intangibles, adjusted for buyer-protection fund deposits). Because GAAP OCF is after interest and tax, this measure is closer to a levered, after-interest cash generation figure than to unlevered FCFF, and it also excludes land-use-rights and office-campus CIP. A matching discount rate, if used, should be consistent with that levered after-interest nature (not automatically WACC).",
+    "not_suitable_as_drop_in_fcff": "It is not a drop-in FCFF for a standard WACC DCF. FCFF is typically unlevered cash flow to all capital providers (e.g. NOPAT + D&A − total reinvestment capex − change in NWC, or OCF + after-tax interest − capex). Using company FCF as FCFF would omit or mis-handle at least: after-tax interest already deducted in OCF; land and office-campus capex excluded from company FCF; the buyer-protection deposit adjustment; and any intangibles omitted from quarterly tables. Self-calculated OCF minus statutory capex is also not official FCF and is not automatically FCFF.",
+    "narrow_ppe_ttm_role": "May be used only as the company's 'revenue-generating' PPE purchases concept in a model that adopts that definition. It is not total statutory capex.",
+    "mda_capex_ttm_role": "May be shown as a same-phrase official MD&A capex TTM with the quarterly definition caveat. It is not a statutory CF-line TTM and must not be silently used to pass a statutory-capex gate.",
+    "still_missing_for_a_standard_fcff_wacc_dcf_or_a_statutory_capex_gate": [
+      "Statutory capex TTM ended 2026-06-30 (quarterly statutory CF lines still unpresented)",
+      "An official or explicitly constructed bridge from company-defined FCF to unlevered FCFF (after-tax interest, excluded land/office capex, buyer-protection treatment, quarterly intangibles)",
+      "Any gate that requires FCFF, WACC inputs, or same-definition statutory capex TTM is still not satisfied by these alternatives",
+      "This file does not build net debt, tax rate, WACC, terminal growth, or per-share dilution into a valuation, and does not guarantee those are complete elsewhere"
+    ]
+  },
+  "cloud_adaptation_note": {
+    "deliver_for_adaptation": true,
+    "cannot_force_a_gate_pass": true,
+    "if_the_gate_requires_statutory_capex_ttm": "still_fail_closed",
+    "if_the_gate_can_accept_official_company_defined_fcf_ttm": "usable_with_labels_in_this_file",
+    "if_the_gate_can_accept_same_caption_narrow_ppe_ttm": "usable_with_labels_in_this_file_not_as_statutory_capex",
+    "if_the_gate_requires_fcff": "still_missing_bridge"
+  }
+}

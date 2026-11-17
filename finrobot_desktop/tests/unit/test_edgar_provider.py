@@ -36,6 +36,24 @@ from finrobot.engine.data.providers.edgar_provider import (
 from finrobot.engine.data.types import DataType
 
 
+def test_provider_imports_edgartools_5_symbols() -> None:
+    """The adapter imports symbols removed in edgartools 6.
+
+    ``uv.lock`` pins 5.31.5. Installing an unpinned ``edgartools>=6`` makes
+    ``from edgar import DataObjectException`` fail and the provider then
+    reports itself as not installed.
+    """
+    from edgar import Company, CompanyNotFoundError, DataObjectException, get_filings, set_identity
+
+    from finrobot.engine.data.providers import edgar_provider
+
+    assert all(
+        item is not None
+        for item in (Company, CompanyNotFoundError, DataObjectException, get_filings, set_identity)
+    )
+    assert edgar_provider._EDGAR_AVAILABLE is True
+
+
 # ---------------------------------------------------------------------------
 # Local identity gate
 # ---------------------------------------------------------------------------

@@ -317,18 +317,17 @@ def test_financials_no_ttm_quarter_ends_defaults_empty():
 
 
 def test_financials_missing_period_basis_is_degraded():
-    """Provider omits period_basis (None/empty) → defaults to ttm but stamps
-    DEGRADED_PERIOD_BASIS_UNKNOWN so the unknown basis is visible, not silent."""
+    """Provider omits period_basis → unverified, not a silent TTM label."""
     fin = normalize_financials(_fin_result(revenue=1e9, date="2026-03-31"))
-    assert fin.period_basis == "ttm"
+    assert fin.period_basis == "unverified"
     assert DEGRADED_PERIOD_BASIS_UNKNOWN in fin.provenance.degraded
 
 
 def test_financials_unrecognized_period_basis_is_degraded():
-    """Provider sends a non-standard basis string (e.g. 'fy2024') → defaults to
-    ttm and stamps DEGRADED_PERIOD_BASIS_UNKNOWN instead of silently mislabeling."""
+    """Provider sends a non-standard basis string (e.g. 'fy2024') → unverified,
+    not a silent TTM label."""
     fin = normalize_financials(_fin_result(revenue=1e9, date="2026-03-31", period_basis="fy2024"))
-    assert fin.period_basis == "ttm"
+    assert fin.period_basis == "unverified"
     assert DEGRADED_PERIOD_BASIS_UNKNOWN in fin.provenance.degraded
 
 

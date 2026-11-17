@@ -4,7 +4,7 @@ import math
 import os
 import tempfile
 from collections.abc import Sequence
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Any, cast
 
 import pandas as pd
@@ -17,6 +17,7 @@ from finrobot.engine.data.interface import (
     ProviderError,
     RateLimitedProviderError,
 )
+from finrobot.engine.data.normalize.valuation_input import capex_outflow, select_statement_window
 from finrobot.engine.data.types import DataType
 
 logger = logging.getLogger(__name__)
@@ -129,6 +130,45 @@ def _safe_float(value: object) -> float | None:
     return result
 
 
+def _as_statement_frame(value: Any) -> pd.DataFrame | None:
+    """A real statement frame. A missing attribute or a test double is not one."""
+    if isinstance(value, pd.DataFrame) and not value.empty:
+        return value
+    return None
+
+
+def _column_period_end(col: Any) -> date | None:
+    if isinstance(col, datetime):
+        return col.date()
+    if isinstance(col, date):
+        return col
+    dated = getattr(col, "date", None)
+    if callable(dated):
+        try:
+            value = dated()
+        except (TypeError, ValueError):
+            return None
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, date):
+            return value
+    return None
+
+
+def _sum_named(
+    frame: pd.DataFrame | None, names: Sequence[str], columns: Sequence[Any]
+) -> float | None:
+    """Sum one line across a chosen window. A missing cell makes the line missing."""
+    row = _get_row(frame, names)
+    total = 0.0
+    for col in columns:
+        cell = _cell(row, col)
+        if cell is None:
+            return None
+        total += cell
+    return total
+
+
 def _cell(row: pd.Series | None, col: Any) -> float | None:
     """Read one cell from a row Series, tolerating a missing row/column/NaN."""
     if row is None:
@@ -174,6 +214,7 @@ def _build_yearly_financials(
         gp = _cell(gp_row, col)
         oi = _cell(oi_row, col)
         capex_raw = _cell(capex_row, col)
+        capex_out, _capex_note = capex_outflow(capex_raw)
         yearly.append(
             {
                 "fiscal_year": str(col.date()) if hasattr(col, "date") else str(col),
@@ -190,11 +231,70 @@ def _build_yearly_financials(
                 "investing_cash_flow": _cell(icf_row, col),
                 "financing_cash_flow": _cell(fcf_row, col),
                 "depreciation_amortization": _cell(da_row, col),
-                "capital_expenditure": abs(capex_raw) if capex_raw is not None else None,
+                "capital_expenditure": capex_out,
                 "change_in_working_capital": _cell(nwc_row, col),
             }
         )
     return yearly
+
+
+def _quarterly_ttm_overlay(
+    t: yf.Ticker, info_payload: dict[str, Any]
+) -> tuple[dict[str, Any] | None, list[str]]:
+    """Replace an undated info blob with a summed quarterly window when one exists.
+
+    The window is four non-overlapping quarters or two non-overlapping halves.
+    A missing line in any selected column stays missing. Capex keeps the
+    cash-flow sign until :func:`capex_outflow` accepts a net outflow. Returns
+    ``(None, reasons)`` when the frames are absent, the dates do not prove
+    twelve months, or a selected column has no revenue. The caller keeps the
+    unverified info snapshot and keeps the reasons.
+    """
+    income = _as_statement_frame(getattr(t, "quarterly_income_stmt", None))
+    if income is None:
+        return None, []
+    columns = list(income.columns)
+    ends = [_column_period_end(col) for col in columns]
+    window = select_statement_window(ends)
+    if window.construction is None:
+        return None, list(window.reasons)
+    selected = [columns[i] for i in window.indexes]
+    revenue = _sum_named(income, _REVENUE_NAMES, selected)
+    if revenue is None:
+        return None, [
+            (
+                "ttm_window_unverified: a column inside the trailing window has no "
+                "revenue, so the columns were not summed"
+            )
+        ]
+    cashflow = _as_statement_frame(getattr(t, "quarterly_cashflow", None))
+    capex_signed = _sum_named(cashflow, _CAPEX_NAMES, selected)
+    capex, capex_note = capex_outflow(capex_signed)
+    reasons = [capex_note] if capex_note else []
+    period_ends: list[date] = []
+    for index in window.indexes:
+        end = ends[index]
+        if end is not None:
+            period_ends.append(end)
+    overlaid = dict(info_payload)
+    overlaid.update(
+        {
+            "revenue": revenue,
+            "ebitda": _sum_named(income, _EBITDA_NAMES, selected),
+            "net_income": _sum_named(income, _NET_INCOME_NAMES, selected),
+            "operating_income": _sum_named(income, _OPERATING_INCOME_NAMES, selected),
+            "gross_profit": _sum_named(income, _GROSS_PROFIT_NAMES, selected),
+            "operating_cash_flow": _sum_named(cashflow, _OPERATING_CF_NAMES, selected),
+            "depreciation_amortization": _sum_named(cashflow, _DA_NAMES, selected),
+            "capital_expenditure": capex,
+            "period_basis": "ttm",
+            "ttm_construction": window.construction,
+            "ttm_quarter_ends": [end.isoformat() for end in period_ends],
+            "fiscal_year": period_ends[0].isoformat() if period_ends else None,
+            "ttm_quality_reasons": reasons,
+        }
+    )
+    return overlaid, reasons
 
 
 class YFinanceProvider(DataProvider):
@@ -309,7 +409,7 @@ class YFinanceProvider(DataProvider):
             if years_kwarg and years_kwarg > 1:
                 result = await self._fetch_historical_financials(ticker, info, t, years_kwarg)
             else:
-                result = self._fetch_financials(ticker, info)
+                result = self._fetch_financials(ticker, info, t)
         elif data_type == DataType.PRICE:
             await asyncio.sleep(_CALL_DELAY)
             result = await self._fetch_price(ticker, t, info)
@@ -373,7 +473,9 @@ class YFinanceProvider(DataProvider):
             timestamp=datetime.now(tz=timezone.utc),
         )
 
-    def _fetch_financials(self, ticker: str, info: dict[str, Any]) -> DataResult:
+    def _fetch_financials(
+        self, ticker: str, info: dict[str, Any], t: yf.Ticker | None = None
+    ) -> DataResult:
         # dict.get() never raises; no try/except needed here
         data = {
             "revenue": info.get("totalRevenue"),
@@ -387,17 +489,19 @@ class YFinanceProvider(DataProvider):
             "total_debt": info.get("totalDebt"),
             "total_cash": info.get("totalCash"),
             "company_name": info.get("shortName") or info.get("longName"),
-            # TTM cash-flow actuals for a real FCF = OCF − CapEx (computed
-            # downstream, never LLM-estimated). yfinance `info` exposes TTM
-            # operatingCashflow + freeCashflow but no capex line, so derive
-            # capex = OCF − FCF (positive magnitude) when both are present.
+            # yfinance `info` exposes operatingCashflow and freeCashflow but no
+            # capex line and no quarter ends. Capex = OCF − FCF is a positive
+            # outflow only when that identity holds. A negative result is not
+            # stored and is not absolute-valued. The blob is not a verified TTM.
             "operating_cash_flow": info.get("operatingCashflow"),
             "capital_expenditure": (
                 info["operatingCashflow"] - info["freeCashflow"]
                 if isinstance(info.get("operatingCashflow"), int | float)
                 and isinstance(info.get("freeCashflow"), int | float)
+                and info["operatingCashflow"] - info["freeCashflow"] > 0
                 else None
             ),
+            "period_basis": "unverified",
             # Industry/sector for valuation model routing (DDM vs DCF)
             "industry": info.get("industry"),
             "sector": info.get("sector"),
@@ -428,8 +532,10 @@ class YFinanceProvider(DataProvider):
             # mismatch that produces EV/EBITDA=0.158x without normalization.
             # For 2330.TW (local listing): both = TWD.
             # For most US issuers: both = USD.
-            "quote_currency": info.get("currency") or "USD",
-            "financial_currency": info.get("financialCurrency") or "USD",
+            # Missing tags stay missing. Filling USD here made a foreign
+            # statement look single-currency.
+            "quote_currency": info.get("currency"),
+            "financial_currency": info.get("financialCurrency"),
             # Country of incorporation — used by extractor to cross-check
             # financialCurrency when the provider tag is unreliable (e.g. TSM
             # ADR where yfinance returns financialCurrency="USD" despite IS/BS
@@ -441,6 +547,13 @@ class YFinanceProvider(DataProvider):
             # non-ADR"). Only FMP's /profile isAdr can suppress the banner.
             "is_adr": None,
         }
+        quarterly, quarterly_reasons = (
+            _quarterly_ttm_overlay(t, data) if t is not None else (None, [])
+        )
+        if quarterly is not None:
+            data = quarterly
+        elif quarterly_reasons:
+            data["ttm_quality_reasons"] = quarterly_reasons
         return DataResult(
             data=data,
             provider=self.name,

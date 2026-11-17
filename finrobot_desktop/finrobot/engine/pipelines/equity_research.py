@@ -737,6 +737,22 @@ async def _execute_financial_modeling(
             ],
         )
 
+    from finrobot.engine.data.normalize.valuation_input import publication_block_reasons
+
+    block_reasons = publication_block_reasons(financial_data)
+    if block_reasons:
+        structured_context["input_quality_block"] = block_reasons
+        logger.info("Formal valuation refused for %s: %s", ticker, "; ".join(block_reasons))
+        return StepOutput(
+            text=(
+                "Formal valuation refused. The DCF is a current fair value and is not "
+                "computed when currency, period, or share count is unverified. "
+                + " ".join(block_reasons)
+            ),
+            structured=None,
+            warnings=block_reasons,
+        )
+
     # Stage-1 growth seed: prefer analyst consensus (the multi-year forward path
     # the data step already fetched) over a backward-looking trailing CAGR, so
     # the DCF stops contradicting the pipeline's own forward projection — the
@@ -757,6 +773,17 @@ async def _execute_financial_modeling(
     )
     dcf_inputs = seed_dcf_inputs(
         financial_data, historical, forward_growth=forward_growth, cyclical=cyclical
+    )
+    _prov = dcf_inputs.assumption_provenance
+    logger.info(
+        "DCF assumption disclosure for %s (not fitted to the market price): "
+        "growth=%s; D&A=%s; risk-free=%s; equity-risk-premium=%s; beta=%s",
+        ticker,
+        _prov.get("revenue_growth_rates", "not recorded"),
+        _prov.get("da_pct_revenue", "not recorded"),
+        _prov.get("risk_free_rate", "not recorded"),
+        _prov.get("equity_risk_premium", "not recorded"),
+        _prov.get("beta", "not recorded"),
     )
     try:
         dcf_result = calculate_dcf(dcf_inputs)
@@ -854,7 +881,10 @@ async def _execute_financial_modeling(
     else:
         implied_str = ""
     narrative = (
-        f"DCF base case implies ${dcf_result.implied_price:.2f} per share. "
+        f"DCF current fair value is ${dcf_result.implied_price:.2f} per share "
+        f"(present value today; the {dcf_result.projection_years}-year forecast is the "
+        f"explicit cash-flow horizon, not a price target {dcf_result.projection_years} "
+        f"years from now). "
         f"WACC: {dcf_result.wacc:.1%}, Terminal growth: {dcf_inputs.terminal_growth_rate:.1%}. "
         f"Enterprise value: ${dcf_result.enterprise_value / 1e9:.1f}B. "
         f"Sensitivity range: {price_range}. {implied_str}".rstrip()
@@ -1152,9 +1182,10 @@ async def _execute_technical_analysis(
 # market cap the thesis prompt itself injects via fmt_market_cap) matched as
 # "$3.41", failed the whitelist, and was rewritten to the canonical target —
 # producing "$276.43T". A magnitude-suffixed amount is categorically not a
-# per-share target, so the reconciler skips it entirely; fabricated big
-# amounts are the report-level drift scanner's job (operators/report_drift),
-# which parses the same suffixes and compares against all numeric leaves.
+# per-share target, so the reconciler skips it entirely. Chinese statement
+# units (亿 / 万 and the longer compounds) are the same kind of suffix: "$302.97 亿"
+# must not become "$337.17 亿". Fabricated big amounts are the report-level
+# drift scanner's job (operators/report_drift).
 # The optional leading-minus group ([-−]\s?, ASCII or U+2212) exists to be
 # SKIPPED, mirroring the suffix rule above: "-$1.20" (loss-quarter EPS, negative
 # FCF/share) is categorically not a restatement of the positive canonical price
@@ -1165,9 +1196,33 @@ async def _execute_technical_analysis(
 _DOLLAR_RE = re.compile(
     r"([-−]\s?)?"
     r"\$\s?(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)"
-    r"(\s?(?:[KMBT]\b|million\b|billion\b|trillion\b|bn\b|mn\b|tn\b))?",
+    r"("
+    r"\s?(?:[KMBT]\b|million\b|billion\b|trillion\b|bn\b|mn\b|tn\b)"
+    r"|\s?(?:万亿|千亿|百亿|十亿|百万|千万|亿元|亿美元|亿|万)"
+    r")?",
     re.IGNORECASE,
 )
+
+# Only an explicit target or recommendation phrase is a candidate for
+# neutralization. A DCF band, a sensitivity, or a statement amount with no
+# target word stays as written.
+_TARGET_CUE = re.compile(
+    r"fair\s+value|price\s+target|\btarget\b|目标价|目标|公允价值",
+    re.IGNORECASE,
+)
+_CUE_BOUNDARIES = ("$", "。", "！", "？", ".", "!", "?", "\n")
+
+
+def _target_window(text: str, start: int, end: int) -> str:
+    """Cue text in the same clause, stopping at the next amount or sentence."""
+    left = text[max(0, start - 48) : start]
+    cut = max(left.rfind(mark) for mark in _CUE_BOUNDARIES)
+    left = left[cut + 1 :]
+    right = text[end : end + 24]
+    stops = [right.find(mark) for mark in _CUE_BOUNDARIES]
+    stop = min([item for item in stops if item != -1], default=len(right))
+    return left + right[:stop]
+
 
 # A prose $-amount may legitimately differ from the canonical weighted target
 # when it is quoting a *per-method* mid (e.g. "DCF says $5.88, comps say $19.54").
@@ -1247,9 +1302,11 @@ def _reconcile_narrative_targets(
             # ship the sign-corrupted "-$276.43". Skip, like suffixed amounts.
             if match.group(1):
                 return match.group(0)
-            # Magnitude-suffixed amounts ($3.41T market cap, $391.0B EV) are
-            # never per-share targets — out of scope for target reconciliation.
+            # Magnitude-suffixed amounts ($3.41T market cap, $391.0B EV,
+            # $302.97 亿 revenue) are never per-share targets.
             if match.group(3):
+                return match.group(0)
+            if _TARGET_CUE.search(_target_window(text, *match.span())) is None:
                 return match.group(0)
             try:
                 value = float(match.group(2).replace(",", ""))
@@ -1483,6 +1540,17 @@ async def _execute_thesis(
     # assembly (catalyst context, market-implied line, gate/target block, numeric
     # whitelist, segment grounding) by ``build_thesis_prompt`` (test_thesis_prompt.py).
     # The async work here is only to run the agent and enforce the canonical fields.
+    blocked = structured_context.get("input_quality_block")
+    if isinstance(blocked, list) and blocked:
+        reasons = [str(item) for item in blocked]
+        return StepOutput(
+            text=(
+                "No buy, hold, or sell recommendation. Formal valuation was refused "
+                "because the inputs are not publishable. " + " ".join(reasons)
+            ),
+            structured=None,
+            warnings=reasons,
+        )
     vs = structured_context.get("valuation_synthesis")
     canonical = resolve_canonical_thesis(vs, ticker)
     thesis_prompt = build_thesis_prompt(prompt, structured_context, canonical)
@@ -1563,11 +1631,17 @@ async def _execute_thesis(
     # momentum hedge above — never gates verdict/target/confidence (contract②).
     numeric_grounding_warning = audit_narrative_numeric_grounding(thesis)
 
-    target_str = (
-        f"${thesis.price_target:.2f}" if thesis.price_target is not None else "N/A (under review)"
-    )
+    if thesis.price_target is not None:
+        target_str = f"${thesis.price_target:.2f}"
+        verdict_note = ""
+    else:
+        target_str = "withheld (point target not published)"
+        verdict_note = (
+            " The directional word is not an investment recommendation and "
+            "does not publish a target price."
+        )
     narrative = (
-        f"Recommendation: {thesis.recommendation}. "
+        f"Recommendation: {thesis.recommendation}.{verdict_note} "
         f"Price target: {target_str} ({thesis.price_target_basis}). "
         f"Catalysts: {', '.join(thesis.catalysts[:2])}. "
         f"Risks: {', '.join(thesis.risks[:2])}."

@@ -53,12 +53,27 @@ def _ttm_lag_quarters(period_end: date | None, fetched_at: datetime) -> int | No
     return days // 91
 
 
+def _currency_tag(data: dict[str, Any], key: str) -> str:
+    """ISO tag, or UNKNOWN when the provider sent the key with no value.
+
+    A missing key still defaults to USD so older fixtures that never carried a
+    tag keep their previous shape. An explicit null is not USD: inventing USD
+    is what let a foreign statement pass a same-currency check.
+    """
+    if key not in data:
+        return "USD"
+    raw = data.get(key)
+    if raw is None or str(raw).strip() == "":
+        return "UNKNOWN"
+    return str(raw).strip().upper()
+
+
 def normalize_financials(result: DataResult) -> NormalizedFinancials:
     data = result.data if isinstance(result.data, dict) else {}
     ticker = result.ticker
 
-    reporting_currency = (data.get("financial_currency") or "USD").upper()
-    quote_currency = (data.get("quote_currency") or "USD").upper()
+    reporting_currency = _currency_tag(data, "financial_currency")
+    quote_currency = _currency_tag(data, "quote_currency")
     # country flows into the snapshot untouched — the family-1 verifier
     # (audit_foreign_issuer_usd_tags) needs it to flag double-USD foreign
     # issuers for review; it never alters the currency tags here. is_adr rides
@@ -70,7 +85,9 @@ def normalize_financials(result: DataResult) -> NormalizedFinancials:
     period_end = _parse_date(data.get("fiscal_year") or data.get("date"))
     _raw_basis: str = data.get("period_basis") or ""
     _basis_unknown = _raw_basis not in ("ttm", "annual", "quarterly")
-    period_basis = "ttm" if _basis_unknown else _raw_basis
+    # An omitted or unrecognized basis is not labeled TTM. Calling it TTM is
+    # what let an undated provider blob become a formal valuation input.
+    period_basis = "unverified" if _basis_unknown else _raw_basis
     as_of = _date_to_dt(period_end) if period_end else result.timestamp
     lag = _ttm_lag_quarters(period_end, result.timestamp)
 
@@ -132,5 +149,7 @@ def normalize_financials(result: DataResult) -> NormalizedFinancials:
         ttm_quarter_ends=[
             d for d in (_parse_date(x) for x in (data.get("ttm_quarter_ends") or [])) if d
         ],
+        ttm_construction=data.get("ttm_construction"),
+        ttm_quality_reasons=[str(r) for r in (data.get("ttm_quality_reasons") or [])],
         provenance=provenance,
     )

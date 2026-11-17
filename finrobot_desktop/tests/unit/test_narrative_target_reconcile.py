@@ -65,6 +65,53 @@ def test_drifting_prose_amount_is_neutralized_to_canonical(
     )
 
 
+def test_chinese_magnitude_amounts_are_not_replaced_by_the_target() -> None:
+    """A statement amount written as ``$302.97 亿`` is not a per-share target.
+
+    The reconciler used to match only ``$302.97`` and rewrite it to the
+    canonical target, leaving the unit behind as ``$337.17 亿``. The target
+    phrase in the same sentence is still neutralized.
+    """
+    thesis = _thesis(
+        price_target=337.17,
+        narrative=(
+            "TTM 营业收入 $302.97 亿，EBITDA $201.27亿，经营现金流 $134.36 亿。"
+            "12个月目标价约 $280。"
+        ),
+    )
+    out, drift = _reconcile_narrative_targets(
+        thesis, canonical_target=337.17, allowed_mids=[353.46, 301.19], current_price=156.14
+    )
+    assert drift is True
+    text = out.narrative or ""
+    assert "$302.97 亿" in text
+    assert "$201.27亿" in text
+    assert "$134.36 亿" in text
+    assert "$280" not in text
+    assert "$337.17" in text
+    assert "$337.17 亿" not in text
+
+
+def test_non_target_amounts_are_not_rewritten() -> None:
+    """A sensitivity and a DCF band are not a recommendation."""
+    thesis = _thesis(
+        price_target=337.17,
+        valuation_overview=(
+            "DCF 区间 $283.59–$412.10。隐含价值降至约 $290.00。12个月目标价约 $280。"
+        ),
+    )
+    out, drift = _reconcile_narrative_targets(
+        thesis, canonical_target=337.17, allowed_mids=[353.46], current_price=156.14
+    )
+    assert drift is True
+    text = out.valuation_overview or ""
+    assert "$283.59" in text
+    assert "$412.10" in text
+    assert "$290.00" in text
+    assert "$280" not in text
+    assert "$337.17" in text
+
+
 def test_magnitude_suffixed_amounts_are_never_rewritten() -> None:
     """$3.41T / $391.0B / $3.4 billion are market-cap/EV-scale facts, not
     per-share targets. The reconciler used to match only the numeric body
@@ -231,9 +278,9 @@ def test_drift_scanned_across_all_narrative_fields() -> None:
     # / news_summary / narrative survived into the artifact. Now all are scanned.
     thesis = _thesis(
         narrative="Bottom line, we peg fair value at $280.",
-        company_overview="Apple's segments support a $280 valuation.",
-        competitor_analysis="Versus peers, AAPL warrants $280.",
-        news_summary="Headlines hint the Street sees $280.",
+        company_overview="Apple's segments support a price target of $280.",
+        competitor_analysis="Versus peers, AAPL warrants a price target of $280.",
+        news_summary="Headlines hint the Street sees a price target of $280.",
     )
 
     out, drift = _reconcile_narrative_targets(thesis, canonical_target=276.43, allowed_mids=[])

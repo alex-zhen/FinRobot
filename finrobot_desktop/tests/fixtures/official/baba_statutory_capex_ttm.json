@@ -1,0 +1,380 @@
+{
+  "schema": "baba_statutory_capex_ttm_search_v1",
+  "generated_at": "2026-11-17T11:34:08+08:00",
+  "timezone": "Asia/Shanghai",
+  "purpose": "Determine whether same-definition statutory capex and OCF exist for 2026-04-01 to 2026-06-30 and 2025-04-01 to 2025-06-30, so FY2026 + Q1FY2027 - Q1FY2026 can form an official TTM ended 2026-06-30. Not a canvas or repository change. NVDA not in scope.",
+  "finrobot_status": "still_reject_BABA_for_statutory_capex_TTM",
+  "verdict": {
+    "statutory_capex_ttm_constructible": false,
+    "ocf_ttm_constructible": true,
+    "current_period_statutory_cf_line_presented": false,
+    "comparative_period_statutory_cf_line_presented": false,
+    "mixed_narrow_ppe_with_statutory_capex_allowed": false,
+    "inference_from_mda_capital_expenditures_to_statutory_cf_line_allowed": false,
+    "exact_blocker": "The unaudited condensed consolidated statements of cash flows in both the FY2027 Q1 6-K (accession 0001104659-26-099220, EX-99.1, printed page 21) and the FY2026 Q1 6-K (accession 0001104659-25-085638, EX-99.1, printed page 20) present only three cash-flow totals (operating, investing, financing). Neither exhibit presents the statutory line 'Acquisitions of: Land use rights, property and equipment' for the three months ended June 30, 2026 or June 30, 2025. The current-period statutory line is therefore also missing. A same-definition statutory capex TTM (FY2026 + Q1FY2027 - Q1FY2026) cannot be constructed. This absence is not filled by the narrower FCF reconciliation PPE line or by MD&A 'capital expenditures' amounts; those are recorded below but are not treated as the missing CF line.",
+    "do_not_mix": {
+      "fy2026_statutory_cf_line_rmb_million": -126063,
+      "fy2027q1_narrow_fcf_ppe_rmb_million": -67660,
+      "fy2026q1_narrow_fcf_ppe_rmb_million": -38629,
+      "fy2027q1_mda_capital_expenditures_magnitude_rmb_million": 67678,
+      "fy2026q1_mda_capital_expenditures_magnitude_rmb_million": 38676,
+      "reason": "FY2026 statutory capex is the cash-flow statement land/property/equipment acquisitions line. FY2027 Q1 and FY2026 Q1 official exhibits only present the narrower FCF recon item 'Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)'. These are different captions. Quarterly MD&A capital expenditures also differ from the narrow PPE amounts (67,678 vs 67,660; 38,676 vs 38,629) and are not used as the unpresented statutory CF line."
+    }
+  },
+  "definitions": {
+    "statutory_capex": {
+      "official_caption": "Acquisitions of: Land use rights, property and equipment",
+      "statement": "Consolidated statements of cash flows, investing section",
+      "accounting": "U.S. GAAP",
+      "established_in": "FY2026 Form 20-F, printed page F-12",
+      "sign_convention": "Parentheses on the cash-flow statement are a cash outflow. Recorded here as negative."
+    },
+    "mda_capital_expenditures": {
+      "official_caption": "capital expenditures",
+      "statement": "MD&A / liquidity discussion, not a condensed CF statement line in the quarterly 6-Ks",
+      "annual_identity_with_statutory_line": "In the FY2026 20-F, MD&A states capital expenditures totaled RMB126,063 million, which equals the F-12 statutory CF line magnitude. That annual identity is not used to infer that quarterly MD&A 'capital expenditures' equals the unpresented quarterly statutory CF line."
+    },
+    "narrow_fcf_ppe": {
+      "official_caption": "Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)",
+      "statement": "Non-GAAP free cash flow reconciliation",
+      "not_statutory_capex": true
+    },
+    "ocf": {
+      "official_caption": "Net cash provided by operating activities",
+      "statement": "Consolidated or condensed consolidated statements of cash flows",
+      "sign_convention": "Positive amount is an inflow."
+    },
+    "fy_naming": {
+      "FY2026": "fiscal year ended March 31, 2026, period 2025-04-01 to 2026-03-31",
+      "FY2027Q1": "three months ended June 30, 2026, period 2026-04-01 to 2026-06-30, also called June Quarter 2026",
+      "FY2026Q1": "three months ended June 30, 2025, period 2025-04-01 to 2025-06-30, also called June Quarter 2025",
+      "constructed_TTM_if_complete": "2025-07-01 to 2026-06-30"
+    },
+    "units_and_fx": {
+      "presentation_currency": "RMB",
+      "presentation_unit": "million",
+      "us_dollar_amounts": "Convenience translations only; rates differ across the 20-F and the two 6-Ks and must not be added across documents. TTM arithmetic is in RMB million only."
+    }
+  },
+  "documents_searched": {
+    "fy2026_20f": {
+      "form": "20-F",
+      "issuer": "Alibaba Group Holding Limited",
+      "accession": "0001193125-26-231755",
+      "filing_date": "2026-05-20",
+      "period_of_report": "2026-03-31",
+      "sec_html_url": "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm",
+      "ir_pdf_path": "/workspace/akshare-supplement/data/official/source-documents/alibaba-20f-2026.pdf",
+      "saved_html_path": "/workspace/akshare-supplement/data/official/source-documents/baba-20260331-edgar.htm"
+    },
+    "fy2027q1_6k_ex99": {
+      "form": "6-K",
+      "title": "June Quarter 2026 Results (FY2027 Q1)",
+      "accession": "0001104659-26-099220",
+      "filing_date": "2026-08-20",
+      "announcement_date": "2026-08-20",
+      "exhibit": "EX-99.1",
+      "sec_url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/0001104659-26-099220-index.html",
+      "saved_path": "/workspace/akshare-supplement/data/official/source-documents/baba-6k-ex99.htm",
+      "saved_text_path": "/workspace/akshare-supplement/data/official/source-documents/baba-6k.txt",
+      "sha256_ex99": "1a8700be561b14e6b35180a2de896275552e30a5e849dd9cbc55ca93c44350cd",
+      "other_exhibits": "Cover 6-K and one graphic only; no more detailed cash-flow exhibit."
+    },
+    "fy2026q1_6k_ex99": {
+      "form": "6-K",
+      "title": "June Quarter 2025 Results (FY2026 Q1)",
+      "accession": "0001104659-25-085638",
+      "filing_date": "2025-08-29",
+      "accepted": "2025-08-29 16:03:00 America/New_York",
+      "period_of_report_on_cover": "2025-08-29",
+      "exhibit": "EX-99.1",
+      "document_name": "tm2524743d1_ex99-1.htm",
+      "sec_url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465925085638/tm2524743d1_ex99-1.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465925085638/0001104659-25-085638-index.htm",
+      "saved_path": "/workspace/akshare-supplement/data/official/source-documents/baba-6k-fy2026q1-ex99.htm",
+      "saved_index_path": "/workspace/akshare-supplement/data/official/source-documents/baba-6k-fy2026q1-edgar-index.html",
+      "saved_cover_path": "/workspace/akshare-supplement/data/official/source-documents/baba-6k-fy2026q1-6k.htm",
+      "saved_text_path": "/workspace/akshare-supplement/data/official/source-documents/baba-6k-fy2026q1.txt",
+      "sha256_ex99": "93012dc43c5469967a0a3c37eb61e14c911d3822815e9aea9485a8faaaaa9df9",
+      "http_last_modified_utc": "2025-08-29T20:03:17Z",
+      "live_fetch_http_status": 200,
+      "live_fetch_at_asia_shanghai": "2026-11-17T11:31:00+08:00",
+      "other_exhibits": "Cover 6-K and one graphic only; no more detailed cash-flow exhibit. Same-day 6-K 0001104659-25-085652 is a short exhibit with graphics, not a detailed cash-flow statement."
+    },
+    "search_limits": {
+      "no_broad_akshare_refetch": true,
+      "no_new_model_or_api_key": true,
+      "nvda_not_redone": true,
+      "page_and_repo_not_written": true,
+      "edgar_efts_additional_queries": [
+        "June Quarter 2025 in Alibaba 6-K, 2025-08-01 to 2025-09-15: located accession 0001104659-25-085638",
+        "capital expenditures in Alibaba 6-K, 2026-08-21 to 2026-11-17: 0 hits",
+        "September Quarter 2026 in Alibaba 6-K, 2026-10-01 to 2026-11-17: 0 hits"
+      ]
+    }
+  },
+  "periods": {
+    "FY2026": {
+      "period_type": "fiscal_year",
+      "period_start": "2025-04-01",
+      "period_end": "2026-03-31",
+      "fiscal_label": "FY2026, year ended March 31, 2026",
+      "audit_status": "audited_annual_20f",
+      "currency": "RMB",
+      "unit": "million",
+      "fields": {
+        "operating_cash_flow": {
+          "value": 76213,
+          "us_dollar_million": 11049,
+          "sign": "inflow_positive",
+          "gaap": true,
+          "usable_as_finrobot_input": true,
+          "line_item": "Net cash provided by operating activities",
+          "source_location": {
+            "document": "Alibaba FY2026 Form 20-F",
+            "printed_page_cf": "F-12",
+            "printed_page_mda": "146",
+            "accession": "0001193125-26-231755"
+          },
+          "quote_mda_page_146": "Net cash provided by operating activities in fiscal year 2026 was RMB76,213 million (US$11,049 million), and primarily consisted of net income of RMB102,127 million (US$14,805 million), as adjusted for non-cash items and the effects of changes in working capital and other activities.",
+          "quote_cf_line_f12": "Net cash provided by operating activities                                       182,593       163,509               76,213            11,049",
+          "columns_note": "F-12 columns are years ended March 31, 2024, 2025, 2026 (RMB million) and 2026 (US$ million)."
+        },
+        "statutory_capex": {
+          "value": -126063,
+          "magnitude": 126063,
+          "us_dollar_million": -18275,
+          "sign": "cash_outflow_negative_as_in_official_CF",
+          "gaap": true,
+          "usable_as_finrobot_input": true,
+          "usable_as_june_2026_ttm_without_disclosure": false,
+          "line_item": "Acquisitions of: Land use rights, property and equipment",
+          "source_location": {
+            "document": "Alibaba FY2026 Form 20-F",
+            "printed_page_cf": "F-12",
+            "printed_page_mda_identity": "147",
+            "printed_page_investing_mda": "146",
+            "accession": "0001193125-26-231755"
+          },
+          "quote_cf_line_f12": "Acquisitions of:\n   Land use rights, property and equipment                                       (32,087)     (85,972)            (126,063)          (18,275)",
+          "quote_mda_identity_page_147": "In fiscal years 2024, 2025 and 2026, our capital expenditures totaled RMB32,087 million, RMB85,972 million and RMB126,063 million (US$18,275 million), respectively.",
+          "quote_investing_mda_page_146": "Net cash used in investing activities in fiscal year 2026 was RMB67,336 million (US$9,762 million) primarily reflected capital expenditures of RMB126,063 million (US$18,275 million), partly offset by a net decrease in short-term investments and other treasury investments by RMB29,548 million (US$4,284 million) and net cash inflow of RMB29,045 million (US$4,211 million) from investment and acquisition activities."
+        },
+        "narrow_fcf_ppe": {
+          "value": -122021,
+          "us_dollar_million": -17689,
+          "sign": "cash_outflow_negative_as_in_official_recon",
+          "gaap": true,
+          "usable_as_statutory_capex": false,
+          "line_item": "Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)",
+          "source_location": {
+            "document": "Alibaba FY2026 Form 20-F",
+            "printed_page": "137",
+            "accession": "0001193125-26-231755"
+          },
+          "quote_page_137": "Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)                                                                                (27,579)             (84,278)            (122,021)              (17,689)",
+          "difference_vs_statutory_magnitude_rmb_million": 4042
+        }
+      }
+    },
+    "FY2027Q1": {
+      "period_type": "single_quarter",
+      "period_start": "2026-04-01",
+      "period_end": "2026-06-30",
+      "fiscal_label": "FY2027 Q1 / June Quarter 2026",
+      "audit_status": "unaudited_6k",
+      "currency": "RMB",
+      "unit": "million",
+      "fields": {
+        "operating_cash_flow": {
+          "value": 22945,
+          "us_dollar_million": 3382,
+          "sign": "inflow_positive",
+          "gaap": true,
+          "usable_as_finrobot_input": true,
+          "line_item": "Net cash provided by operating activities",
+          "source_location": {
+            "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+            "printed_page_cf": "21",
+            "printed_page_narrative": "14",
+            "accession": "0001104659-26-099220",
+            "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465926099220/tm2623667d1_ex99-1.htm"
+          },
+          "quote_table_page_21": "Three months ended June 30, 2025 / 2026 / 2026 US$: Net cash provided by operating activities  20,672 / 22,945 / 3,382  (in millions).",
+          "quote_narrative_page_14": "During the quarter ended June 30, 2026, net cash provided by operating activities was RMB22,945 million (US$3,382 million), an increase of 11% compared to RMB20,672 million in the same quarter of 2025."
+        },
+        "statutory_capex": {
+          "value": null,
+          "usable_as_finrobot_input": false,
+          "presented_on_condensed_cash_flow_statement": false,
+          "line_item": "Acquisitions of: Land use rights, property and equipment",
+          "fail_closed_reason": "Current-period statutory CF line is not presented in the FY2027 Q1 6-K condensed cash flow statement (only operating, investing and financing totals on printed page 21). Not inferred from MD&A capital expenditures or narrow FCF PPE."
+        },
+        "mda_capital_expenditures": {
+          "value_magnitude": 67678,
+          "us_dollar_million_magnitude": 9975,
+          "sign_in_narrative": "stated_as_positive_magnitude_of_expenditure_i.e_outflow",
+          "gaap_status": "MD&A description of cash capital expenditures; not a condensed CF line",
+          "usable_as_statutory_cf_line_or_ttm_input": false,
+          "line_item": "capital expenditures (MD&A / investing discussion)",
+          "source_location": {
+            "capital_expenditures_section_printed_page": "4",
+            "investing_discussion_printed_page": "14",
+            "accession": "0001104659-26-099220"
+          },
+          "quote_page_4": "During the quarter ended June 30, 2026, capital expenditures were RMB67,678 million (US$9,975 million), an increase of 75% compared to RMB38,676 million in the same quarter of 2025, reflecting our continued investments in AI infrastructure to meet strong and growing customer demand.",
+          "quote_page_14": "During the quarter ended June 30, 2026, net cash used in investing activities of RMB18,964 million (US$2,795 million) primarily reflected capital expenditures of RMB67,678 million (US$9,975 million), partly offset by net decrease in short-term investments and other treasury investments by RMB50,452 million (US$7,436 million)."
+        },
+        "narrow_fcf_ppe": {
+          "value": -67660,
+          "us_dollar_million": -9972,
+          "sign": "cash_outflow_negative_as_in_official_recon",
+          "usable_as_statutory_capex": false,
+          "line_item": "Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)",
+          "source_location": {
+            "document": "Alibaba June Quarter 2026 Form 6-K Exhibit 99.1",
+            "printed_page": "25",
+            "accession": "0001104659-26-099220"
+          },
+          "quote_page_25": "Three months ended June 30, 2025 / 2026 / 2026 US$: Less: Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)  (38,629) / (67,660) / (9,972)  (in millions).",
+          "difference_vs_mda_capex_magnitude_rmb_million": 18
+        }
+      }
+    },
+    "FY2026Q1": {
+      "period_type": "single_quarter",
+      "period_start": "2025-04-01",
+      "period_end": "2025-06-30",
+      "fiscal_label": "FY2026 Q1 / June Quarter 2025",
+      "audit_status": "unaudited_6k",
+      "currency": "RMB",
+      "unit": "million",
+      "independent_confirmation": "OCF 20,672, MD&A capital expenditures 38,676, and narrow FCF PPE (38,629) appear both in this original FY2026 Q1 6-K and as comparatives in the FY2027 Q1 6-K.",
+      "fields": {
+        "operating_cash_flow": {
+          "value": 20672,
+          "us_dollar_million_in_original_fy2026q1_6k": 2886,
+          "sign": "inflow_positive",
+          "gaap": true,
+          "usable_as_finrobot_input": true,
+          "line_item": "Net cash provided by operating activities",
+          "source_location": {
+            "primary_document": "Alibaba June Quarter 2025 Form 6-K Exhibit 99.1",
+            "printed_page_cf": "20",
+            "printed_page_narrative": "13",
+            "accession": "0001104659-25-085638",
+            "url": "https://www.sec.gov/Archives/edgar/data/1577552/000110465925085638/tm2524743d1_ex99-1.htm",
+            "comparative_also_in": "FY2027 Q1 6-K EX-99.1 printed page 21, accession 0001104659-26-099220"
+          },
+          "quote_table_page_20": "Three months ended June 30, 2024 / 2025 / 2025 US$: Net cash provided by operating activities  33,636 / 20,672 / 2,886  (in millions).",
+          "quote_narrative": "During the quarter ended June 30, 2025, net cash provided by operating activities was RMB 20,672 million (US$2,886 million), a decrease of 39% compared to RMB33,636 million in the same quarter of 2024."
+        },
+        "statutory_capex": {
+          "value": null,
+          "usable_as_finrobot_input": false,
+          "presented_on_condensed_cash_flow_statement": false,
+          "line_item": "Acquisitions of: Land use rights, property and equipment",
+          "fail_closed_reason": "Comparative-period statutory CF line is not presented in the FY2026 Q1 6-K condensed cash flow statement (only operating, investing and financing totals on printed page 20), nor as a CF line in the FY2027 Q1 comparative columns. Not inferred from MD&A capital expenditures or narrow FCF PPE."
+        },
+        "mda_capital_expenditures": {
+          "value_magnitude": 38676,
+          "us_dollar_million_magnitude_in_original_fy2026q1_6k": 5399,
+          "sign_in_narrative": "stated_as_positive_magnitude_of_expenditure_i.e_outflow",
+          "gaap_status": "MD&A description of cash capital expenditures; not a condensed CF line",
+          "usable_as_statutory_cf_line_or_ttm_input": false,
+          "line_item": "capital expenditures (investing discussion)",
+          "source_location": {
+            "original_6k_printed_page": "13",
+            "original_accession": "0001104659-25-085638",
+            "comparative_in_fy2027q1_6k_printed_page": "4",
+            "comparative_accession": "0001104659-26-099220"
+          },
+          "quote_original_page_13": "These cash inflows were partly offset by capital expenditures of RMB38,676 million (US$5,399 million) and cash outflow of RMB8,429 million (US$1,177 million) for investment and acquisition activities.",
+          "quote_comparative_fy2027q1_page_4": "During the quarter ended June 30, 2026, capital expenditures were RMB67,678 million (US$9,975 million), an increase of 75% compared to RMB38,676 million in the same quarter of 2025, reflecting our continued investments in AI infrastructure to meet strong and growing customer demand.",
+          "note_on_us_dollar": "US$5,399 million is the FY2026 Q1 6-K convenience translation. The FY2027 Q1 6-K comparative states only the RMB 38,676 million amount, without a 2025 US$ figure."
+        },
+        "narrow_fcf_ppe": {
+          "value": -38629,
+          "us_dollar_million_in_original_fy2026q1_6k": -5392,
+          "sign": "cash_outflow_negative_as_in_official_recon",
+          "usable_as_statutory_capex": false,
+          "line_item": "Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)",
+          "source_location": {
+            "original_6k_printed_page": "24",
+            "original_accession": "0001104659-25-085638",
+            "comparative_in_fy2027q1_6k_printed_page": "25",
+            "comparative_accession": "0001104659-26-099220"
+          },
+          "quote_original_page_24": "Three months ended June 30, 2024 / 2025 / 2025 US$: Less: Purchase of property and equipment (excluding land use rights and construction in progress relating to office campuses)  (11,939) / (38,629) / (5,392)  (in millions).",
+          "difference_vs_mda_capex_magnitude_rmb_million": 47
+        }
+      }
+    }
+  },
+  "constructed_ttm_2025-07-01_to_2026-06-30": {
+    "period_type": "trailing_twelve_months",
+    "period_start": "2025-07-01",
+    "period_end": "2026-06-30",
+    "formula": "FY2026 + FY2027Q1 - FY2026Q1",
+    "currency": "RMB",
+    "unit": "million",
+    "operating_cash_flow": {
+      "value": 78486,
+      "calculation": {
+        "fy2026": 76213,
+        "fy2027q1": 22945,
+        "fy2026q1": 20672,
+        "formula": "76213 + 22945 - 20672",
+        "result": 78486
+      },
+      "sign": "inflow_positive",
+      "gaap": true,
+      "usable_as_finrobot_input": true,
+      "same_official_caption_in_all_three_components": "Net cash provided by operating activities",
+      "component_sources": [
+        "FY2026 20-F printed page F-12: 76,213",
+        "FY2027 Q1 6-K EX-99.1 printed page 21: 22,945",
+        "FY2026 Q1 6-K EX-99.1 printed page 20, independently confirmed as comparative on FY2027 Q1 page 21: 20,672"
+      ],
+      "notes": [
+        "Constructed official-line TTM. Not a single presented TTM line in any one filing."
+      ]
+    },
+    "statutory_capex": {
+      "value": null,
+      "usable_as_finrobot_input": false,
+      "fail_closed_reason": "Cannot compute FY2026 + Q1FY2027 - Q1FY2026 for statutory capex because both quarterly statutory CF lines are unpresented. Current period (2026-04-01 to 2026-06-30) is also missing. No inference from MD&A or narrow PPE.",
+      "arithmetic_explicitly_not_used_as_statutory_ttm": {
+        "if_mda_capex_were_wrongly_substituted": {
+          "formula_disclosed_not_used": "126063 + 67678 - 38676 = 155065",
+          "result_if_computed": 155065,
+          "status": "not_an_official_statutory_ttm",
+          "reason": "This would mix the FY2026 F-12 statutory line with quarterly MD&A 'capital expenditures' that are not presented as that CF line. Fail-closed; do not use."
+        }
+      }
+    },
+    "narrow_fcf_ppe_ttm_not_constructed_as_statutory_substitute": {
+      "status": "not_constructed_as_statutory_or_as_a_pass_condition",
+      "reason": "Even though narrow PPE exists for both quarters and the annual recon, it is a different caption from statutory capex and must not be used to pass a statutory TTM check."
+    }
+  },
+  "alternative_complete_same_definition_official_window": {
+    "window": "FY2026 audited year ended 2026-03-31",
+    "period_start": "2025-04-01",
+    "period_end": "2026-03-31",
+    "complete_for_statutory_capex_and_ocf": true,
+    "ocf_rmb_million": 76213,
+    "statutory_capex_rmb_million": -126063,
+    "source": "FY2026 Form 20-F cash flow statement, printed page F-12, accession 0001193125-26-231755",
+    "staleness_vs_requested_ttm_through_2026-06-30": "This window ends 2026-03-31, three months earlier than the requested TTM end date 2026-06-30. It is the latest complete official window in which the statutory capex CF line is presented.",
+    "may_be_used_to_pass_a_june_2026_ttm_requirement_without_disclosing_staleness": false,
+    "no_later_complete_window_found": "EDGAR full-text search of Alibaba 6-K filings from 2026-08-21 through 2026-11-17 for 'capital expenditures' returned 0 hits, and a search for 'September Quarter 2026' from 2026-10-01 through 2026-11-17 returned 0 hits. The latest official quarterly earnings exhibit with these cash-flow items remains the June Quarter 2026 6-K, which still lacks the statutory capex line."
+  },
+  "finrobot_input_implication": {
+    "BABA_statutory_capex_TTM_ended_2026-06-30": "fail_closed",
+    "BABA_OCF_TTM_ended_2026-06-30": "usable_as_constructed_official_line_ttm",
+    "still_reject_BABA_if_the_required_input_is_same_definition_statutory_capex_TTM": true,
+    "nvda_not_reopened": true
+  }
+}

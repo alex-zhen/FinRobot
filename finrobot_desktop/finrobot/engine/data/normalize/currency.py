@@ -21,6 +21,7 @@ analyst's eye, never rewrite a number on a guess.
 from __future__ import annotations
 
 from finrobot.engine.data.normalize.contracts import NormalizedFinancials
+from finrobot.engine.data.normalize.valuation_input import FX_POLICY
 from finrobot.engine.primitives.dividend import reconcile_per_share_dividend_to_quote_unit
 
 
@@ -136,4 +137,33 @@ def normalize_canonical_financials_currency(
     )
 
     converted.reporting_currency = financials.quote_currency
+    converted.fx_conversion = {
+        "scaler": "canonical",
+        "from_reporting": financials.reporting_currency,
+        "to_reporting": financials.quote_currency,
+        "rate": rate,
+        "rate_source": "caller_supplied_spot",
+        "policy": FX_POLICY,
+        "scaled_fields": [
+            "revenue",
+            "ebitda",
+            "net_income",
+            "operating_income",
+            "income_tax_expense",
+            "depreciation_amortization",
+            "rd_expense",
+            "sga_expense",
+            "interest_expense",
+            "total_debt",
+            "total_cash",
+            "preferred_stock",
+            "noncontrolling_interest",
+            "operating_cash_flow",
+            "capital_expenditure",
+            "book_value_per_share",
+            "dividend_per_share",
+            "forward_eps",
+            "trailing_eps",
+        ],
+    }
     return converted
