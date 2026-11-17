@@ -27,6 +27,11 @@ from __future__ import annotations
 
 import math
 
+from finrobot.engine.data.normalize.valuation_input import (
+    FX_POLICY,
+    FX_QUOTE_FIELDS,
+    FX_REPORTING_FIELDS,
+)
 from finrobot.engine.models.financial import CompanyFinancials, FinancialData
 
 
@@ -159,6 +164,8 @@ def normalize_financialdata_to_usd(
     financials: FinancialData,
     reporting_fx_rate_to_usd: float,
     quote_fx_rate_to_usd: float,
+    *,
+    rate_source: str = "caller_supplied_spot",
 ) -> FinancialData:
     """Return a copy of ``financials`` with all monetary fields converted to USD.
 
@@ -261,6 +268,11 @@ def normalize_financialdata_to_usd(
     converted.income.income_tax_expense = (
         inc.income_tax_expense * reporting_rate if inc.income_tax_expense is not None else None
     )
+    # Capex is a reporting-currency cash outflow. Leaving it unscaled while revenue
+    # is scaled is the mixed-currency capex/revenue ratio.
+    converted.income.capital_expenditure = (
+        inc.capital_expenditure * reporting_rate if inc.capital_expenditure is not None else None
+    )
 
     # ----- balance sheet (reporting currency) -------------------------------
     # None ≠ 0: preserve "not reported" through the FX conversion rather than
@@ -289,6 +301,21 @@ def normalize_financialdata_to_usd(
         else financials.balance.noncontrolling_interest * reporting_rate
     )
 
+    # Operating EBITDA and book value per share are reporting-currency amounts
+    # computed before this hop. They must move with income.ebitda / revenue.
+    # Per-share book value uses the currency rate only; an ADS or split ratio
+    # is a share-count adjustment and is not applied here.
+    val = financials.valuation
+    converted.valuation.ebitda_operating = (
+        val.ebitda_operating * reporting_rate if val.ebitda_operating is not None else None
+    )
+    converted.valuation.ebitda_reported = (
+        val.ebitda_reported * reporting_rate if val.ebitda_reported is not None else None
+    )
+    converted.valuation.book_value_per_share = (
+        val.book_value_per_share * reporting_rate if val.book_value_per_share is not None else None
+    )
+
     # ----- market quote (quote currency) ------------------------------------
     mkt = financials.market
     converted.market.market_cap = mkt.market_cap * quote_rate
@@ -309,6 +336,20 @@ def normalize_financialdata_to_usd(
         converted.valuation.enterprise_value = (
             None if reporting_src != quote_src else ev * quote_rate
         )
+    if reporting_src != quote_src:
+        # The pre-conversion multiples mixed the two currencies. Drop them; a
+        # later consumer rebuilds them from the single-currency amounts.
+        converted.valuation.ev_ebitda = None
+        converted.valuation.ev_ebitda_reported = None
+        converted.valuation.ev_revenue = None
+    else:
+        ev_now = converted.valuation.enterprise_value
+        ebit_now = converted.valuation.ebitda_operating
+        rev_now = converted.income.revenue
+        if ev_now is not None and ebit_now is not None and ebit_now > 0:
+            converted.valuation.ev_ebitda = ev_now / ebit_now
+        if ev_now is not None and rev_now > 0:
+            converted.valuation.ev_revenue = ev_now / rev_now
 
     # ----- pe_ratio (re-derived from the now-USD inputs) --------------------
     # The provider may have computed pe = mkt_cap(quote ccy) / net_income(reporting
@@ -324,6 +365,22 @@ def normalize_financialdata_to_usd(
 
     converted.reporting_currency = "USD"
     converted.quote_currency = "USD"
+    # One hop, then the tags are USD so a second call returns the same object
+    # and cannot scale these amounts again.
+    converted.fx_conversions = [
+        *financials.fx_conversions,
+        {
+            "scaler": "financialdata",
+            "target": "USD",
+            "from_reporting": reporting_src,
+            "from_quote": quote_src,
+            "reporting_rate": reporting_rate,
+            "quote_rate": quote_rate,
+            "rate_source": rate_source,
+            "policy": FX_POLICY,
+            "scaled_fields": [*FX_REPORTING_FIELDS, *FX_QUOTE_FIELDS],
+        },
+    ]
     return converted
 
 

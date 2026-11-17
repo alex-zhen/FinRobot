@@ -737,6 +737,22 @@ async def _execute_financial_modeling(
             ],
         )
 
+    from finrobot.engine.data.normalize.valuation_input import publication_block_reasons
+
+    block_reasons = publication_block_reasons(financial_data)
+    if block_reasons:
+        structured_context["input_quality_block"] = block_reasons
+        logger.info("Formal valuation refused for %s: %s", ticker, "; ".join(block_reasons))
+        return StepOutput(
+            text=(
+                "Formal valuation refused. The DCF is a current fair value and is not "
+                "computed when currency, period, or share count is unverified. "
+                + " ".join(block_reasons)
+            ),
+            structured=None,
+            warnings=block_reasons,
+        )
+
     # Stage-1 growth seed: prefer analyst consensus (the multi-year forward path
     # the data step already fetched) over a backward-looking trailing CAGR, so
     # the DCF stops contradicting the pipeline's own forward projection — the
@@ -854,7 +870,10 @@ async def _execute_financial_modeling(
     else:
         implied_str = ""
     narrative = (
-        f"DCF base case implies ${dcf_result.implied_price:.2f} per share. "
+        f"DCF current fair value is ${dcf_result.implied_price:.2f} per share "
+        f"(present value today; the {dcf_result.projection_years}-year forecast is the "
+        f"explicit cash-flow horizon, not a price target {dcf_result.projection_years} "
+        f"years from now). "
         f"WACC: {dcf_result.wacc:.1%}, Terminal growth: {dcf_inputs.terminal_growth_rate:.1%}. "
         f"Enterprise value: ${dcf_result.enterprise_value / 1e9:.1f}B. "
         f"Sensitivity range: {price_range}. {implied_str}".rstrip()
@@ -1483,6 +1502,17 @@ async def _execute_thesis(
     # assembly (catalyst context, market-implied line, gate/target block, numeric
     # whitelist, segment grounding) by ``build_thesis_prompt`` (test_thesis_prompt.py).
     # The async work here is only to run the agent and enforce the canonical fields.
+    blocked = structured_context.get("input_quality_block")
+    if isinstance(blocked, list) and blocked:
+        reasons = [str(item) for item in blocked]
+        return StepOutput(
+            text=(
+                "No buy, hold, or sell recommendation. Formal valuation was refused "
+                "because the inputs are not publishable. " + " ".join(reasons)
+            ),
+            structured=None,
+            warnings=reasons,
+        )
     vs = structured_context.get("valuation_synthesis")
     canonical = resolve_canonical_thesis(vs, ticker)
     thesis_prompt = build_thesis_prompt(prompt, structured_context, canonical)

@@ -11,6 +11,7 @@ from typing import Any
 
 import httpx
 
+from finrobot.engine.data.normalize.valuation_input import capex_outflow, select_statement_window
 from finrobot.engine.primitives.ebitda import calculate_ebitda_operating
 from finrobot.engine.primitives.industry import (
     bank_net_revenue,
@@ -656,10 +657,12 @@ class FMPProvider(DataProvider):
         else:
             shares = int(mkt_cap / price) if mkt_cap and price else None
         cf = cf or {}
-        # FMP reports capitalExpenditure as a negative (cash outflow); the rest
-        # of the codebase + the DCF FCF formula expect a positive magnitude.
+        # FMP reports capitalExpenditure as a negative cash outflow. A positive
+        # amount is not flipped: it is left missing rather than published as spending.
         capex_raw = cf.get("capitalExpenditure")
-        capex = abs(capex_raw) if isinstance(capex_raw, int | float) else None
+        capex, _capex_note = capex_outflow(
+            float(capex_raw) if isinstance(capex_raw, int | float) else None
+        )
         # PE = market_cap / net_income (algebraically equivalent to
         # price / EPS where EPS = net_income / shares = net_income * price / mkt_cap).
         # None on historical rows (mkt_cap None: mixing today's cap with a past
@@ -794,16 +797,48 @@ class FMPProvider(DataProvider):
         if not income_rows:
             return cls._build_single_year_data({}, bal, prof, quote_shares=quote_shares)
 
-        # Trim `period=quarter` rows to a trailing-12-month window BEFORE any sum:
-        # FMP returns 6-month rows for semi-annual filers (UL and many UK/EU/AU), so
-        # the default sum-of-4 double-counts to 24 months. Slice income AND cash-flow
-        # to the same window (same filing cadence) so every TTM flow — revenue, EBITDA,
-        # OCF, capex, ttm_quarter_ends — is trailing-12-month. Balance-sheet lines read
-        # the single latest `bal` (a point-in-time stock), so they are untouched.
-        n_ttm = _ttm_trailing_row_count(income_rows)
-        income_rows = income_rows[:n_ttm]
-        if cashflow_rows:
-            cashflow_rows = cashflow_rows[:n_ttm]
+        # Sum only a proven trailing-12-month window: four non-overlapping quarters,
+        # or two non-overlapping halves when every gap is a half-year. Anything else
+        # (duplicate dates, a missing quarter, YTD columns, a monthly stub) is not
+        # summed and is labeled unverified.
+        parsed_ends: list[date | None] = []
+        for row in income_rows:
+            raw_end = row.get("date")
+            parsed: date | None = None
+            if isinstance(raw_end, str) and raw_end:
+                try:
+                    parsed = date.fromisoformat(raw_end[:10])
+                except ValueError:
+                    parsed = None
+            parsed_ends.append(parsed)
+        window = select_statement_window(parsed_ends)
+        quality_reasons = list(window.reasons)
+        if window.construction is None:
+            income_rows = []
+            cashflow_rows = []
+        else:
+            income_rows = [income_rows[i] for i in window.indexes]
+            selected_ends = {parsed_ends[i] for i in window.indexes}
+            aligned_cf: list[dict[str, Any]] = []
+            if cashflow_rows:
+                for cf_row in cashflow_rows:
+                    raw_cf = cf_row.get("date")
+                    cf_end: date | None = None
+                    if isinstance(raw_cf, str) and raw_cf:
+                        try:
+                            cf_end = date.fromisoformat(raw_cf[:10])
+                        except ValueError:
+                            cf_end = None
+                    if cf_end in selected_ends:
+                        aligned_cf.append(cf_row)
+            if len(aligned_cf) != len(income_rows):
+                quality_reasons.append(
+                    "capex_period_mismatch: cash-flow rows do not cover the income window, "
+                    "so TTM capex is missing"
+                )
+                cashflow_rows = []
+            else:
+                cashflow_rows = aligned_cf
 
         def _sum(rows: list[dict[str, Any]], key: str) -> float | None:
             values = [float(r[key]) for r in rows if isinstance(r.get(key), int | float)]
@@ -811,6 +846,16 @@ class FMPProvider(DataProvider):
 
         def total(key: str) -> float | None:
             return _sum(income_rows, key)
+
+        if not income_rows:
+            empty = cls._build_single_year_data({}, bal, prof, quote_shares=quote_shares)
+            empty["revenue"] = None
+            empty["period_basis"] = "unverified"
+            empty["ttm_construction"] = None
+            empty["ttm_quality_reasons"] = quality_reasons
+            empty["ttm_quarter_ends"] = []
+            empty["capital_expenditure"] = None
+            return empty
 
         latest = income_rows[0]
         revenue = total("revenue")
@@ -847,7 +892,9 @@ class FMPProvider(DataProvider):
         # negative outflow; store the positive magnitude.
         ttm_ocf = _sum(cashflow_rows, "operatingCashFlow") if cashflow_rows else None
         ttm_capex_raw = _sum(cashflow_rows, "capitalExpenditure") if cashflow_rows else None
-        ttm_capex = abs(ttm_capex_raw) if ttm_capex_raw is not None else None
+        ttm_capex, capex_note = capex_outflow(ttm_capex_raw)
+        if capex_note:
+            quality_reasons.append(capex_note)
         # EBITDA recomputed on the operating caliber (EBIT + D&A) rather than
         # trusting FMP's `ebitda` field, which inherits the same dropped-D&A
         # contamination for the latest quarter. Fall back to FMP's field only
@@ -932,10 +979,10 @@ class FMPProvider(DataProvider):
             "sector": prof.get("sector"),
             "fiscal_year": latest.get("date") or latest.get("fiscalYear"),
             "period_basis": "ttm",
-            # Quarter-end dates of the quarters summed into this TTM (numeric-audit
-            # family-4 non-overlap check). The single-year / historical path
-            # (_build_single_year_data) deliberately omits this — there are no
-            # constituent quarters to audit there.
+            "ttm_construction": window.construction,
+            "ttm_quality_reasons": quality_reasons,
+            # Period ends of the rows summed into this TTM. The single-year path
+            # omits them — there is no trailing window to audit there.
             "ttm_quarter_ends": [r.get("date") for r in income_rows if r.get("date")],
             # Currency tags drive cross-border peer FX normalization
             # (fx_normalize). Income-statement items are in reportedCurrency

@@ -13,6 +13,7 @@ receive raw ``DataResult`` slices from ``fetch_historical`` wrap them with
 """
 
 from finrobot.engine.data.normalize.contracts import NormalizedFinancials, NormalizedPrice
+from finrobot.engine.data.ticker import is_us_equity_ticker
 from finrobot.engine.models.financial import (
     FIELD_WARN_EV_MISSING_NET_DEBT,
     FIELD_WARN_SHARES_DERIVED,
@@ -174,8 +175,10 @@ def extract_financial_data(
     # degraded yfinance-only path — making it symmetric with FMP (no Mode A/B gap).
     implied_shares = market_cap / current_price
     reported_shares = fin.shares_outstanding
+    share_basis = "reported"
     if reported_shares is None or reported_shares <= 0:
         shares = implied_shares
+        share_basis = "derived_missing"
         warnings.append(
             f"shares_outstanding missing or invalid from {fin.provenance.provider} "
             f"for {ticker} — derived as market_cap/price ({shares:,.0f}). "
@@ -183,16 +186,31 @@ def extract_financial_data(
         )
         field_warnings.setdefault("pe", []).append(FIELD_WARN_SHARES_DERIVED)
     elif abs(reported_shares - implied_shares) / implied_shares > _SHARES_PRICE_CONSISTENCY_TOL:
-        shares = implied_shares
-        warnings.append(
-            f"shares_outstanding from {fin.provenance.provider} for {ticker} "
-            f"({reported_shares:,.0f}) diverges "
-            f"{abs(reported_shares - implied_shares) / implied_shares:.0%} from "
-            f"market_cap/price ({implied_shares:,.0f}) — likely a single share class "
-            "of a multi-class issuer or an ADR ratio. Using the price-consistent "
-            "count so per-share metrics (EPS, P/E, implied price) stay on the "
-            "market's basis."
-        )
+        # A US common listing can use the market's own all-class count. An ADR or
+        # an exchange-suffixed listing cannot: the gap may be an ADS ratio or an
+        # A/H class, and substituting one side would publish a per-share value on
+        # the wrong line. Keep the reported count and mark it unresolved.
+        if is_us_equity_ticker(ticker) and fin.is_adr is not True and "." not in ticker:
+            shares = implied_shares
+            share_basis = "market_implied_us"
+            warnings.append(
+                f"shares_outstanding from {fin.provenance.provider} for {ticker} "
+                f"({reported_shares:,.0f}) diverges "
+                f"{abs(reported_shares - implied_shares) / implied_shares:.0%} from "
+                f"market_cap/price ({implied_shares:,.0f}) — likely a single share class "
+                "of a multi-class issuer. Using the price-consistent count so per-share "
+                "metrics stay on the market's basis."
+            )
+        else:
+            shares = reported_shares
+            share_basis = "unresolved"
+            warnings.append(
+                f"shares_outstanding from {fin.provenance.provider} for {ticker} "
+                f"({reported_shares:,.0f}) diverges "
+                f"{abs(reported_shares - implied_shares) / implied_shares:.0%} from "
+                f"market_cap/price ({implied_shares:,.0f}). The ADS or share-class "
+                "basis is unresolved, so a per-share valuation is refused."
+            )
         field_warnings.setdefault("pe", []).append(FIELD_WARN_SHARES_DERIVED)
     else:
         shares = reported_shares
@@ -386,6 +404,10 @@ def extract_financial_data(
         # core_pe collapsed for ADRs (BUG-018).
         reporting_currency=fin.reporting_currency,
         quote_currency=fin.quote_currency,
+        fx_conversions=[fin.fx_conversion] if fin.fx_conversion else [],
+        ttm_construction=fin.ttm_construction,
+        ttm_quality_reasons=list(fin.ttm_quality_reasons),
+        share_basis=share_basis,
         data_source=fin.provenance.provider,
         provenance=DataProvenance(
             provider=fin.provenance.provider,
@@ -584,7 +606,12 @@ async def normalize_financials_to_usd(
         quote_rate = reporting_rate
     else:
         quote_rate = await fetch_fx_rate_to_usd(financials.quote_currency, fmp_api_key=fmp_api_key)
-    return normalize_financialdata_to_usd(financials, reporting_rate, quote_rate)
+    return normalize_financialdata_to_usd(
+        financials,
+        reporting_rate,
+        quote_rate,
+        rate_source="yfinance_or_fmp_spot",
+    )
 
 
 def extract_price_history(price: NormalizedPrice) -> PriceHistory:

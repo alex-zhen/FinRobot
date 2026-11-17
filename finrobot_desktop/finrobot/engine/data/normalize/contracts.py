@@ -324,7 +324,7 @@ class NormalizedFinancials(BaseModel):
     reporting_currency: str = "USD"  # IS/BS currency
     quote_currency: str = "USD"  # market_cap / price currency (differs for ADRs)
     period_end: date | None = None
-    period_basis: Literal["ttm", "annual", "quarterly"] = "ttm"
+    period_basis: Literal["ttm", "annual", "quarterly", "unverified"] = "ttm"
     as_of: datetime = Field(description="Semantic time of the data (= period_end when known)")
 
     revenue: float | None = None
@@ -383,6 +383,12 @@ class NormalizedFinancials(BaseModel):
     # quarters); empty on yfinance / annual rows. Optional → read-compatible with
     # cached canonical payloads (BUG-038 precedent), so no schema-version bump.
     ttm_quarter_ends: list[date] = Field(default_factory=list)
+    # four_quarters | two_halves | fy_ytd_bridge, or None when the window was refused.
+    ttm_construction: str | None = None
+    ttm_quality_reasons: list[str] = Field(default_factory=list)
+    # One canonical reporting→quote hop, when it ran. None when the tags already
+    # matched and nothing was scaled.
+    fx_conversion: dict[str, Any] | None = None
 
     provenance: Provenance
     # Free-text warnings carried from the raw fetch (e.g. cross-provider

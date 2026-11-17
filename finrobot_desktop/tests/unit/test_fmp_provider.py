@@ -22,13 +22,17 @@ def provider():
     return FMPProvider(api_key="test-key")
 
 
+# Newest-first fiscal quarters, 91 days apart. Monthly stubs are not a TTM.
+_FMP_QUARTER_ENDS = ("2026-03-28", "2025-12-27", "2025-09-27", "2025-06-28")
+
+
 def _fmp_quarterly_income_response(
     ticker: str = "AAPL", reported_currency: str = "USD"
 ) -> list[dict]:
     """Mock FMP quarterly income rows used for current TTM financials."""
     return [
         {
-            "date": f"2026-0{quarter + 1}-28",
+            "date": _FMP_QUARTER_ENDS[quarter],
             "symbol": ticker,
             "reportedCurrency": reported_currency,
             "revenue": 100_000_000_000,
@@ -51,7 +55,7 @@ def _fmp_quarterly_cashflow_response(ticker: str = "AAPL", da: int = 3_000_000_0
     TTM snapshot (the income statement leaves the freshest quarter's D&A at 0)."""
     return [
         {
-            "date": f"2026-0{quarter + 1}-28",
+            "date": _FMP_QUARTER_ENDS[quarter],
             "symbol": ticker,
             "depreciationAndAmortization": da,
             "operatingCashFlow": 28_000_000_000,
@@ -1000,9 +1004,13 @@ class TestFMPFetchHistorical:
         # FMP's IS-D&A per quarter ($B): 0.000, 1.643, 1.625, 1.433 → 4.701B
         is_da_tsla = [0, 1_643_000_000, 1_625_000_000, 1_433_000_000]
 
+        # Period ends for the four quarters named above. The old fixture used
+        # 2026-04-30 … 2026-01-30, including the invalid date 2026-02-30, which
+        # is not a fiscal quarter and must not be summed.
+        quarter_ends = ("2026-03-31", "2025-12-31", "2025-09-30", "2025-06-30")
         income = [
             {
-                "date": f"2026-0{4 - i}-30",
+                "date": quarter_ends[i],
                 "symbol": "TSLA",
                 "revenue": 24_000_000_000,
                 "ebitda": is_ebitda_tsla[i],
@@ -1019,7 +1027,7 @@ class TestFMPFetchHistorical:
         ]
         cashflow = [
             {
-                "date": f"2026-0{4 - i}-30",
+                "date": quarter_ends[i],
                 "symbol": "TSLA",
                 "depreciationAndAmortization": cf_da_tsla[i],
                 "operatingCashFlow": 4_000_000_000,

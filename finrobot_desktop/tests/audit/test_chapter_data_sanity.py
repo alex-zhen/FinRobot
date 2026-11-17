@@ -74,9 +74,10 @@ def test_chapter_11_fmp_financials_default_path_returns_ttm_not_annual():
     from finrobot.engine.data.providers.fmp_provider import FMPProvider
     from finrobot.engine.data.types import DataType
 
+    quarter_ends = ("2026-03-31", "2025-12-31", "2025-09-30", "2025-06-30")
     quarterly = [
         {
-            "date": f"2026-0{q + 1}-30",
+            "date": quarter_ends[q],
             "symbol": "NVDA",
             "revenue": 30e9,
             "ebitda": 18e9,
