@@ -16,6 +16,7 @@ from finrobot.runners.official_inputs import (
     OfficialAmount,
     bridge_same_caption,
     fiscal_period_end_share_use,
+    later_quote_share_estimate,
     period_end_ordinary_share_block,
     weekend_month_end_share_bridge,
     self_calculated_price_times_shares,
@@ -372,6 +373,13 @@ def tencent_october_share_record(path: Path, *, valuation_as_of: date) -> dict[s
         price=price,
         price_as_of=price_as_of,
         market_cap=None,
+    )
+    later_bar = later["akshare_sina_latest_daily_in_window"]
+    built["later_quote_estimate"] = later_quote_share_estimate(
+        shares=share_count,
+        share_as_of=share_as_of,
+        price=float(later_bar["close_conventional_tick"]),
+        price_as_of=date.fromisoformat(str(later_bar["trade_date"])),
     )
     return {"ticker": "0700.HK", **built}
 

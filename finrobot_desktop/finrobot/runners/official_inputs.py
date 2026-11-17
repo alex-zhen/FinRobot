@@ -353,6 +353,94 @@ def period_end_ordinary_share_block(
     return None
 
 
+# A monthly return is the usual HK disclosure cycle. A quote more than 21 days
+# after the share as-of can hide a further month of buybacks or issuance that
+# no filing has reported yet. Inside that bound the product may be shown as a
+# labeled estimate. It is never a verified same-day share count.
+LABELED_ESTIMATE_MAX_STALENESS_DAYS = 21
+
+
+def later_quote_share_estimate(
+    *,
+    shares: float,
+    share_as_of: date,
+    price: float,
+    price_as_of: date,
+) -> dict[str, object]:
+    """Last disclosed official shares times a later quote.
+
+    The dates stay different. The product is an estimate, not an independent
+    market cap and not a verified same-day bridge. Beyond the freshness bound
+    the estimate is refused rather than widened.
+    """
+    gap = (price_as_of - share_as_of).days
+    within = 0 < gap <= LABELED_ESTIMATE_MAX_STALENESS_DAYS and shares > 0 and price > 0
+    return {
+        "basis": "last_official_shares_times_later_quote",
+        "same_calendar_day": False,
+        "verified_same_day": False,
+        "opens_current_publication_gate": False,
+        "opens_verified_same_day_share_gate": False,
+        "usable_as_labeled_estimate": within,
+        "independent_market_cap": False,
+        "point_target": None,
+        "shares": shares,
+        "share_as_of": share_as_of.isoformat(),
+        "price": price,
+        "price_as_of": price_as_of.isoformat(),
+        "staleness_calendar_days": gap,
+        "max_staleness_calendar_days": LABELED_ESTIMATE_MAX_STALENESS_DAYS,
+        "value": price * shares if within else None,
+        "reason": (
+            "Labeled estimate only; the share as-of is not the quote date."
+            if within
+            else (
+                "The quote is outside the "
+                f"{LABELED_ESTIMATE_MAX_STALENESS_DAYS}-day freshness bound, "
+                "so the estimate is refused."
+            )
+        ),
+    }
+
+
+def research_disposition(reasons: list[str]) -> str:
+    """Separate a refused DCF from a refused entire research note.
+
+    Missing statutory capex refuses FCFF. It does not, by itself, refuse a
+    relative or risk note that publishes no point target. Share-date mismatch
+    and every other publication block still refuse a verified valuation.
+    """
+    codes = {item.split(":", 1)[0] for item in reasons}
+    if not codes:
+        return "verified"
+    if codes <= {"capex_missing", "capex_sign_unverified"}:
+        return "dcf_refused_other_research_ok"
+    return "refused"
+
+
+def limited_research_note(
+    *,
+    disposition: str,
+    company_fcf_signed_million: float | None = None,
+    share_estimate: dict[str, object] | None = None,
+) -> dict[str, object]:
+    """A research record with no DCF and no point target."""
+    return {
+        "dcf_available": False,
+        "point_target": None,
+        "recommendation": None,
+        "disposition": disposition,
+        "company_fcf_is_fcff": False,
+        "company_fcf_signed_million": company_fcf_signed_million,
+        "company_fcf_role": None if company_fcf_signed_million is None else "risk_evidence_only",
+        "labeled_share_estimate": share_estimate,
+        "relative_valuation": (
+            "Not run unless --sourced-peers names one role and live financials "
+            "are fetched. This note does not invent multiples or a point target."
+        ),
+    }
+
+
 def weekend_month_end_share_bridge(
     *,
     shares: float,

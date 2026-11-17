@@ -26,7 +26,9 @@ from finrobot.engine.data.normalize.valuation_input import publication_block_rea
 from finrobot.engine.models.financial import DataProvenance, FinancialData
 from finrobot.runners.official_inputs import (
     OfficialTtmCapex,
+    limited_research_note,
     period_end_ordinary_share_block,
+    research_disposition,
 )
 from finrobot.runners.serialize import dump_jsonable
 
@@ -156,6 +158,30 @@ def retryable(exc: BaseException) -> bool:
     return isinstance(exc, (TimeoutError, asyncio.TimeoutError))
 
 
+async def run_comps(ticker: str, api_key: str, *, peers: list[str], peer_rationale: str) -> Any:
+    """Relative valuation only. The result is not promoted to a DCF target."""
+    from finrobot.sdk import FinRobot
+
+    overrides: dict[str, Any] = {}
+    identity = resolved_sec_user_agent()
+    if identity:
+        overrides["sec_user_agent"] = identity
+    agent = FinRobot(
+        model=MODEL_NAME,
+        language="zh",
+        custom_providers=[DEEPSEEK_PROVIDER],
+        provider_keys={"deepseek": api_key},
+        **overrides,
+    )
+    try:
+        return await asyncio.wait_for(
+            agent.acomps(ticker, peers=peers, peer_rationale=peer_rationale),
+            timeout=TIMEOUT_SECONDS,
+        )
+    finally:
+        await agent.close()
+
+
 async def run_research(
     ticker: str, api_key: str, *, peers: list[str] | None = None, peer_rationale: str | None = None
 ) -> Any:
@@ -218,7 +244,12 @@ def manifest_time() -> str:
     return datetime.now().astimezone().isoformat()
 
 
-async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
+async def _amain(
+    tickers: list[str],
+    out: Path,
+    evidence: list[Path],
+    sourced_peers_path: Path | None = None,
+) -> int:
     from finrobot.engine.compute.coordinators.extractor import (
         extract_financial_data,
         normalize_financials_to_usd,
@@ -269,6 +300,9 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
             sourced_peers[str(loaded["ticker"])] = loaded
         elif '"issuers"' in text:
             official.extend(load_finrobot_evidence_capex(path))
+    if sourced_peers_path is not None:
+        loaded_peers = load_sourced_peers(sourced_peers_path)
+        sourced_peers[str(loaded_peers["ticker"])] = loaded_peers
     if nvda_capex:
         official = [
             row
@@ -352,9 +386,46 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
             "october_share_bridge": october_bridge,
             "reasons": deduped,
         }
+        disposition = research_disposition(deduped)
+        fcf_signed = None
+        if isinstance(supplement, dict):
+            company = supplement.get("company_defined_fcf_ttm")
+            if isinstance(company, dict) and isinstance(company.get("signed_value"), (int, float)):
+                fcf_signed = float(company["signed_value"])
+        share_estimate = None
+        if isinstance(october_bridge, dict):
+            share_estimate = october_bridge.get("later_quote_estimate")
+            if not isinstance(share_estimate, dict):
+                share_estimate = october_bridge
+        if disposition != "verified":
+            payload["limited_research"] = limited_research_note(
+                disposition=disposition,
+                company_fcf_signed_million=fcf_signed,
+                share_estimate=share_estimate if isinstance(share_estimate, dict) else None,
+            )
+        payload["research_disposition"] = disposition
         if deduped:
             write_manifest(directory, payload)
-            logger.info("%s refused: %s", ticker, "; ".join(deduped))
+            logger.info("%s refused verified valuation: %s", ticker, "; ".join(deduped))
+            if disposition == "dcf_refused_other_research_ok":
+                peer_list = sourced_peers.get(ticker.upper())
+                if peer_list is not None:
+                    try:
+                        key = require_key_for_open_gate()
+                    except RuntimeError as exc:
+                        payload["relative_research_ran"] = False
+                        payload["relative_note"] = str(exc)
+                    else:
+                        result = await run_comps(
+                            ticker,
+                            key,
+                            peers=list(peer_list["tickers"]),
+                            peer_rationale=str(peer_list["rationale"]),
+                        )
+                        payload["relative_research_ran"] = True
+                        payload["point_target"] = None
+                        write_pipeline(directory, result)
+                write_manifest(directory, payload)
             blocked += 1
             continue
         try:
@@ -384,9 +455,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("tickers", nargs="+")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--evidence", type=Path, action="append", default=[])
+    parser.add_argument(
+        "--sourced-peers",
+        type=Path,
+        default=None,
+        help=(
+            "JSON file with schema sourced_peer_list_v1. Names tickers, one role, "
+            "a reason, and a source URL. Must not include financials."
+        ),
+    )
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    return asyncio.run(_amain(args.tickers, args.out, args.evidence))
+    return asyncio.run(_amain(args.tickers, args.out, args.evidence, args.sourced_peers))
 
 
 if __name__ == "__main__":

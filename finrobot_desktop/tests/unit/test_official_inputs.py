@@ -52,7 +52,10 @@ from finrobot.runners.official_inputs import (
     construct_official_ttm_capex,
     fiscal_period_end_share_use,
     label_self_calculated_ocf_minus_capex,
+    later_quote_share_estimate,
+    limited_research_note,
     period_end_ordinary_share_block,
+    research_disposition,
 )
 from finrobot.runners.serialize import dumps_model, loads_model
 
@@ -491,6 +494,33 @@ def test_tencent_october_weekend_gap_is_not_a_current_or_verified_bridge() -> No
     assert record["rejected_later_close"]["paired_with_share_as_of"] is False
     assert record["verified_same_day_block"] is not None
     assert str(record["verified_same_day_block"]).startswith("share_price_date_unmatched")
+    later = record["later_quote_estimate"]
+    assert later["price"] == 390.40
+    assert later["verified_same_day"] is False
+    assert later["opens_current_publication_gate"] is False
+    assert later["usable_as_labeled_estimate"] is True
+    assert later["staleness_calendar_days"] == 16
+    assert later["point_target"] is None
+    stale = later_quote_share_estimate(
+        shares=9_092_234_841,
+        share_as_of=date(2026, 6, 30),
+        price=390.40,
+        price_as_of=date(2026, 11, 17),
+    )
+    assert stale["usable_as_labeled_estimate"] is False
+    assert stale["value"] is None
+    assert research_disposition(["capex_missing: statutory line absent"]) == (
+        "dcf_refused_other_research_ok"
+    )
+    assert research_disposition(["share_price_date_unmatched: dates differ"]) == "refused"
+    note = limited_research_note(
+        disposition="dcf_refused_other_research_ok",
+        company_fcf_signed_million=-72_464,
+    )
+    assert note["dcf_available"] is False
+    assert note["point_target"] is None
+    assert note["company_fcf_is_fcff"] is False
+    assert note["company_fcf_role"] == "risk_evidence_only"
 
 
 def test_nvda_official_h1_comparative_builds_ttm_capex() -> None:

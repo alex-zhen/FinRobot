@@ -275,9 +275,16 @@ class FinRobot:
         return await self._run_pipeline("dcf", ticker, progress)
 
     async def acomps(
-        self, ticker: str, progress: "ProgressCallback | None" = None
+        self,
+        ticker: str,
+        progress: "ProgressCallback | None" = None,
+        *,
+        peers: list[str] | None = None,
+        peer_rationale: str | None = None,
     ) -> PipelineResult:
-        return await self._run_pipeline("comps", ticker, progress)
+        return await self._run_pipeline(
+            "comps", ticker, progress, peers=peers, peer_rationale=peer_rationale
+        )
 
     async def albo(self, ticker: str, progress: "ProgressCallback | None" = None) -> PipelineResult:
         return await self._run_pipeline("lbo", ticker, progress)
