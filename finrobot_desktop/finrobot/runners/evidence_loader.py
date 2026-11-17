@@ -15,6 +15,7 @@ from typing import Any
 from finrobot.runners.official_inputs import (
     OfficialAmount,
     bridge_same_caption,
+    period_end_ordinary_share_block,
     self_calculated_price_times_shares,
 )
 
@@ -305,4 +306,13 @@ def tencent_same_day_share_record(path: Path, *, valuation_as_of: date) -> dict[
     built["price"] = price
     built["share_class_scope_for_share_date"] = "single_listing"
     built["third_party_market_cap_used"] = False
+    value = built["value"]
+    built["historical_share_gate"] = period_end_ordinary_share_block(
+        shares=share_count,
+        share_as_of=as_of,
+        price=price,
+        price_as_of=date.fromisoformat(str(close["trade_date"])),
+        market_cap=float(value) if isinstance(value, (int, float)) else None,
+        market_cap_basis="self_calculated_price_times_issued_shares",
+    )
     return {"ticker": "0700.HK", **built}

@@ -318,12 +318,14 @@ def period_end_ordinary_share_block(
     price: float,
     price_as_of: date,
     market_cap: float | None,
+    market_cap_basis: str | None = None,
 ) -> str | None:
     """Period-end ordinary shares are usable only with that same day's price.
 
     Weighted-average shares are not accepted here, and a later quote is not a
-    reconciliation of the period-end count. This does not skip the publication
-    gate's price × shares check.
+    reconciliation of the period-end count. An independent official market cap
+    is not required when the caller labels the cap as price × the issued share
+    count. Any other cap still has to match that product within 10%.
     """
     if shares <= 0 or price <= 0:
         return "share_price_date_unmatched: share count or price is not positive"
@@ -332,9 +334,17 @@ def period_end_ordinary_share_block(
             "share_price_date_unmatched: period-end ordinary shares are dated "
             f"{share_as_of.isoformat()} but the price is dated {price_as_of.isoformat()}"
         )
+    product = price * shares
+    if market_cap_basis == "self_calculated_price_times_issued_shares":
+        if market_cap is not None and abs(market_cap - product) / product > 1e-9:
+            return (
+                "shares_price_market_cap_inconsistent: the labeled self-calculated "
+                "market cap is not price × issued ordinary shares"
+            )
+        return None
     if market_cap is None or market_cap <= 0:
         return "share_price_date_unmatched: no market cap on the share-count date"
-    gap = abs(price * shares - market_cap) / market_cap
+    gap = abs(product - market_cap) / market_cap
     if gap > 0.10:
         return (
             "shares_price_market_cap_inconsistent: same-day price × period-end "

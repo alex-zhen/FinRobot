@@ -342,13 +342,36 @@ def test_tencent_same_day_product_is_not_an_independent_or_current_market_cap() 
     assert historical["share_class_scope_applied_to_live_snapshot"] is False
     assert historical["value"] == pytest.approx(9_092_234_841 * 429.80)
     assert historical["usable_as_current_price"] is True
+    assert historical["historical_share_gate"] is None
     assert historical["value"] != pytest.approx(3.87e12)
     later = tencent_same_day_share_record(
         _FIXTURES / "tencent_20260630_price_mcap.json",
         valuation_as_of=date(2026, 11, 17),
     )
     assert later["usable_as_current_price"] is False
+    assert later["historical_share_gate"] is None
     assert later["value"] == pytest.approx(9_092_234_841 * 429.80)
+    assert (
+        period_end_ordinary_share_block(
+            shares=9_092_234_841,
+            share_as_of=date(2026, 6, 30),
+            price=429.80,
+            price_as_of=date(2026, 6, 30),
+            market_cap=None,
+        )
+        is not None
+    )
+    assert (
+        period_end_ordinary_share_block(
+            shares=9_092_234_841,
+            share_as_of=date(2026, 6, 30),
+            price=429.80,
+            price_as_of=date(2026, 6, 30),
+            market_cap=3.87e12,
+            market_cap_basis="self_calculated_price_times_issued_shares",
+        )
+        is not None
+    )
     mismatch = period_end_ordinary_share_block(
         shares=9_092_234_841,
         share_as_of=date(2026, 6, 30),
