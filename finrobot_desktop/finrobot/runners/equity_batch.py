@@ -223,10 +223,13 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
     from finrobot.engine.data.providers.yfinance_provider import YFinanceProvider
     from finrobot.engine.data.types import DataType
     from finrobot.runners.evidence_loader import (
+        baba_alternative_records,
         baba_line_records,
         load_finrobot_evidence_capex,
+        load_nvda_official_capex,
         load_tencent_period_end_shares,
         load_tencent_statutory_capex,
+        nvda_official_record,
         tencent_same_day_share_record,
     )
     from finrobot.runners.official_inputs import OfficialAmount, construct_official_ttm_capex
@@ -234,6 +237,7 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
     official: list[OfficialAmount] = []
     tencent_shares: tuple[float, date] | None = None
     tencent_price_path: Path | None = None
+    nvda_capex: list[OfficialAmount] = []
     supplements: dict[str, Any] = {}
     for path in evidence:
         text = path.read_text(encoding="utf-8")
@@ -241,11 +245,23 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
             official.extend(load_tencent_statutory_capex(path))
             tencent_shares = load_tencent_period_end_shares(path)
         elif '"baba_statutory_capex_ttm_search_v1"' in text:
-            supplements["BABA"] = baba_line_records(path)
+            supplements["BABA"] = {**supplements.get("BABA", {}), **baba_line_records(path)}
+        elif '"baba_alternative_fcf_capex_ttm_v1"' in text:
+            supplements["BABA"] = {**supplements.get("BABA", {}), **baba_alternative_records(path)}
+        elif '"FY2026H1_prior_comparative"' in text:
+            nvda_capex = load_nvda_official_capex(path)
+            supplements["NVDA"] = nvda_official_record(path)
         elif '"closing_price_supplement_akshare_sina"' in text:
             tencent_price_path = path
         elif '"issuers"' in text:
             official.extend(load_finrobot_evidence_capex(path))
+    if nvda_capex:
+        official = [
+            row
+            for row in official
+            if not (row.ticker == "NVDA" and row.line_role == "statutory_capex")
+        ]
+        official.extend(nvda_capex)
     provider = YFinanceProvider()
     blocked = 0
     for ticker in tickers:

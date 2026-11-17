@@ -353,6 +353,37 @@ def period_end_ordinary_share_block(
     return None
 
 
+def fiscal_period_end_share_use(
+    *,
+    shares: float,
+    share_as_of: date,
+    price_as_of: date | None,
+) -> dict[str, object]:
+    """Keep an official share count on its own as-of date.
+
+    A fiscal period end that falls on a weekend does not require a same-day
+    close. The count is the quote-date share count only when the two dates
+    are the same. A Friday close times Sunday shares is not that identity.
+    """
+    same_day = price_as_of == share_as_of
+    return {
+        "shares": shares,
+        "share_as_of": share_as_of.isoformat(),
+        "price_as_of": None if price_as_of is None else price_as_of.isoformat(),
+        "usable_as_quote_date_shares": same_day,
+        "period_end_is_weekend": share_as_of.weekday() >= 5,
+        "same_day_close_required": False,
+        "independent_market_cap_required": False,
+        "company_fcf_required": False,
+        "reason": None
+        if same_day
+        else (
+            "official period-end shares stay on their as-of date and are not "
+            "the quote-date share count"
+        ),
+    }
+
+
 def self_calculated_price_times_shares(
     *,
     shares: float,

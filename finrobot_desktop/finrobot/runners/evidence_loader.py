@@ -15,6 +15,7 @@ from typing import Any
 from finrobot.runners.official_inputs import (
     OfficialAmount,
     bridge_same_caption,
+    fiscal_period_end_share_use,
     period_end_ordinary_share_block,
     self_calculated_price_times_shares,
 )
@@ -316,3 +317,198 @@ def tencent_same_day_share_record(path: Path, *, valuation_as_of: date) -> dict[
         market_cap_basis="self_calculated_price_times_issued_shares",
     )
     return {"ticker": "0700.HK", **built}
+
+
+def load_nvda_official_capex(path: Path) -> list[OfficialAmount]:
+    """Statutory purchases from FY, current H1, and the 10-Q prior-H1 column.
+
+    Magnitudes marked as cash outflows are stored as signed negatives. Financing
+    principal payments are not this line.
+    """
+    document = json.loads(path.read_text(encoding="utf-8"))
+    rows: list[OfficialAmount] = []
+    for key, period_type in (
+        ("FY2026", "fy"),
+        ("FY2027H1_current", "ytd"),
+        ("FY2026H1_prior_comparative", "ytd"),
+    ):
+        period = document["periods"][key]
+        field = period["fields"][
+            "purchases_related_to_property_and_equipment_and_intangible_assets"
+        ]
+        magnitude = float(field["value"])
+        signed = -magnitude if field.get("sign") == "cash_outflow" else magnitude
+        rows.append(
+            OfficialAmount(
+                ticker="NVDA",
+                source_url=str(period["source_url"]),
+                source_kind=str(period["source"])[:80],
+                statement_line=(
+                    "Purchases related to property and equipment and intangible assets"
+                ),
+                line_item="capital_expenditure",
+                line_role="statutory_capex",
+                period_start=date.fromisoformat(str(period["period_start"])),
+                period_end=date.fromisoformat(str(period["period_end"])),
+                period_type=period_type,  # type: ignore[arg-type]
+                currency="USD",
+                unit="million",
+                value=signed,
+            )
+        )
+    return rows
+
+
+def nvda_official_record(path: Path) -> dict[str, Any]:
+    """Recompute official TTM flows from the three columns. The summary block is not read."""
+    document = json.loads(path.read_text(encoding="utf-8"))
+    periods = document["periods"]
+    fy = periods["FY2026"]
+    current = periods["FY2027H1_current"]
+    prior = periods["FY2026H1_prior_comparative"]
+    source = str(fy["source_url"])
+    flows: dict[str, Any] = {}
+    for caption, role, outflow in (
+        ("revenue", "revenue", False),
+        ("net_income", "net_income", False),
+        ("operating_cash_flow", "operating_cash_flow", False),
+        (
+            "purchases_related_to_property_and_equipment_and_intangible_assets",
+            "statutory_capex",
+            True,
+        ),
+    ):
+        fy_field = fy["fields"][caption]
+        current_field = current["fields"][caption]
+        prior_field = prior["fields"][caption]
+        flows[caption] = _signed_bridge(
+            caption=caption,
+            role=role,
+            fy_end=date.fromisoformat(str(fy["period_end"])),
+            fy_value=_signed_flow(fy_field),
+            current_end=date.fromisoformat(str(current["period_end"])),
+            current_value=_signed_flow(current_field),
+            prior_end=date.fromisoformat(str(prior["period_end"])),
+            prior_value=_signed_flow(prior_field),
+            source=source,
+            currency="USD",
+            as_capex_outflow=outflow,
+        )
+    shares = current["fields"]["common_stock_outstanding_million"]
+    share_as_of = date.fromisoformat(str(shares["as_of"]))
+    share_use = fiscal_period_end_share_use(
+        shares=float(shares["value"]) * 1_000_000,
+        share_as_of=share_as_of,
+        price_as_of=None,
+    )
+    return {
+        "ticker": "NVDA",
+        "ttm_period_start": "2025-07-28",
+        "ttm_period_end": "2026-07-26",
+        "currency": "USD",
+        "unit": "million",
+        "flows": flows,
+        "company_labeled_fcf_required": False,
+        "independent_market_cap_required": False,
+        "official_quarter_ends": ["2025-10-26", "2026-01-25", "2026-04-26", "2026-07-26"],
+        "period_end_shares": share_use,
+        "financing_principal_payments_not_in_capex": True,
+    }
+
+
+def baba_alternative_records(path: Path) -> dict[str, Any]:
+    """Company FCF and narrow PPE TTM. Neither opens the statutory FCFF gate."""
+    document = json.loads(path.read_text(encoding="utf-8"))
+    fcf_periods = document["company_defined_fcf"]["periods"]
+    ppe_periods = document["narrow_ppe"]["periods"]
+    source = "https://www.sec.gov/Archives/edgar/data/1577552/000119312526231755/baba-20260331.htm"
+    company_fcf = _signed_bridge(
+        caption="company_defined_fcf",
+        role="company_fcf",
+        fy_end=date.fromisoformat(str(fcf_periods["FY2026"]["period_end"])),
+        fy_value=float(fcf_periods["FY2026"]["value"]),
+        current_end=date.fromisoformat(str(fcf_periods["FY2027Q1"]["period_end"])),
+        current_value=float(fcf_periods["FY2027Q1"]["value"]),
+        prior_end=date.fromisoformat(str(fcf_periods["FY2026Q1"]["period_end"])),
+        prior_value=float(fcf_periods["FY2026Q1"]["value"]),
+        source=source,
+        currency="CNY",
+        as_capex_outflow=False,
+    )
+    company_fcf["opens_publication_gate"] = False
+    company_fcf["usable_as_fcff"] = False
+    narrow = _signed_bridge(
+        caption="narrow_fcf_ppe",
+        role="fcf_recon_ppe",
+        fy_end=date.fromisoformat(str(ppe_periods["FY2026"]["period_end"])),
+        fy_value=float(ppe_periods["FY2026"]["value"]),
+        current_end=date.fromisoformat(str(ppe_periods["FY2027Q1"]["period_end"])),
+        current_value=float(ppe_periods["FY2027Q1"]["value"]),
+        prior_end=date.fromisoformat(str(ppe_periods["FY2026Q1"]["period_end"])),
+        prior_value=float(ppe_periods["FY2026Q1"]["value"]),
+        source=source,
+        currency="CNY",
+        as_capex_outflow=True,
+    )
+    narrow["opens_publication_gate"] = False
+    quarterly_intangibles = fcf_periods["FY2027Q1"]["recon_items_rmb_million"][
+        "purchase_of_intangible_assets_ex_acquisitions"
+    ]
+    return {
+        "ticker": "BABA",
+        "statutory_ttm_blocked": True,
+        "company_defined_fcf_ttm": company_fcf,
+        "narrow_ppe_alternative": narrow,
+        "management_capex_ttm": None,
+        "management_capex_side_note_only": True,
+        "quarterly_intangibles_officially_zero": quarterly_intangibles == 0,
+        "research_risk": (
+            "Company-defined free cash flow for 2025-07-01 to 2026-06-30 is negative. "
+            "That is a non-GAAP liquidity observation. It is not FCFF and it does not "
+            "open the statutory capex gate."
+        ),
+        "hard_gaps": [
+            "statutory cash-flow capex TTM is unpresented on both quarterly statements",
+            "company FCF is after tax and interest and is not an FCFF/WACC input",
+            "quarterly intangibles are omitted, not an official zero",
+            "land, office-campus CIP, buyer-protection, and interest bridges are not a statutory capex substitute",
+        ],
+    }
+
+
+def _signed_flow(field: dict[str, Any]) -> float:
+    magnitude = float(field["value"])
+    if field.get("sign") == "cash_outflow" and magnitude > 0:
+        return -magnitude
+    return magnitude
+
+
+def _signed_bridge(
+    *,
+    caption: str,
+    role: str,
+    fy_end: date,
+    fy_value: float,
+    current_end: date,
+    current_value: float,
+    prior_end: date,
+    prior_value: float,
+    source: str,
+    currency: str,
+    as_capex_outflow: bool,
+) -> dict[str, Any]:
+    built = bridge_same_caption(
+        caption=caption,
+        role=role,
+        fy_end=fy_end,
+        fy_value=fy_value,
+        current_end=current_end,
+        current_value=current_value,
+        prior_end=prior_end,
+        prior_value=prior_value,
+        currency=currency,
+        source=source,
+        as_capex_outflow=as_capex_outflow,
+    )
+    built["unit"] = "million"
+    return built

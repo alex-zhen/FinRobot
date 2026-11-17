@@ -33,7 +33,13 @@ from finrobot.runners.equity_batch import (
     resolved_sec_user_agent,
     settings_for_box,
 )
-from finrobot.runners.evidence_loader import baba_line_records, tencent_same_day_share_record
+from finrobot.runners.evidence_loader import (
+    baba_alternative_records,
+    baba_line_records,
+    load_nvda_official_capex,
+    nvda_official_record,
+    tencent_same_day_share_record,
+)
 from finrobot.runners.evidence_loader import (
     load_finrobot_evidence_capex,
     load_tencent_period_end_shares,
@@ -42,6 +48,7 @@ from finrobot.runners.evidence_loader import (
 from finrobot.runners.official_inputs import (
     OfficialAmount,
     construct_official_ttm_capex,
+    fiscal_period_end_share_use,
     label_self_calculated_ocf_minus_capex,
     period_end_ordinary_share_block,
 )
@@ -409,3 +416,46 @@ async def test_news_failures_do_not_open_the_price_circuit() -> None:
     assert layer._health.is_available("yfinance")
     price = await layer.fetch(DataType.PRICE, "NVDA")
     assert price.data["current_price"] == 100.0
+
+
+def test_nvda_official_h1_comparative_builds_ttm_capex() -> None:
+    path = _FIXTURES / "nvda_official_ttm.json"
+    rows = load_nvda_official_capex(path)
+    built = construct_official_ttm_capex(rows, "NVDA")
+    assert built.ok
+    assert built.construction == "fy_ytd_bridge"
+    assert built.outflow == pytest.approx(7_354 * 1_000_000)
+    record = nvda_official_record(path)
+    flows = record["flows"]
+    assert flows["revenue"]["signed_value"] == pytest.approx(302_970)
+    assert flows["net_income"]["signed_value"] == pytest.approx(192_880)
+    assert flows["operating_cash_flow"]["signed_value"] == pytest.approx(134_360)
+    purchases = flows["purchases_related_to_property_and_equipment_and_intangible_assets"]
+    assert purchases["outflow"] == pytest.approx(7_354)
+    assert record["company_labeled_fcf_required"] is False
+    assert record["independent_market_cap_required"] is False
+    shares = record["period_end_shares"]
+    assert shares["usable_as_quote_date_shares"] is False
+    assert shares["period_end_is_weekend"] is True
+    assert shares["same_day_close_required"] is False
+    friday = fiscal_period_end_share_use(
+        shares=24_147_000_000,
+        share_as_of=date(2026, 7, 26),
+        price_as_of=date(2026, 7, 24),
+    )
+    assert friday["usable_as_quote_date_shares"] is False
+
+
+def test_baba_company_fcf_is_risk_evidence_not_an_fcff_gate() -> None:
+    record = baba_alternative_records(_FIXTURES / "baba_alternative_fcf_capex_ttm.json")
+    assert record["statutory_ttm_blocked"] is True
+    assert record["management_capex_ttm"] is None
+    company = record["company_defined_fcf_ttm"]
+    assert company["signed_value"] == pytest.approx(-72_464)
+    assert company["opens_publication_gate"] is False
+    assert company["usable_as_fcff"] is False
+    narrow = record["narrow_ppe_alternative"]
+    assert narrow["signed_value"] == pytest.approx(-151_052)
+    assert narrow["opens_publication_gate"] is False
+    assert record["quarterly_intangibles_officially_zero"] is False
+    assert "not FCFF" in record["research_risk"]
