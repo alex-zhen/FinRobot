@@ -38,6 +38,7 @@ from finrobot.runners.evidence_loader import (
     baba_line_records,
     load_nvda_official_capex,
     nvda_official_record,
+    tencent_october_share_record,
     tencent_same_day_share_record,
 )
 from finrobot.runners.evidence_loader import (
@@ -416,6 +417,30 @@ async def test_news_failures_do_not_open_the_price_circuit() -> None:
     assert layer._health.is_available("yfinance")
     price = await layer.fetch(DataType.PRICE, "NVDA")
     assert price.data["current_price"] == 100.0
+
+
+def test_tencent_october_weekend_gap_is_not_a_current_or_verified_bridge() -> None:
+    record = tencent_october_share_record(
+        _FIXTURES / "tencent_20261031_price_mcap.json",
+        valuation_as_of=date(2026, 11, 17),
+    )
+    assert record["price"] == 383.60
+    assert record["ask_not_used"] == 383.80
+    assert record["shares"] == 9_092_644_829
+    assert record["shares"] != 9_092_644_829 - 3_759_000
+    assert record["value"] == pytest.approx(9_092_644_829 * 383.60)
+    assert record["independent_market_cap"] is False
+    assert record["share_count_unchanged_since_close"] == "not_verified"
+    assert record["opens_current_publication_gate"] is False
+    assert record["opens_verified_same_day_share_gate"] is False
+    assert record["usable_as_current_investment_conclusion"] is False
+    assert record["pending_cancellation_deducted"] is False
+    assert record["award_scheme_shares_carried_forward"] is False
+    assert record["staleness_calendar_days"] == {"shares": 17, "price": 18}
+    assert record["rejected_later_close"]["close"] == "390.40"
+    assert record["rejected_later_close"]["paired_with_share_as_of"] is False
+    assert record["verified_same_day_block"] is not None
+    assert str(record["verified_same_day_block"]).startswith("share_price_date_unmatched")
 
 
 def test_nvda_official_h1_comparative_builds_ttm_capex() -> None:

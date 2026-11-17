@@ -1,0 +1,371 @@
+{
+  "schema_version": "1.0",
+  "document_id": "tencent_0700HK_2026-10-31_sharecount_and_2026-10-30_price_mcap_evidence",
+  "access_date": "2026-11-17",
+  "access_timezone": "Asia/Shanghai (UTC+8)",
+  "generated_at": "2026-11-17T11:53:59+08:00",
+  "purpose": "Collect the most recently disclosed official Tencent (00700 / 0700.HK) issued-share count from HKEX monthly return / next-day disclosure in the October-end to mid-November 2026 window, and a same-relationship official close for cross-check. Facts only. Do not change repositories, run packages, or gates, and do not write a Page. Do not value the stock. Official TTM cash-flow inputs remain as at 2026-06-30 and are not redone here.",
+  "relationship_to_2026_06_30_package": {
+    "prior_package": "tencent_20260630_price_mcap_evidence.json",
+    "prior_official_issued_ordinary_shares": 9092234841,
+    "prior_share_as_of": "2026-06-30",
+    "prior_close_used": {
+      "value_hkd": "429.80",
+      "source": "AKShare Sina supplement only; official HKEX Daily Quotations file for 2026-06-30 was not retrieved",
+      "trade_date": "2026-06-30"
+    },
+    "use_of_2026_06_30_pair": "Valid only as a historical same-date (or same-day trading) valuation input as at 2026-06-30. It is not a current share/price bridge and must not be paired with a 2026-11-17 live or latest close.",
+    "arithmetic_issued_share_change_since_2026_06_30": {
+      "value": 409988,
+      "formula": "9,092,644,829 - 9,092,234,841 = 409,988",
+      "status": "arithmetic_difference_of_two_official_endpoints_only",
+      "note": "This limited collection does not reconstruct July–September monthly movements or later cancellations. The net change is not a complete audit trail."
+    }
+  },
+  "fail_closed_policy": {
+    "weighted_average_shares_must_not_bridge_period_end_price_or_mcap": true,
+    "price_times_shares_is_not_an_independent_market_cap": true,
+    "missing_official_items_are_marked_not_found_rather_than_estimated": true,
+    "do_not_backsolve_shares_from_market_cap_or_turnover": true,
+    "do_not_carry_forward_2026_06_30_award_scheme_holdings_as_current": true,
+    "do_not_pair_october_share_count_with_november_live_or_latest_close": true,
+    "retrieving_a_closer_dated_pair_does_not_by_itself_constitute_gate_acceptance": true,
+    "adr_ratio_not_used": true
+  },
+  "issuer": {
+    "name": "Tencent Holdings Limited",
+    "stock_code_hkd": "00700",
+    "yahoo_symbol": "0700.HK",
+    "multi_counter_rmb": "80700",
+    "exchange": "SEHK / The Stock Exchange of Hong Kong Limited"
+  },
+  "recommended_traceable_pair_for_cloud_review": {
+    "status": "proposed_for_strict_review_not_a_gate_pass",
+    "share_count": 9092644829,
+    "share_count_definition": "Official total issued ordinary shares as at close of 31 October 2026, equal to issued shares excluding treasury shares because HKEX-classified treasury shares were 0.",
+    "share_as_of_date": "2026-10-31",
+    "share_source": "HKEX Monthly Return of Equity Issuer on Movements in Securities for the month ended 31 October 2026, submitted 5 November 2026 16:55 HKT.",
+    "price_hkd": "383.60",
+    "price_definition": "Official SEHK Daily Quotations closing price (CLOSING column), Main Board stock code 700, currency HKD.",
+    "price_trade_date": "2026-10-30",
+    "price_source": "HKEX Daily Quotations, DATE: 30 OCT 2026 (FRIDAY), file d261030e.htm.",
+    "why_price_date_is_not_2026_10_31": "31 October 2026 was a Saturday and not a SEHK trading day. The official quotations file https://www.hkex.com.hk/eng/stat/smstat/dayquot/d261031e.htm returned HTTP 404. The last SEHK session on or before the month-end share date was Friday 30 October 2026.",
+    "weekend_gap_between_price_and_share_dates": {
+      "calendar_days": 1,
+      "status": "disclosed_not_proven_identical_instant",
+      "note": "The official share count is as at close of 31 October 2026, not as at the 30 October 2026 market close. This collection did not locate a next-day disclosure or other official issued-share figure dated 30 October 2026. Employee option exercises of 39,234 shares occurred sometime during October; the last Next Day Disclosure Return located on the HKEX title search was 15 October 2026. It is not independently proven that the issued count was unchanged between the 30 October close and the 31 October close, although a Saturday issuance or cancellation is not documented in the monthly return's movement details."
+    },
+    "staleness_versus_access_date_2026_11_17": {
+      "share_count_calendar_days": 17,
+      "price_calendar_days": 18,
+      "share_count_disclosure_date": "2026-11-05",
+      "days_from_disclosure_to_access": 12,
+      "comparison_with_2026_06_30_if_paired_to_2026_11_17": "The 30 June 2026 official issued count would be 140 calendar days stale versus 17 November 2026. The October month-end pair is closer, but it is still not a 17 November 2026 same-day official share and close combination."
+    },
+    "not_a_current_mark_to_market": "A 17 November 2026 live or 16 November 2026 latest daily close must not be multiplied by the 31 October 2026 share count. Those prices were observed, but they are recorded only as unused freshness context."
+  },
+  "trading_calendar_notes": [
+    "2026-10-30 was a Friday and a SEHK trading day; official Daily Quotations exist.",
+    "2026-10-31 was a Saturday (non-trading). 2026-11-01 was a Sunday (non-trading).",
+    "The next SEHK session after 30 October 2026 was Monday 2026-11-02.",
+    "Access date 2026-11-17 was a Tuesday and a SEHK session day; this collection does not use any 17 November official close, and the session may still have been in progress at access time."
+  ],
+  "sources": {
+    "hkex_title_search_00700_as_of_2026_11_17": {
+      "title": "HKEX Listed Company Information Title Search for stock 00700 / stockId 7609",
+      "url": "https://www1.hkexnews.hk/search/titlesearch.xhtml?category=0&market=SEHK&searchType=0&stockId=7609",
+      "endDate_on_page": "2026-11-17",
+      "observation": "The most recent announcement in the first 100 results was the 5 November 2026 16:55 HKT monthly return. No Next Day Disclosure Return appeared after 15 October 2026. The only 16 October–17 November filings in that list were three 22 October 2026 debt-note documents and the 5 November monthly return.",
+      "status": "retrieved_official_index"
+    },
+    "hkex_monthly_return_202610": {
+      "title": "Monthly Return of Equity Issuer on Movements in Securities for the month ended 31 October 2026",
+      "date_submitted": "2026-11-05",
+      "time_submitted_hkt": "16:55",
+      "month_ended": "2026-10-31",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/1105/2026110501130.pdf",
+      "url_chinese": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/1105/2026110501131_c.pdf",
+      "local_pdf": "raw/tencent_monthly_return_20261031.pdf",
+      "local_pdf_chinese": "raw/tencent_monthly_return_20261031_c.pdf",
+      "sha256": "463d1ff46008ebfa1320f56aa5f8d75400b77ccad724c9e209bdba63191fe21a",
+      "bytes": 70030,
+      "sha256_chinese": "363e4e3388b53c5f7a506e972a65e4dd0a4cb5240535df37f43c2be60630d4de",
+      "bytes_chinese": 135918,
+      "status": "retrieved_official"
+    },
+    "company_ir_monthly_return_202610": {
+      "title": "Company IR English copy of the October 2026 monthly return",
+      "url": "https://www.tencent.com/wp-content/uploads/2026/11/e_THL_monthly-return-October-2026.pdf",
+      "local_pdf": "raw/tencent_monthly_return_20261031_ir.pdf",
+      "sha256": "f05286b0faa6cb00b4941d55e4b81d0c5e920d228b902a8cf7a139fa1b0d5289",
+      "bytes": 70000,
+      "status": "retrieved_official_ir_copy",
+      "note": "File size 70,000 bytes versus the HKEX English news copy 70,030 bytes, and the SHA-256 hashes differ. Used only as company-IR corroboration of the same figures, not as a substitute for the HKEX news file."
+    },
+    "hkex_daily_quotations_20261030": {
+      "title": "HKEX Daily Quotations (Main Board and Trading Only Stocks)",
+      "trade_date": "2026-10-30",
+      "weekday": "Friday",
+      "url": "https://www.hkex.com.hk/eng/stat/smstat/dayquot/d261030e.htm",
+      "http_status": 200,
+      "downloaded_bytes": 25491925,
+      "sha256_of_download": "aec27846b07bd1c6ecaf07293f807a1f6c73b3c1fead29c6651019e1d0c1649f",
+      "local_extract": "raw/quotes/hkex_dayquot_d261030e_tencent_extract.txt",
+      "column_header": "CODE NAME OF STOCK CUR PRV.CLO./CLOSING  ASK/BID  HIGH/LOW  SHARES TRADED/TURNOVER ($)",
+      "status": "retrieved_official"
+    },
+    "hkex_daily_quotations_20261031": {
+      "url": "https://www.hkex.com.hk/eng/stat/smstat/dayquot/d261031e.htm",
+      "http_status": 404,
+      "status": "not_a_trading_day_file_absent"
+    },
+    "akshare_sina_hist": {
+      "interface": "akshare.stock_hk_hist_sina",
+      "akshare_version": "1.20.65",
+      "symbol": "00700",
+      "role": "authorized supplementary historical quote source and cross-check, not a substitute if an official quotations close exists",
+      "local_csv_window": "raw/quotes/akshare_sina_00700_20261024_20261116.csv",
+      "local_json": "raw/quotes/akshare_sina_00700_20261030.json",
+      "sha256_json": "65e3416681a57c490afa9aa219e2fda00b9577e1345dd29beb87a5fb0504e81f",
+      "status": "retrieved_supplement"
+    },
+    "yahoo_chart_crosscheck": {
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/0700.HK?period1=1793145600&period2=1793721600&interval=1d&events=div%2Csplit",
+      "symbol": "0700.HK",
+      "currency_in_meta": "HKD",
+      "exchange_in_meta": "HKG / HKSE",
+      "local_json": "raw/quotes/yahoo_0700HK_chart_20261028_20261103.json",
+      "sha256": "66caa7f9450e0525219e7c06f426b273e09e5d9ba63c1394eb456753e0347971",
+      "role": "unofficial third-party cross-check only; not an official HKEX or issuer source",
+      "status": "retrieved_unofficial_crosscheck"
+    },
+    "last_ndd_located": {
+      "title": "Next Day Disclosure Return (Share Buyback)",
+      "date_submitted": "2026-10-15",
+      "time_submitted_hkt": "17:29",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/1015/2026101500641.pdf",
+      "status": "identified_on_official_index_not_reparsed_in_this_limited_collection",
+      "note": "Identified as the latest NDD on the 17 November 2026 title search. This package relies on the 31 October monthly return for month-end share counts rather than re-extracting the 15 October NDD line by line."
+    }
+  },
+  "items": [
+    {
+      "item": "period_end_issued_ordinary_shares",
+      "status": "obtained_official",
+      "value": 9092644829,
+      "unit": "shares",
+      "as_of_date": "2026-10-31",
+      "definition": "Total number of issued ordinary shares, which equals issued shares excluding treasury shares because HKEX-classified treasury shares were 0.",
+      "evidence": [
+        "HKEX Monthly Return submitted 5 November 2026, month ended 31 October 2026, Section II: Balance at close of the month — issued shares excluding treasury shares 9,092,644,829; treasury shares 0; total issued shares 9,092,644,829.",
+        "Same figures in the Chinese HKEX copy and the company IR English copy.",
+        "Opening (balance at close of preceding month / 30 September 2026): 9,092,605,595; increase during October 39,234; 9,092,605,595 + 39,234 = 9,092,644,829 (pass)."
+      ],
+      "reconciliation": {
+        "opening_balance_close_of_preceding_month_issued_ex_treasury": 9092605595,
+        "opening_treasury": 0,
+        "plus_option_exercises_during_october_2026": 39234,
+        "option_scheme": "2023 Share Option Scheme adopted 17 May 2023",
+        "funds_raised_from_option_exercises_hkd": "12304116.13",
+        "cancellations_during_october_reducing_issued_shares": 0,
+        "arithmetic": "9,092,605,595 + 39,234 = 9,092,644,829",
+        "arithmetic_check": "pass"
+      }
+    },
+    {
+      "item": "treasury_shares_hkex_definition",
+      "status": "obtained_official",
+      "value": 0,
+      "unit": "shares",
+      "as_of_date": "2026-10-31",
+      "definition": "Number of treasury shares as reported in the HKEX Monthly Return (shares held as treasury shares, not shares repurchased for cancellation).",
+      "evidence": [
+        "Monthly Return close of month 31 October 2026: treasury shares 0; increase/decrease in treasury shares during the month: 0.",
+        "Option-scheme transfer out of treasury during the month: 0."
+      ],
+      "classification_note": "As in the 30 June 2026 package, HKEX 'treasury shares' = 0 is not a statement about accounting treasury shares or about shares already repurchased and still pending cancellation. Those pending-cancellation shares remain inside issued share capital until cancelled."
+    },
+    {
+      "item": "shares_repurchased_for_cancellation_but_not_yet_cancelled",
+      "status": "obtained_official",
+      "value": 3759000,
+      "unit": "shares",
+      "as_of_date": "2026-10-31",
+      "included_in_issued_share_capital": true,
+      "classified_as_hkex_treasury_shares": false,
+      "mandate_date_on_form": "2026-05-13",
+      "trade_dates_as_disclosed_in_remarks": [
+        "2026-09-23",
+        "2026-09-24",
+        "2026-09-25",
+        "2026-09-28",
+        "2026-09-29",
+        "2026-09-30",
+        "2026-10-02",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+        "2026-10-08",
+        "2026-10-09",
+        "2026-10-12",
+        "2026-10-13",
+        "2026-10-14",
+        "2026-10-15"
+      ],
+      "evidence": [
+        "Monthly Return Section III(E) and remarks (English): 'Repurchases of a total of 3,759,000 ordinary shares were made on 23 to 25 and 28 to 30 September 2026, and 2, 5 to 9 and 12 to 15 October 2026 but such shares have not yet been cancelled as at 31 October 2026.'",
+        "Chinese copy: '於2026年9月23日至25日及28日至30日、及2026年10月2日、5日至9日及12日至15日，合共3,759,000股普通股已作購回但於2026年10月31日尚未註銷。'"
+      ],
+      "day_by_day_volumes_in_this_package": "not_itemised_in_the_monthly_return_remarks; this limited collection did not reparse each October NDD for per-day counts",
+      "note": "These 3,759,000 shares are still included in the official issued total 9,092,644,829. Subtracting them would be a derived residual, not an official outstanding label, and is not used as the share base."
+    },
+    {
+      "item": "shares_held_for_share_award_scheme",
+      "status": "not_found_in_this_filing_set",
+      "value": null,
+      "as_of_date": "2026-10-31",
+      "searched": [
+        "October 2026 Monthly Return English HKEX, Chinese HKEX, and IR copies — no 'share award scheme' / '獎勵計劃' holding figure, and Section III(D) (other agreements or arrangements to issue shares) is Not applicable.",
+        "HKEX title search for 00700 as of 17 November 2026 — no later equity disclosure after 5 November 2026 that was used as a substitute source."
+      ],
+      "do_not_carry_forward": {
+        "2026_06_30_interim_report_figure": 84278228,
+        "reason": "The 84,278,228 shares held for the share award scheme were official as at 30 June 2026 only. They are not evidence of the holding as at 31 October 2026."
+      }
+    },
+    {
+      "item": "official_sehk_closing_price_primary_hkex_file",
+      "status": "obtained_official",
+      "trade_date": "2026-10-30",
+      "currency": "HKD",
+      "stock_code_printed": "700",
+      "name_printed": "TENCENT",
+      "previous_close": "377.60",
+      "closing": "383.60",
+      "bid": "383.60",
+      "ask": "383.80",
+      "high": "387.60",
+      "low": "375.20",
+      "shares_traded": 22269954,
+      "turnover_hkd": "8540915574",
+      "source": "HKEX Daily Quotations 30 October 2026, quotations table two-line layout: first line PRV.CLO. 377.60, ASK 383.80, HIGH 387.60, SHARES TRADED 22,269,954; second line CLOSING 383.60, BID 383.60, LOW 375.20, TURNOVER ($) 8,540,915,574.",
+      "most_actives_crosscheck_same_file": {
+        "section": "10 MOST ACTIVES (DOLLARS)",
+        "high": "387.60",
+        "low": "375.20",
+        "shares_traded": 22269954,
+        "turnover_hkd": "8540915574",
+        "agrees_with_quotations_row": true,
+        "note": "The most-actives line does not itself print the closing price; it corroborates high, low, volume and turnover only."
+      },
+      "warning_on_column_alignment": "The 383.80 figure on the first quotations line is the ASK, not the close. The official close is 383.60 on the second line. Do not use 383.80 as the official close."
+    },
+    {
+      "item": "closing_price_supplement_akshare_sina_crosscheck",
+      "status": "obtained_supplement_agrees_with_official_close",
+      "trade_date": "2026-10-30",
+      "currency": "HKD",
+      "symbol": "00700",
+      "source": "akshare.stock_hk_hist_sina (akshare 1.20.65)",
+      "open": 376.4,
+      "high": 387.6,
+      "low": 375.2,
+      "close_raw": 383.60001,
+      "close_conventional_tick": "383.60",
+      "volume": 22269954,
+      "amount_hkd": 8540915574.0,
+      "prior_trading_day": "2026-10-29",
+      "prior_close_raw": 377.60001,
+      "prior_close_conventional_tick": "377.60",
+      "notes": [
+        "Raw close 383.60001 is a floating-point representation of HKD 383.60 and agrees with the official Daily Quotations CLOSING.",
+        "Volume 22,269,954 and amount 8,540,915,574.0 agree exactly with the official shares traded and turnover.",
+        "Prior close 377.60 agrees with the official PRV.CLO. High 387.60 and low 375.20 also agree.",
+        "This remains a supplementary cross-check; the primary official close is the HKEX Daily Quotations file."
+      ]
+    },
+    {
+      "item": "closing_price_unofficial_yahoo_crosscheck",
+      "status": "unofficial_crosscheck_only_agrees_with_official_close",
+      "trade_date": "2026-10-30",
+      "currency": "HKD",
+      "yahoo_chart": {
+        "close": 383.6000061035156,
+        "open": 376.3999938964844,
+        "high": 387.6000061035156,
+        "low": 375.20001220703125,
+        "volume": 22269954,
+        "note": "Agrees with the official close/volume and with the AKShare Sina row to normal float precision. Not an official source."
+      },
+      "not_used_as_official_close": true
+    },
+    {
+      "item": "unused_later_prices_not_to_be_paired_with_2026_10_31_shares",
+      "status": "recorded_as_freshness_context_only",
+      "do_not_use_as_the_official_share_price_bridge": true,
+      "akshare_sina_latest_daily_in_window": {
+        "trade_date": "2026-11-16",
+        "close_conventional_tick": "390.40",
+        "close_raw": 390.39999,
+        "source": "akshare.stock_hk_hist_sina",
+        "note": "Last completed Sina daily bar in the retrieved window. This is not an official HKEX close in this package and is not paired with the 31 October share count."
+      },
+      "yahoo_session_snapshot_not_a_close": {
+        "observed_at": "2026-11-17T11:36:56+08:00",
+        "regularMarketPrice": 379.2,
+        "regularMarketChangePercent": -2.869,
+        "source": "Yahoo chart meta at fetch time",
+        "note": "Intraday or session snapshot during the 17 November 2026 SEHK session, not an official close, and not paired with the 31 October share count."
+      }
+    },
+    {
+      "item": "official_independently_disclosed_market_capitalisation",
+      "status": "not_found",
+      "as_of_date": "2026-10-31",
+      "currency": "HKD",
+      "value": null,
+      "searched": [
+        "October 2026 Monthly Return (English and Chinese) — no market capitalisation / 市值 figure.",
+        "HKEX Daily Quotations 30 October 2026 — quotations and most-actives lines give turnover, not an issuer market-cap; a text search of the downloaded file for market capitalisation / market cap did not yield an issuer-level Tencent market-cap figure used here."
+      ]
+    },
+    {
+      "item": "derived_market_capitalisation_official_close_times_issued_ex_treasury",
+      "status": "derived_self_calculated_not_independently_disclosed",
+      "as_of_relationship": "share count as at 2026-10-31 × official close of 2026-10-30, with the weekend gap disclosed above",
+      "currency": "HKD",
+      "share_base": 9092644829,
+      "share_base_definition": "Official issued ordinary shares excluding treasury shares as at 2026-10-31 (treasury = 0), so equal to total issued ordinary shares 9,092,644,829. This share base still includes 3,759,000 shares repurchased for cancellation but not yet cancelled. Award-scheme holdings as at this date were not found in this filing set.",
+      "price_used": "383.60",
+      "price_basis": "official HKEX Daily Quotations CLOSING for 2026-10-30",
+      "arithmetic": "9,092,644,829 × 383.60 = 3,487,938,556,404.40",
+      "value_hkd": "3487938556404.40",
+      "independent_official_verification": false,
+      "warning": "This figure is only official close × official issued shares. It must not be described as an independently disclosed official market cap, and it must not be used to back-solve a different share count."
+    }
+  ],
+  "item_status_summary": {
+    "period_end_issued_ordinary_shares_2026-10-31": "obtained_official",
+    "treasury_shares_hkex_definition_2026-10-31": "obtained_official",
+    "shares_pending_cancellation_still_issued_2026-10-31": "obtained_official",
+    "shares_held_for_share_award_scheme_2026-10-31": "not_found_in_this_filing_set",
+    "official_sehk_closing_price_2026-10-30": "obtained_official",
+    "sina_yahoo_crosscheck_of_that_close": "agree",
+    "official_independently_disclosed_market_capitalisation": "not_found",
+    "derived_market_cap_price_times_shares": "derived_self_calculated_not_independently_disclosed",
+    "november_2026_ndd_or_monthly_return_newer_than_2026-10-31": "not_found_as_of_access"
+  },
+  "still_missing": [
+    "An official issued-share figure dated 30 October 2026 (same instant as the official close), or a later official share count after 31 October 2026.",
+    "Share-award-scheme holdings as at 31 October 2026 or any later official date.",
+    "An independently disclosed official market capitalisation (a figure not computed here from price × shares).",
+    "A 17 November 2026 official same-day share count and official close, which did not exist in disclosed monthly/NDD form as of this access."
+  ],
+  "gating_implication_for_cloud_review": "This package supplies a closer, traceable official share count (9,092,644,829 as at 2026-10-31) and an official SEHK close (HKD 383.60 on 2026-10-30), with Sina and Yahoo agreeing on that close. It does not, by itself, constitute acceptance of a FinRobot input gate. The share date and the price date differ by a weekend; award-scheme holdings were not found in the October monthly return; no official independent market cap was found; and the pair is still 17–18 calendar days before the 17 November 2026 access date. A financial reporting period ended 30 June 2026 may reasonably sit beside a later quote date, but any share-to-quote bridge must keep this dating explicit. Official TTM flow items are unchanged and remain as at 30 June 2026.",
+  "not_done_per_instruction": [
+    "No repository, run-package, or gate changes.",
+    "No Page write.",
+    "No valuation and no model-key use.",
+    "Official TTM cash-flow construction as at 2026-06-30 was not redone."
+  ]
+}

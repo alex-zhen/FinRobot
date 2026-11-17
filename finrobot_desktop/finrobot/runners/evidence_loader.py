@@ -17,6 +17,7 @@ from finrobot.runners.official_inputs import (
     bridge_same_caption,
     fiscal_period_end_share_use,
     period_end_ordinary_share_block,
+    weekend_month_end_share_bridge,
     self_calculated_price_times_shares,
 )
 
@@ -315,6 +316,62 @@ def tencent_same_day_share_record(path: Path, *, valuation_as_of: date) -> dict[
         price_as_of=date.fromisoformat(str(close["trade_date"])),
         market_cap=float(value) if isinstance(value, (int, float)) else None,
         market_cap_basis="self_calculated_price_times_issued_shares",
+    )
+    return {"ticker": "0700.HK", **built}
+
+
+def tencent_october_share_record(path: Path, *, valuation_as_of: date) -> dict[str, Any]:
+    """October month-end shares and the prior Friday official close.
+
+    The close is the CLOSING column, not the ask. Pending-cancellation shares
+    stay inside the issued total. June award-scheme holdings are not carried
+    forward. A later close is not paired with this share count.
+    """
+    document = json.loads(path.read_text(encoding="utf-8"))
+    shares = next(
+        item for item in document["items"] if item["item"] == "period_end_issued_ordinary_shares"
+    )
+    pending = next(
+        item
+        for item in document["items"]
+        if item["item"] == "shares_repurchased_for_cancellation_but_not_yet_cancelled"
+    )
+    official_close = next(
+        item
+        for item in document["items"]
+        if item["item"] == "official_sehk_closing_price_primary_hkex_file"
+    )
+    later = next(
+        item
+        for item in document["items"]
+        if item["item"] == "unused_later_prices_not_to_be_paired_with_2026_10_31_shares"
+    )
+    price = float(official_close["closing"])
+    ask = float(official_close["ask"])
+    share_count = float(shares["value"])
+    share_as_of = date.fromisoformat(str(shares["as_of_date"]))
+    price_as_of = date.fromisoformat(str(official_close["trade_date"]))
+    built = weekend_month_end_share_bridge(
+        shares=share_count,
+        share_as_of=share_as_of,
+        price=price,
+        price_as_of=price_as_of,
+        valuation_as_of=valuation_as_of,
+        pending_cancellation_included=float(pending["value"]),
+    )
+    built["ask_not_used"] = ask
+    built["award_scheme_shares_carried_forward"] = False
+    built["rejected_later_close"] = {
+        "trade_date": later["akshare_sina_latest_daily_in_window"]["trade_date"],
+        "close": later["akshare_sina_latest_daily_in_window"]["close_conventional_tick"],
+        "paired_with_share_as_of": False,
+    }
+    built["verified_same_day_block"] = period_end_ordinary_share_block(
+        shares=share_count,
+        share_as_of=share_as_of,
+        price=price,
+        price_as_of=price_as_of,
+        market_cap=None,
     )
     return {"ticker": "0700.HK", **built}
 

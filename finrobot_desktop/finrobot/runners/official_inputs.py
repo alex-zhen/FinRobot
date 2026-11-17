@@ -353,6 +353,56 @@ def period_end_ordinary_share_block(
     return None
 
 
+def weekend_month_end_share_bridge(
+    *,
+    shares: float,
+    share_as_of: date,
+    price: float,
+    price_as_of: date,
+    valuation_as_of: date,
+    pending_cancellation_included: float,
+) -> dict[str, object]:
+    """Prior-session close beside a weekend month-end share count.
+
+    A Saturday or Sunday official balance does not require a quote on that
+    calendar day. The previous session's close is recorded, and the product is
+    a labeled self-calculation. It does not prove the share count was unchanged
+    between the close and the next day's balance, and it does not open a
+    current valuation.
+    """
+    gap_days = (share_as_of - price_as_of).days
+    prior_session = price_as_of.weekday() < 5 and share_as_of.weekday() >= 5 and gap_days == 1
+    product = price * shares if shares > 0 and price > 0 and prior_session else None
+    return {
+        "basis": "prior_session_close_times_weekend_month_end_shares",
+        "same_calendar_day": False,
+        "prior_session_weekend_gap": prior_session,
+        "share_count_unchanged_since_close": "not_verified",
+        "independent_market_cap": False,
+        "opens_current_publication_gate": False,
+        "opens_verified_same_day_share_gate": False,
+        "usable_as_current_investment_conclusion": False,
+        "pending_cancellation_deducted": False,
+        "pending_cancellation_included": pending_cancellation_included,
+        "value": product,
+        "currency": "HKD",
+        "shares": shares,
+        "share_as_of": share_as_of.isoformat(),
+        "price": price,
+        "price_as_of": price_as_of.isoformat(),
+        "staleness_calendar_days": {
+            "shares": (valuation_as_of - share_as_of).days,
+            "price": (valuation_as_of - price_as_of).days,
+        },
+        "reason": (
+            "The official close is the prior trading session and the issued-share "
+            "count is the next non-trading day. The count is not proven unchanged "
+            "across that gap, so this is a stale labeled point in time, not a "
+            "verified same-day bridge and not a current valuation."
+        ),
+    }
+
+
 def fiscal_period_end_share_use(
     *,
     shares: float,

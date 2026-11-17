@@ -230,6 +230,7 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
         load_tencent_period_end_shares,
         load_tencent_statutory_capex,
         nvda_official_record,
+        tencent_october_share_record,
         tencent_same_day_share_record,
     )
     from finrobot.runners.official_inputs import OfficialAmount, construct_official_ttm_capex
@@ -237,6 +238,7 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
     official: list[OfficialAmount] = []
     tencent_shares: tuple[float, date] | None = None
     tencent_price_path: Path | None = None
+    tencent_october_path: Path | None = None
     nvda_capex: list[OfficialAmount] = []
     supplements: dict[str, Any] = {}
     for path in evidence:
@@ -251,6 +253,8 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
         elif '"FY2026H1_prior_comparative"' in text:
             nvda_capex = load_nvda_official_capex(path)
             supplements["NVDA"] = nvda_official_record(path)
+        elif '"share_as_of_date": "2026-10-31"' in text:
+            tencent_october_path = path
         elif '"closing_price_supplement_akshare_sina"' in text:
             tencent_price_path = path
         elif '"issuers"' in text:
@@ -315,10 +319,16 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
                 deduped.append(reason)
         supplement = supplements.get(ticker.upper())
         historical_bridge = None
+        october_bridge = None
         if ticker.upper() in {"0700.HK", "TCEHY"} and tencent_price_path is not None:
             historical_bridge = tencent_same_day_share_record(
                 tencent_price_path,
                 valuation_as_of=price_as_of or date.max,
+            )
+        if ticker.upper() in {"0700.HK", "TCEHY"} and tencent_october_path is not None:
+            october_bridge = tencent_october_share_record(
+                tencent_october_path,
+                valuation_as_of=price_as_of or date(2026, 11, 17),
             )
         payload = {
             "ticker": ticker,
@@ -329,6 +339,7 @@ async def _amain(tickers: list[str], out: Path, evidence: list[Path]) -> int:
             "official_note": official_note,
             "line_records": supplement,
             "historical_share_bridge": historical_bridge,
+            "october_share_bridge": october_bridge,
             "reasons": deduped,
         }
         if deduped:
